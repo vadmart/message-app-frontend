@@ -69,14 +69,20 @@ const MessageItem = ({index, messages, item, messageForChangeState}:
         }
     }
 
-    const onRenderLeftActions = (progress, dragX) => {
-        // const trans = dragX.interpolate()
+    const onRenderRightActions = (progress, dragX) => {
         return (
-            <View>
-                <Text>sadas</Text>
+            <View style={{flexDirection: "row", columnGap: 5}}>
+                <DeleteMessageButton onPress={() => {
+                    messages.splice(index, 1);
+                    deleteMessage(item.public_id);
+                    setChats([...chats]);
+                }}/>
+                <ChangeMessageButton onPress={() => {
+                    messageForChangeState.setMessageForChange(item);
+                }}/>
             </View>
-        )
-    }
+            );
+     };
 
     const currentDateTime = new Date(item.created_at);
     const previousDateTime = (index > 0) ? new Date(messages[index - 1].created_at) : new Date(-100);
@@ -99,15 +105,33 @@ const MessageItem = ({index, messages, item, messageForChangeState}:
                         || item.sender.username !== nextSender.username) ?
                         <Avatar user={item.sender}/> : null}
                 </View>
-                <View style={[styles.rightBlock,
-                    (authState.user.public_id == item.sender.public_id && {alignItems: "flex-end"})]}>
-                        <View style={[styles.contentTimeBlock, (item == messageForChangeState.message && {backgroundColor: "#4477FF"})]}>
+                {(authState.user.public_id == item.sender.public_id) ? 
+                <Swipeable renderRightActions={onRenderRightActions} renderLeftActions={() => {return null}}  containerStyle={{flex: 0.85}}>
+                    <View style={[styles.rightBlock, {alignItems: "flex-end"}]}>
+                            <View style={[styles.contentTimeBlock, (item == messageForChangeState.message && {backgroundColor: "#4477FF"})]}>
+                                {(item.file) &&
+                                    <View style={styles.fileBlock}>
+                                        <Pressable style={styles.downloadButton} onPress={() => checkPermission()}>
+                                            <Image source={require("@img/chat-icons/download.png")}
+                                                style={styles.downloadButtonIcon}
+                                                resizeMethod={"resize"}/>
+                                        </Pressable>
+                                        <Text style={styles.fileName}>{getFileName(item.file)}</Text>
+                                    </View>}
+                                {(item.content) && <Text style={styles.content}>{item.content}</Text>}
+                                <Text style={styles.time}>{toReadableTime(currentDateTime)}</Text>
+                            </View>
+                    </View>
+                </Swipeable> 
+                :
+                <View style={[styles.rightBlock]}>
+                        <View style={[styles.contentTimeBlock]}>
                             {(item.file) &&
                                 <View style={styles.fileBlock}>
                                     <Pressable style={styles.downloadButton} onPress={() => checkPermission()}>
                                         <Image source={require("@img/chat-icons/download.png")}
-                                               style={styles.downloadButtonIcon}
-                                               resizeMethod={"resize"}/>
+                                            style={styles.downloadButtonIcon}
+                                            resizeMethod={"resize"}/>
                                     </Pressable>
                                     <Text style={styles.fileName}>{getFileName(item.file)}</Text>
                                 </View>}
@@ -115,17 +139,7 @@ const MessageItem = ({index, messages, item, messageForChangeState}:
                             <Text style={styles.time}>{toReadableTime(currentDateTime)}</Text>
                         </View>
                 </View>
-                {authState.user.public_id == item.sender.public_id &&
-                <View style={{flexDirection: "row", columnGap: 5}}>
-                    <DeleteMessageButton onPress={() => {
-                        messages.splice(index, 1);
-                        deleteMessage(item.public_id);
-                        setChats([...chats]);
-                    }}/>
-                    <ChangeMessageButton onPress={() => {
-                        messageForChangeState.setMessageForChange(item);
-                    }}/>
-                </View>}
+                }
             </View>
         </View>
     )
