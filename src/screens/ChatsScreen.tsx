@@ -14,7 +14,7 @@ type WebSocketResponse = {
     chat: Chat_,
     chat_id?: string,
     message?: Message,
-    action?: "create" | "update" | "delete"
+    action?: "create" | "update" | "destroy"
 }
 
 // @ts-ignore
@@ -57,6 +57,14 @@ const ChatsScreen = memo(({navigation}) => {
                     for (let i = currMessages.length - 1; i >= 0; --i) {
                         if (currMessages[i].public_id == receivedData.message.public_id) {
                             currMessages[i] = receivedData.message;
+                            setChats([...chats]);
+                            return;
+                        }
+                    }
+                case "destroy":
+                    for (let i = currMessages.length - 1; i >= 0; --i) {
+                        if (currMessages[i].public_id == receivedData.message.public_id) {
+                            currMessages.splice(i, 1);
                             setChats([...chats]);
                             return;
                         }

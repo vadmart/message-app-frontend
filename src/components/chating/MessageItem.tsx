@@ -9,6 +9,7 @@ import {useAuth} from "@app/context/AuthContext";
 import {useChat} from "@app/context/ChatContext";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import {ChangeMessageButton, DeleteMessageButton} from "@app/components/chating/Button";
+import { deleteMessage } from "@app/api";
 
 const MessageItem = ({index, messages, item, messageForChangeState}:
                      { index: number,
@@ -117,8 +118,8 @@ const MessageItem = ({index, messages, item, messageForChangeState}:
                 {authState.user.public_id == item.sender.public_id &&
                 <View style={{flexDirection: "row", columnGap: 5}}>
                     <DeleteMessageButton onPress={() => {
-                        console.log(messages[index]);
                         messages.splice(index, 1);
+                        deleteMessage(item.public_id);
                         setChats([...chats]);
                     }}/>
                     <ChangeMessageButton onPress={() => {

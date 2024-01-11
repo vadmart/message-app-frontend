@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState, memo} from "react"
+import React, {useEffect, useRef, useState} from "react"
 import {FlatList, StyleSheet, View} from "react-native";
 import {BaseHTTPURL} from "@app/config";
 import axios from 'axios';
@@ -79,7 +79,7 @@ const MessagesScreen = ({route, navigation}) => {
         setIsRefresh(false);
     }
 
-    const sendMessage = async(method="POST", message: Message) => {
+    const sendData = async (method="POST", message: Message) => {
         const formData = new FormData();
         if (message.public_id) {
             formData.append("public_id", message.public_id);
@@ -110,14 +110,14 @@ const MessagesScreen = ({route, navigation}) => {
         message.content = text;
         message.file = singleFile;
         setChats([...chats]);
-        sendMessage("PUT", message)
+        sendData("PUT", message)
             .then((response) => {
                 message = response.data;
                 setChats([...chats]);
             })
             .catch(() => {message.hasSendingError = true})
     }
-
+    
     const createMessage = (text=null, singleFile=null) => {
         const newMessage = {
             created_at: new Date().toString(),
@@ -131,7 +131,7 @@ const MessagesScreen = ({route, navigation}) => {
             hasSendingError: null
         };
         // changeChatInChats(payload.chatData);
-        sendMessage("POST", {...newMessage, public_id: null})
+        sendData("POST", {...newMessage, public_id: null})
             .catch((e) => {
                 console.warn(e.response.data);
                 newMessage.hasSendingError = true;
@@ -170,7 +170,7 @@ const MessagesScreen = ({route, navigation}) => {
                 for (let i = messages.length - 1; i >= 0; --i) {
                     if (messages[i].hasSendingError == true) {
                         delete messages[i].hasSendingError;
-                        sendMessage("POST", messages[i])
+                        sendData("POST", messages[i])
                             .then((response) => {
                                 Object.keys(messages[i]).forEach(key => {
                                     messages[i][key] = response.data[key];

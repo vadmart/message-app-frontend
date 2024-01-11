@@ -4,7 +4,7 @@ import {useAuth} from "@app/context/AuthContext";
 import React from "react";
 import Avatar from "@app/components/chating/Avatar";
 import {Chat_} from "@app/types/ChatType";
-import {showMessageContent, normalizeMessageText} from "@app/components/helpers/chats";
+import {showMessageContent} from "@app/components/helpers/chats";
 import ScreenNames from "@app/config";
 
 
@@ -24,7 +24,7 @@ const ChatItem = ({item, navigation}: {item: Chat_, navigation: any}) => {
             <View style={styles.senderTextBlock}>
                 <Text
                     style={styles.messageSender}>{companion.username}</Text>
-                <Text style={styles.messageText}>{(item.messages.length > 0) ?
+                <Text style={styles.messageText}>{(item.messages?.length > 0) ?
                     showMessageContent(item.messages[item.messages.length - 1]) : ""}</Text>
             </View>
             {(item.unread_count && item.unread_count != 0) ?
@@ -32,7 +32,7 @@ const ChatItem = ({item, navigation}: {item: Chat_, navigation: any}) => {
                                                     <Text>{(item.unread_count >= 1000) ? "999+" : item.unread_count}</Text>
                                                 </View> : null}
             <View style={styles.dateTimeBlock}>
-                <Text style={styles.messageDateTime}>{(item.messages.length > 0) ?
+                <Text style={styles.messageDateTime}>{(item.messages?.length > 0) ?
                     toReadableDateTime(new Date(item.messages[item.messages.length - 1].created_at)) : ""}</Text>
             </View>
         </Pressable>
