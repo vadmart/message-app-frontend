@@ -106,7 +106,7 @@ const MessagesScreen = ({route, navigation}) => {
             })
     }
 
-    const changeMessage = (message: Message, text=null, singleFile=null) => {
+    const updateMessage = (message: Message, text=null, singleFile=null) => {
         message.content = text;
         message.file = singleFile;
         setChats([...chats]);
@@ -213,7 +213,7 @@ const MessagesScreen = ({route, navigation}) => {
             />
             <View style={styles.footer}>
                 <ChatKeyboard onCreateMessage={createMessage}
-                              onChangeMessage={changeMessage}
+                              onChangeMessage={updateMessage}
                               messageForChangeState={messageForChangeState} />
             </View>
         </View>
