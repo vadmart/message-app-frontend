@@ -117,7 +117,7 @@ const MessagesScreen = ({route, navigation}) => {
             })
             .catch(() => {message.hasSendingError = true})
     }
-    
+
     const createMessage = (text=null, singleFile=null) => {
         const newMessage = {
             created_at: new Date().toString(),
@@ -126,14 +126,14 @@ const MessagesScreen = ({route, navigation}) => {
             is_read: false,
             is_edited: false,
             content: text,
-            public_id: Math.random().toString(),
+            public_id: Math.random().toString(36).slice(2),
             file: singleFile,
             hasSendingError: null
         };
         // changeChatInChats(payload.chatData);
         sendData("POST", {...newMessage, public_id: null})
             .catch((e) => {
-                console.warn(e.response.data);
+                console.warn((e.response) ? e.response.data : e);
                 newMessage.hasSendingError = true;
                 payload.chatData.messages.push(newMessage);
                 setChats([...chats.sort(sortChats)]);

@@ -70,18 +70,18 @@ const MessageItem = ({index, messages, item, messageForChangeState}:
     }
 
     const onRenderRightActions = (progress, dragX) => {
-        return (
-            <View style={{flexDirection: "row", columnGap: 5}}>
-                <DeleteMessageButton onPress={() => {
-                    messages.splice(index, 1);
-                    deleteMessage(item.public_id);
-                    setChats([...chats]);
-                }}/>
-                <ChangeMessageButton onPress={() => {
-                    messageForChangeState.setMessageForChange(item);
-                }}/>
-            </View>
-            );
+            return (
+                <View style={{flexDirection: "row", columnGap: 5}}>
+                    <DeleteMessageButton onPress={() => {
+                        messages.splice(index, 1);
+                        deleteMessage(item.public_id);
+                        setChats([...chats]);
+                    }}/>
+                    <ChangeMessageButton onPress={() => {
+                        messageForChangeState.setMessageForChange(item);
+                    }}/>
+                </View>
+                );
      };
 
     const currentDateTime = new Date(item.created_at);
@@ -106,7 +106,7 @@ const MessageItem = ({index, messages, item, messageForChangeState}:
                         <Avatar user={item.sender}/> : null}
                 </View>
                 {(authState.user.public_id == item.sender.public_id) ? 
-                <Swipeable renderRightActions={onRenderRightActions} renderLeftActions={() => {return null}}  containerStyle={{flex: 0.85}}>
+                <Swipeable renderRightActions={onRenderRightActions} renderLeftActions={() => null}  containerStyle={{flex: 0.85}}>
                     <View style={[styles.rightBlock, {alignItems: "flex-end"}]}>
                             <View style={[styles.contentTimeBlock, (item == messageForChangeState.message && {backgroundColor: "#4477FF"})]}>
                                 {(item.file) &&
