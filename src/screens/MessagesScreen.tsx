@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react"
+import React, {useEffect, useRef, useState, memo} from "react"
 import {FlatList, StyleSheet, View} from "react-native";
 import {BaseHTTPURL} from "@app/config";
 import axios from 'axios';
@@ -12,6 +12,7 @@ import {Chat_} from "@app/types/ChatType";
 import {User} from "@app/types/UserType";
 import NetInfo from "@react-native-community/netinfo";
 import {OneSignal} from "react-native-onesignal";
+import { sendMessage } from "@app/api";
 
 const markMessageAsRead = async (message_id: string) => {
     try {
@@ -24,7 +25,7 @@ const markMessageAsRead = async (message_id: string) => {
 }
 
 // @ts-ignore
-const MessagesScreen = ({route, navigation}) => {
+const MessagesScreen = memo(({route, navigation}) => {
     console.log("Rendering MessagesScreen");
     const messageListRef = useRef(null);
     const {chats, setChats} = useChat();
@@ -33,7 +34,7 @@ const MessagesScreen = ({route, navigation}) => {
                                 userData?: User,
                                 chatIndex?: number}} = route.params;
     const {authState} = useAuth();
-    const [responseMessagesData, setResponseMessagesData] =
+    const [responseMessagesData] =
         useState<{
             count: number,
             next: string,
@@ -79,38 +80,12 @@ const MessagesScreen = ({route, navigation}) => {
         setIsRefresh(false);
     }
 
-    const sendData = async (method="POST", message: Message) => {
-        const formData = new FormData();
-        if (message.public_id) {
-            formData.append("public_id", message.public_id);
-        }
-        if (message.content) {
-            formData.append("content", message.content);
-        }
-        if (message.file) {
-            formData.append("file", message.file);
-        }
-        if (message.chat) {
-            formData.append("chat", message.chat)
-        } else {
-            formData.append("second_user", payload.userData.public_id)
-        }
-        const url = (method == "POST") ? BaseHTTPURL + "message/" : BaseHTTPURL + `message/${message.public_id}/`;
-        return axios(url,
-            {
-                method: method,
-                data: formData,
-                headers: {
-                    "Content-Type": "multipart/form-data"
-                }
-            })
-    }
 
     const updateMessage = (message: Message, text=null, singleFile=null) => {
         message.content = text;
         message.file = singleFile;
         setChats([...chats]);
-        sendData("PUT", message)
+        sendMessage(message, "PUT")
             .then((response) => {
                 message = response.data;
                 setChats([...chats]);
@@ -130,10 +105,8 @@ const MessagesScreen = ({route, navigation}) => {
             file: singleFile,
             hasSendingError: null
         };
-        // changeChatInChats(payload.chatData);
-        sendData("POST", {...newMessage, public_id: null})
+        sendMessage({...newMessage, public_id: null})
             .catch((e) => {
-                console.warn((e.response) ? e.response.data : e);
                 newMessage.hasSendingError = true;
                 payload.chatData.messages.push(newMessage);
                 setChats([...chats.sort(sortChats)]);
@@ -141,64 +114,34 @@ const MessagesScreen = ({route, navigation}) => {
     }
 
     useEffect(() => {
-        console.log("Start useEffect in MessagesScreen");
         navigation.setOptions({title: payload.title});
-
-        // if we have only user data and no chat data, we won't receive messages, because they obviously don't exist
         if (!payload.chatData) return;
         if (!payload.chatData.areMessagesFetched) {
             getResponseMessagesData(BaseHTTPURL + `chat/${payload.chatData.public_id}/message/`)
             .then((results) => {
                 payload.chatData.messages = results.sort(sortMessages);
                 payload.chatData.areMessagesFetched = true;
-                // changeChatInChats(payload.chatData);
                 setChats([...chats.sort(sortChats)]);
             })
             .catch(e => console.log(e));
         }
         messageListRef.current?.scrollToEnd({animating: true});
-        console.log("End useEffect in MessagesScreen");
-    }, [])
-
-    useEffect(() => {
-        const unsubscribe = NetInfo.addEventListener(state => {
-            console.log("InetState:");
-            console.log(state);
-            if (!payload.chatData) return;
-            if (state.isConnected) {
-                const messages = payload.chatData.messages;
-                for (let i = messages.length - 1; i >= 0; --i) {
-                    if (messages[i].hasSendingError == true) {
-                        delete messages[i].hasSendingError;
-                        sendData("POST", messages[i])
-                            .then((response) => {
-                                Object.keys(messages[i]).forEach(key => {
-                                    messages[i][key] = response.data[key];
-                                });
-                                setChats([...chats.sort(sortChats)])
-                            })
-                            .catch((e) => {messages[i].hasSendingError = true});
-                    }
-                }
-            }
-        });
-
         const foregroundNotificationListener = (e) => {
-            if (!("chat_id" in e.notification.additionalData)) {
-                console.log("Notification must include 'chat_id'");
-                return
-            }
-            if (e.notification.additionalData.chat_id == payload.chatData.public_id) {
-                e.preventDefault();
-            }
+        if (!("chat_id" in e.notification.additionalData)) {
+            console.log("Notification must include 'chat_id'");
+            return
+        }
+        if (e.notification.additionalData.chat_id == payload.chatData.public_id) {
+            e.preventDefault();
+        }
         };
         OneSignal.Notifications.addEventListener("foregroundWillDisplay", foregroundNotificationListener);
 
         return () => {
-            unsubscribe();
             OneSignal.Notifications.removeEventListener("foregroundWillDisplay", foregroundNotificationListener);
         }
-    }, []);
+    }, [])
+
 
     return (
         <View style={styles.container}>
@@ -218,7 +161,7 @@ const MessagesScreen = ({route, navigation}) => {
             </View>
         </View>
     )
-}
+})
 
 const styles = StyleSheet.create({
     container: {

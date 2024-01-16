@@ -4,7 +4,8 @@
     "paths": {
       "@app/*": ["src/*"],
       "@img/*": ["assets/*"]
-    }
+    },
+    "target": "ES6"
   },
   "include": ["src", "assets"],
   "extends": "expo/tsconfig.base"
