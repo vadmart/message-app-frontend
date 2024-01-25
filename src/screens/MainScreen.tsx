@@ -34,8 +34,7 @@ const MainScreen = () => {
         
         axios.get(BaseHTTPURL + "chat/")
             .then(response => {
-                console.log(response.data.results);
-                setChats(response.data.results);
+                setChats(response.data);
             })
             .catch((e) => {console.log("Network error!")});
 
@@ -61,7 +60,7 @@ const MainScreen = () => {
 
     useEffect(() => {
         const unsubscribe = NetInfo.addEventListener(state => {
-            console.log("Subscribing");
+            console.log("Adding NetInfo listener");
             if (state.isConnected) {
                 if (waitingForReconnect) {
                     setWaitingForReconnect(false);
@@ -92,7 +91,7 @@ const MainScreen = () => {
                     console.log("OnMessage: Haven't found any suitable chat");
                     return
                 }
-                const currMessages = currChat.messages;
+                const currMessages = currChat.messages.results;
                 switch (receivedData.action) {
                     case "create":
                         console.log("Start handling 'create' action")

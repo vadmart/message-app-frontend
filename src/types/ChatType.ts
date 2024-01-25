@@ -5,7 +5,11 @@ export interface Chat_ {
     created_at: string,
     first_user: User,
     second_user: User,
-    messages: Message[],
+    messages: {
+        results: Message[],
+        next?: string,
+        previous?: string
+    },
     public_id: string,
     unread_count: number,
     areMessagesFetched?: boolean

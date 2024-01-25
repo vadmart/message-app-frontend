@@ -4,8 +4,8 @@ import { Message, isAMessage } from "./types/MessageType";
 import { Chat_ } from "./types/ChatType";
 import { err } from "react-native-svg/lib/typescript/xml";
 
-export const deleteMessage = async (messageId: string) => {
-    return axios.delete(`${BaseHTTPURL}message/${messageId}/`, {
+export const deleteMessage = async (message: Message) => {
+    return axios.delete(`${BaseHTTPURL}chat/${message.chat}/message/${message.public_id}/`, {
         headers: {
             "Content-Type": "multipart/form-data"
         }
@@ -28,7 +28,7 @@ export const sendMessage = async (message: Message, method="POST") => {
     } else {
         formData.append("second_user", message.sender.public_id)
     }
-    const url = (method == "POST") ? BaseHTTPURL + "message/" : BaseHTTPURL + `message/${message.public_id}/`;
+    const url = (method == "POST") ? BaseHTTPURL + `chat/${message.chat}/message/` : BaseHTTPURL + `chat/${message.chat}/message/${message.public_id}/`;
     return axios(url,
         {
             method: method,
@@ -42,7 +42,7 @@ export const sendMessage = async (message: Message, method="POST") => {
 
 export const resendMessagesFromChats = async (chats: Chat_[]) => {
     for (let i = chats.length - 1; i >= 0; --i) {
-        const messages = chats[i].messages;
+        const messages = chats[i].messages.results;
         const errorMessagesIndexes: number[] = [];
         for (let j = messages.length - 1; j >= 0; --j) {
             if (messages[j].hasSendingError) {

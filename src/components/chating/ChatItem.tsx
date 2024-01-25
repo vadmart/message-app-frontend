@@ -24,16 +24,16 @@ const ChatItem = ({item, navigation}: {item: Chat_, navigation: any}) => {
             <View style={styles.senderTextBlock}>
                 <Text
                     style={styles.messageSender}>{companion.username}</Text>
-                <Text style={styles.messageText}>{(item.messages?.length > 0) ?
-                    showMessageContent(item.messages[item.messages.length - 1]) : ""}</Text>
+                <Text style={styles.messageText}>{(item.messages?.results.length > 0) ?
+                    showMessageContent(item.messages.results[item.messages.results.length - 1]) : ""}</Text>
             </View>
             {(item.unread_count && item.unread_count != 0) ?
                                                 <View style={styles.unreadCounter}>
                                                     <Text>{(item.unread_count >= 1000) ? "999+" : item.unread_count}</Text>
                                                 </View> : null}
             <View style={styles.dateTimeBlock}>
-                <Text style={styles.messageDateTime}>{(item.messages?.length > 0) ?
-                    toReadableDateTime(new Date(item.messages[item.messages.length - 1].created_at)) : ""}</Text>
+                <Text style={styles.messageDateTime}>{(item.messages?.results.length > 0) ?
+                    toReadableDateTime(new Date(item.messages.results[item.messages.results.length - 1].created_at)) : ""}</Text>
             </View>
         </Pressable>
     )

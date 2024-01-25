@@ -10,7 +10,6 @@ import {useChat} from "@app/context/ChatContext";
 import {sortChats, sortMessages} from "@app/components/helpers/sort";
 import {Chat_} from "@app/types/ChatType";
 import {User} from "@app/types/UserType";
-import NetInfo from "@react-native-community/netinfo";
 import {OneSignal} from "react-native-onesignal";
 import { sendMessage } from "@app/api";
 
@@ -50,7 +49,7 @@ const MessagesScreen = memo(({route, navigation}) => {
         // console.log(props);
         if (!payload.chatData.messages) return;
         return <MessageItem index={props.index}
-                            messages={payload.chatData.messages}
+                            messages={payload.chatData.messages.results}
                             item={props.item}
                             messageForChangeState={messageForChangeState}
                             />
@@ -73,13 +72,12 @@ const MessagesScreen = memo(({route, navigation}) => {
         if (!responseMessagesData.next) return;
         setIsRefresh(true);
         getResponseMessagesData(responseMessagesData.next).then((results) => {
-                payload.chatData.messages.unshift(...results.sort(sortMessages));
+                payload.chatData.messages.results.unshift(...results.sort(sortMessages));
                 setChats([...chats].sort(sortChats));
             }
         ).catch(e => console.log(e))
         setIsRefresh(false);
     }
-
 
     const updateMessage = (message: Message, text=null, singleFile=null) => {
         message.content = text;
@@ -108,7 +106,7 @@ const MessagesScreen = memo(({route, navigation}) => {
         sendMessage({...newMessage, public_id: null})
             .catch((e) => {
                 newMessage.hasSendingError = true;
-                payload.chatData.messages.push(newMessage);
+                payload.chatData.messages.results.push(newMessage);
                 setChats([...chats.sort(sortChats)]);
             });
     }
@@ -119,7 +117,7 @@ const MessagesScreen = memo(({route, navigation}) => {
         if (!payload.chatData.areMessagesFetched) {
             getResponseMessagesData(BaseHTTPURL + `chat/${payload.chatData.public_id}/message/`)
             .then((results) => {
-                payload.chatData.messages = results.sort(sortMessages);
+                payload.chatData.messages.results = results.sort(sortMessages);
                 payload.chatData.areMessagesFetched = true;
                 setChats([...chats.sort(sortChats)]);
             })
@@ -127,13 +125,13 @@ const MessagesScreen = memo(({route, navigation}) => {
         }
         messageListRef.current?.scrollToEnd({animating: true});
         const foregroundNotificationListener = (e) => {
-        if (!("chat_id" in e.notification.additionalData)) {
-            console.log("Notification must include 'chat_id'");
-            return
-        }
-        if (e.notification.additionalData.chat_id == payload.chatData.public_id) {
-            e.preventDefault();
-        }
+            if (!("chat_id" in e.notification.additionalData)) {
+                console.log("Notification must include 'chat_id'");
+                return
+            }
+            if (e.notification.additionalData.chat_id == payload.chatData.public_id) {
+                e.preventDefault();
+            }
         };
         OneSignal.Notifications.addEventListener("foregroundWillDisplay", foregroundNotificationListener);
 
@@ -147,7 +145,7 @@ const MessagesScreen = memo(({route, navigation}) => {
         <View style={styles.container}>
             <FlatList
                 style={styles.messageList}
-                data={payload.chatData?.messages}
+                data={payload.chatData?.messages?.results}
                 ref={messageListRef}
                 renderItem={renderMessage}
                 keyExtractor={item => item.public_id}

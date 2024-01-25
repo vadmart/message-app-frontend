@@ -24,7 +24,7 @@ const MessageItem = ({index, messages, item, messageForChangeState}:
         const {config, fs} = ReactNativeBlobUtil;
         const RootDir = fs.dirs.SDCardDir;
         const path =
-            RootDir + `file_${Math.floor(date.getTime() + date.getSeconds() / 2)}.${getFileExtension(item.file)}`;
+            RootDir + `/file_${Math.floor(date.getTime() + date.getSeconds() / 2)}.${getFileExtension(item.file)}`;
         console.log(path);
         let options: ReactNativeBlobUtilConfig = {
             fileCache: true,
@@ -44,7 +44,7 @@ const MessageItem = ({index, messages, item, messageForChangeState}:
     }
 
     const checkPermission = async function () {
-        if (Platform.OS === 'ios') {
+        if (Platform.OS === 'ios' || Number(Platform.Version) >= 33) {
             downloadFile();
         } else {
             try {
@@ -62,7 +62,6 @@ const MessageItem = ({index, messages, item, messageForChangeState}:
                     console.log(typeof granted);
                     Alert.alert('Error', 'Storage Permission Not Granted')
                 }
-
             } catch (e) {
                 console.log("++++" + e);
             }
@@ -74,7 +73,7 @@ const MessageItem = ({index, messages, item, messageForChangeState}:
                 <View style={{flexDirection: "row", columnGap: 5}}>
                     <DeleteMessageButton onPress={() => {
                         messages.splice(index, 1);
-                        deleteMessage(item.public_id);
+                        deleteMessage(item);
                         setChats([...chats]);
                     }}/>
                     <ChangeMessageButton onPress={() => {
