@@ -79,18 +79,6 @@ const MessagesScreen = memo(({route, navigation}) => {
         setIsRefresh(false);
     }
 
-    const updateMessage = (message: Message, text=null, singleFile=null) => {
-        message.content = text;
-        message.file = singleFile;
-        setChats([...chats]);
-        sendMessage(message, "PUT")
-            .then((response) => {
-                message = response.data;
-                setChats([...chats]);
-            })
-            .catch(() => {message.hasSendingError = true})
-    }
-
     const createMessage = (text=null, singleFile=null) => {
         const newMessage = {
             created_at: new Date().toString(),
@@ -109,6 +97,18 @@ const MessagesScreen = memo(({route, navigation}) => {
                 payload.chatData.messages.results.push(newMessage);
                 setChats([...chats.sort(sortChats)]);
             });
+    }
+
+    const updateMessage = (message: Message, text=null, singleFile=null) => {
+        message.content = text;
+        message.file = singleFile;
+        setChats([...chats]);
+        sendMessage(message, "PUT")
+            .then((response) => {
+            //     message = response.data;
+            //     setChats([...chats]);
+            })
+            .catch(() => {message.hasSendingError = true})
     }
 
     useEffect(() => {

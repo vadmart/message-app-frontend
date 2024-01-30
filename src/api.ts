@@ -34,7 +34,7 @@ export const sendMessage = async (message: Message, method="POST") => {
             method: method,
             data: formData,
             headers: {
-                "Content-Type": "multipart/form-data"
+                "Content-Type": "multipart/form-data",
             }
         })
 }

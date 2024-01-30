@@ -1,6 +1,7 @@
- export const getFileName = (path: string): string => {
+ export const getFileName = (path: string | object): string => {
+   if (typeof path === "object") return path.name;
     const pathArr = path.split("/");
-    return pathArr[pathArr.length - 1]
+    return decodeURIComponent(pathArr[pathArr.length - 1])
  }
 
  export const getFileExtension = (path: string): RegExpExecArray => {

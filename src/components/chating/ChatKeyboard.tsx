@@ -1,11 +1,7 @@
 import React, {useRef, useState} from "react"
-import axios from "axios";
-import { BaseHTTPURL } from "@app/config";
 import {StyleSheet, TextInput, View, Pressable, Image, Text} from "react-native"
 import DocumentPicker, {DocumentPickerResponse} from "react-native-document-picker"
-import {useChat} from "@app/context/ChatContext";
 import {Message} from "@app/types/MessageType";
-import * as fs from "fs";
 
 const ChatKeyboard = ({onCreateMessage, onChangeMessage, messageForChangeState}:
                           {onCreateMessage: Function,

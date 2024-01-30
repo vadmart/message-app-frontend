@@ -25,12 +25,11 @@ const MessageItem = ({index, messages, item, messageForChangeState}:
         const RootDir = fs.dirs.SDCardDir;
         const path =
             RootDir + `/file_${Math.floor(date.getTime() + date.getSeconds() / 2)}.${getFileExtension(item.file)}`;
-        console.log(path);
+        console.log(ReactNativeBlobUtil.wrap(path));
         let options: ReactNativeBlobUtilConfig = {
-            fileCache: true,
             addAndroidDownloads: {
-                path: path,
                 description: "Downloading a file...",
+                path: path,
                 notification: true,
                 useDownloadManager: true
             }
@@ -38,7 +37,7 @@ const MessageItem = ({index, messages, item, messageForChangeState}:
         config(options)
             .fetch("GET", item.file)
             .then(res => {
-                console.log(res);
+                // console.log(res);
                 alert('File Downloaded Successfully.');
             })
     }
