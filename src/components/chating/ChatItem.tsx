@@ -4,13 +4,27 @@ import {useAuth} from "@app/context/AuthContext";
 import React from "react";
 import Avatar from "@app/components/chating/Avatar";
 import {Chat_} from "@app/types/ChatType";
+import { Message } from "@app/types/MessageType";
 import {showMessageContent} from "@app/components/helpers/chats";
 import ScreenNames from "@app/config";
+import { User } from "@app/types/UserType";
+
+
+const countUnreadMessages = (currUser: User, messages: Message[]): number => {
+    let count = 0;
+    for (let message of messages) {
+        if (currUser.username !== message.sender.username && !message.is_read) {
+            count += 1;
+        }
+    }
+    return count;
+}
 
 
 const ChatItem = ({item, navigation}: {item: Chat_, navigation: any}) => {
     const user = useAuth().authState.user;
     const companion = (item.first_user.username == user.username) ? item.second_user : item.first_user;
+    
 
     return (
         <Pressable style={styles.message} onPress={(e) => {
@@ -27,9 +41,9 @@ const ChatItem = ({item, navigation}: {item: Chat_, navigation: any}) => {
                 <Text style={styles.messageText}>{(item.messages?.results.length > 0) ?
                     showMessageContent(item.messages.results[item.messages.results.length - 1]) : ""}</Text>
             </View>
-            {(item.unread_count && item.unread_count != 0) ?
+            {(item.messages.unread_messages_count && item.messages.unread_messages_count > 0) ?
                                                 <View style={styles.unreadCounter}>
-                                                    <Text>{(item.unread_count >= 1000) ? "999+" : item.unread_count}</Text>
+                                                    <Text>{(item.messages.unread_messages_count >= 1000) ? "999+" : item.messages.unread_messages_count}</Text>
                                                 </View> : null}
             <View style={styles.dateTimeBlock}>
                 <Text style={styles.messageDateTime}>{(item.messages?.results.length > 0) ?

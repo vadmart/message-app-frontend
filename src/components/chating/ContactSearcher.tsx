@@ -49,7 +49,7 @@ const ContactSearcher = ({navigation}) => {
 const styles = StyleSheet.create({
     phoneNumberBlock: {
         alignSelf: "center",
-        width: "70%"
+        width: "80%"
     },
     phoneNumberInputBlock: {
         backgroundColor: "white",

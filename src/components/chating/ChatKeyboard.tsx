@@ -17,6 +17,7 @@ const ChatKeyboard = ({onCreateMessage, onChangeMessage, messageForChangeState}:
             const res = await DocumentPicker.pickSingle({
                 type: [DocumentPicker.types.allFiles]
             });
+            res.uri = decodeURIComponent(res.uri);
             console.log(`res -> ${JSON.stringify(res)}`);
             setSingleFile(res);
         } catch (e) {

@@ -8,10 +8,11 @@ export interface Chat_ {
     messages: {
         results: Message[],
         next?: string,
-        previous?: string
+        previous?: string,
+        unread_messages_count?: number
     },
     public_id: string,
-    unread_count: number,
+    unread_messages_count: number,
     areMessagesFetched?: boolean
 }
 
@@ -21,7 +22,7 @@ export const isAChat = (obj: any): obj is Chat_ => {
            "second_user" in  obj &&
            "messages" in obj &&
            "public_id" in obj &&
-           "unread_count" in obj
+           "unread_messages_count" in obj
 }
 
 export const isAChatArray = (obj: any): obj is Chat_[] => {

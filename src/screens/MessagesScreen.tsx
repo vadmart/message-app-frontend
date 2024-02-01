@@ -93,6 +93,7 @@ const MessagesScreen = memo(({route, navigation}) => {
         };
         sendMessage({...newMessage, public_id: null})
             .catch((e) => {
+                console.log(e);
                 newMessage.hasSendingError = true;
                 payload.chatData.messages.results.push(newMessage);
                 setChats([...chats.sort(sortChats)]);
