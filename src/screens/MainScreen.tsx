@@ -10,7 +10,7 @@ import ScreenNames, {BaseWebsocketURL, BaseHTTPURL} from "@app/config";
 import NetInfo from "@react-native-community/netinfo";
 import axios from "axios";
 import { Message } from "@app/types/MessageType";
-import { sendMessage, resendMessagesFromChats } from "@app/api";
+import { sendMessage, resendMessagesFromChats } from "@app/api/endpoints/message";
 
 const Stack = createNativeStackNavigator();
 
@@ -96,6 +96,10 @@ const MainScreen = () => {
                     case "create":
                         console.log("Start handling 'create' action")
                         currMessages.push(receivedData.message);
+                        if (authState.user.public_id != receivedData.message.sender.public_id) {
+                            currChat.messages.unread_messages_count += 1;
+                            currChat.messages.has_unread_messages = true;
+                        }
                         setChats([...chats.sort(sortChats)]);
                         break;
                     case "update":
@@ -110,6 +114,7 @@ const MainScreen = () => {
                         for (let i = currMessages.length - 1; i >= 0; --i) {
                             if (currMessages[i].public_id == receivedData.message.public_id) {
                                 currMessages.splice(i, 1);
+                                currChat.messages.unread_messages_count -= 1;
                                 setChats([...chats]);
                                 return;
                             }

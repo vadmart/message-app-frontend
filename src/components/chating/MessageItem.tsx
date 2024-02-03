@@ -9,7 +9,7 @@ import {useAuth} from "@app/context/AuthContext";
 import {useChat} from "@app/context/ChatContext";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import {ChangeMessageButton, DeleteMessageButton} from "@app/components/chating/Button";
-import { deleteMessage } from "@app/api";
+import { deleteMessage } from "@app/api/endpoints/message";
 
 const MessageItem = ({index, messages, item, messageForChangeState}:
                      { index: number,

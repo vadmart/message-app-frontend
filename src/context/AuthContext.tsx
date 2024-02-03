@@ -1,5 +1,5 @@
 import React, {createContext, useContext, useEffect, useState} from "react"
-import {storage} from "@app/components/Storage"
+import {storage} from "@app/Storage"
 import {BaseHTTPURL} from "@app/config";
 import axios from "axios";
 import {BaseURL} from "@app/components/AccountForm/Login/BaseURL";
@@ -90,8 +90,7 @@ export const AuthProvider = ({children}) => {
     }
 
     const authValue = {
-        onRegister: async () => {
-        },
+        onRegister: async () => {},
         onLogin: login,
         onVerify: verify,
         authState

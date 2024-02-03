@@ -9,10 +9,9 @@ export interface MessageInfo {
     is_edited: boolean,
     hasSendingError?: boolean
 }
-export interface Message extends MessageInfo {
-    content: string
-    file?: string,
-}
+export type Message = MessageInfo & (
+    {content: string, file: null} | {file: string, content: null}
+)
 
 export const isAMessage = (obj: any): obj is Message => {
     return "public_id" in obj &&
@@ -21,7 +20,7 @@ export const isAMessage = (obj: any): obj is Message => {
            "created_at" in obj &&
            "is_edited" in obj &&
            "is_read" in obj &&
-           "content" in obj
+           ("content" in obj || "file" in obj)
 }
 
 export const isAMessageArray = (obj: any): obj is Message[] => {

@@ -11,22 +11,14 @@ import {sortChats, sortMessages} from "@app/components/helpers/sort";
 import {Chat_} from "@app/types/ChatType";
 import {User} from "@app/types/UserType";
 import {OneSignal} from "react-native-onesignal";
-import { sendMessage } from "@app/api";
+import { sendMessage, markMessageAsRead, markAllChatMessagesAsRead } from "@app/api/endpoints/message";
 
-const markMessageAsRead = async (message_id: string) => {
-    try {
-        const response = await axios.post(BaseHTTPURL + `message/${message_id}/read/`);
-        console.log(`Message ${message_id} was marked as read`);
-        return response
-    } catch (e) {
-        console.error(`Message was not marked as read due to error: ${e}`);
-    }
-}
 
 // @ts-ignore
 const MessagesScreen = memo(({route, navigation}) => {
     console.log("Rendering MessagesScreen");
     const messageListRef = useRef(null);
+    const footerRef = useRef(null);
     const {chats, setChats} = useChat();
     const {payload}: {payload: {title: string,
                                 chatData?: Chat_,
@@ -45,14 +37,28 @@ const MessagesScreen = memo(({route, navigation}) => {
                                                                                              setMessageForChange: null};
     [messageForChangeState.message, messageForChangeState.setMessageForChange] = useState(null);
 
-    const renderMessage = (props) => {
+    const handleLayout = (event, item) => {
+        const {y} = event.nativeEvent.layout;
+        const footerY = footerRef.current.measureInWindow((x, y) => y);
+        if (y > footerY) {
+            console.log(`Message ${item.pubic_id} is higher than a footer`);
+        }
+    }
+
+    const renderMessage = ({index, item}) => {
         // console.log(props);
         if (!payload.chatData.messages) return;
-        return <MessageItem index={props.index}
-                            messages={payload.chatData.messages.results}
-                            item={props.item}
-                            messageForChangeState={messageForChangeState}
-                            />
+        return (
+                <View onLayout={e => handleLayout(e, item)}
+                        onResponderMove={e => e.nativeEvent.locationY}
+                >
+                    <MessageItem index={index}
+                        messages={payload.chatData.messages.results}
+                        item={item}
+                        messageForChangeState={messageForChangeState}
+                    />
+                </View>
+                )
     }
 
     const getResponseMessagesData = async (url: string) => {
@@ -112,18 +118,31 @@ const MessagesScreen = memo(({route, navigation}) => {
             .catch(() => {message.hasSendingError = true})
     }
 
+    const readAllMessages = (chat_id: string): void => {
+        markAllChatMessagesAsRead(chat_id);
+        const messages = payload.chatData.messages.results;
+        let hasAnyUnread = false
+        for (let message of messages) {
+            message.is_read = true;
+            hasAnyUnread = true;
+        }
+        if (hasAnyUnread) {
+            payload.chatData.messages.unread_messages_count = 0;
+            payload.chatData.messages.has_unread_messages = false;
+            setChats([...chats])
+        }
+    }
+
     useEffect(() => {
         navigation.setOptions({title: payload.title});
-        if (!payload.chatData) return;
-        if (!payload.chatData.areMessagesFetched) {
-            getResponseMessagesData(BaseHTTPURL + `chat/${payload.chatData.public_id}/message/`)
-            .then((results) => {
-                payload.chatData.messages.results = results.sort(sortMessages);
-                payload.chatData.areMessagesFetched = true;
-                setChats([...chats.sort(sortChats)]);
-            })
-            .catch(e => console.log(e));
-        }
+        if (!payload.chatData || payload.chatData.areMessagesFetched) return;
+        getResponseMessagesData(BaseHTTPURL + `chat/${payload.chatData.public_id}/message/`)
+        .then((results) => {
+            payload.chatData.messages.results = results.sort(sortMessages);
+            payload.chatData.areMessagesFetched = true;
+            setChats([...chats.sort(sortChats)]);
+        })
+        .catch(e => console.log(e));
         messageListRef.current?.scrollToEnd({animating: true});
         const foregroundNotificationListener = (e) => {
             if (!("chat_id" in e.notification.additionalData)) {
@@ -141,7 +160,6 @@ const MessagesScreen = memo(({route, navigation}) => {
         }
     }, [])
 
-
     return (
         <View style={styles.container}>
             <FlatList
@@ -152,8 +170,12 @@ const MessagesScreen = memo(({route, navigation}) => {
                 keyExtractor={item => item.public_id}
                 onRefresh={onFlatListRefresh}
                 refreshing={isRefresh}
+                onEndReached={() => {
+                    if (!payload.chatData.messages.has_unread_messages) return
+                    readAllMessages(payload.chatData.public_id);
+                }}
             />
-            <View style={styles.footer}>
+            <View style={styles.footer} ref={footerRef}>
                 <ChatKeyboard onCreateMessage={createMessage}
                               onChangeMessage={updateMessage}
                               messageForChangeState={messageForChangeState} />

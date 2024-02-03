@@ -1,8 +1,6 @@
-import { OneSignal, LogLevel } from "react-native-onesignal";
+export const BaseHTTPURL = "https://9507-178-150-167-216.ngrok-free.app/api/v1/";
 
-export const BaseHTTPURL = "https://7737-178-150-167-216.ngrok-free.app/api/v1/";
-
-export const BaseWebsocketURL = "wss://7737-178-150-167-216.ngrok-free.app/ws/chat/";
+export const BaseWebsocketURL = "wss://9507-178-150-167-216.ngrok-free.app/ws/chat/";
 
 const ScreenNames = {
     REGISTRATION: "Registration",
@@ -12,6 +10,3 @@ const ScreenNames = {
     MESSAGES_SCREEN: "MessagesScreen"
 };
 export default ScreenNames;
-
-OneSignal.Debug.setLogLevel(LogLevel.Verbose); // for OneSignal Debugging
-OneSignal.initialize("ONESIGNAL_APP_ID");

@@ -9,10 +9,10 @@ export interface Chat_ {
         results: Message[],
         next?: string,
         previous?: string,
-        unread_messages_count?: number
+        unread_messages_count?: number,
+        has_unread_messages?: boolean;
     },
     public_id: string,
-    unread_messages_count: number,
     areMessagesFetched?: boolean
 }
 

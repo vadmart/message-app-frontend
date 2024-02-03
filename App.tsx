@@ -19,9 +19,12 @@ import ScreenNames from '@app/config';
 import {AuthProvider, useAuth} from "@app/context/AuthContext";
 // # TODO: fix ts-ignore
 import {GestureHandlerRootView} from "react-native-gesture-handler";
+import {OneSignal, LogLevel} from "react-native-onesignal";
 
 
 const Stack = createNativeStackNavigator();
+OneSignal.Debug.setLogLevel(LogLevel.Verbose); // for OneSignal Debugging
+OneSignal.initialize("ONESIGNAL_APP_ID");
 
 function App() {
     return (
