@@ -25,13 +25,6 @@ const MessagesScreen = memo(({route, navigation}) => {
                                 userData?: User,
                                 chatIndex?: number}} = route.params;
     const {authState} = useAuth();
-    const [responseMessagesData] =
-        useState<{
-            count: number,
-            next: string,
-            previous: string,
-            results: Message[]
-        }>({count: null, next: null, previous: null, results: null});
     const messageForChangeState: {message: Message,
                                   setMessageForChange: React.Dispatch<React.SetStateAction<Message>>} = {message: null,
                                                                                              setMessageForChange: null};
@@ -46,7 +39,6 @@ const MessagesScreen = memo(({route, navigation}) => {
     }
 
     const renderMessage = ({index, item}) => {
-        // console.log(props);
         if (!payload.chatData.messages) return;
         return (
                 <View onLayout={e => handleLayout(e, item)}
@@ -61,25 +53,20 @@ const MessagesScreen = memo(({route, navigation}) => {
                 )
     }
 
-    const getResponseMessagesData = async (url: string) => {
-        const response = await axios.get(url);
-        ({
-            results: responseMessagesData.results,
-            previous: responseMessagesData.previous,
-            next: responseMessagesData.next,
-            count: responseMessagesData.count
-        } = response.data);
-        return responseMessagesData.results
-    }
 
     const [isRefresh, setIsRefresh] = useState(false);
     const onFlatListRefresh = () => {
-        // console.log(responseMessagesData.next);
-        if (!responseMessagesData.next) return;
+        if (!payload.chatData.messages.next) return;
         setIsRefresh(true);
-        getResponseMessagesData(responseMessagesData.next).then((results) => {
-                payload.chatData.messages.results.unshift(...results.sort(sortMessages));
-                setChats([...chats].sort(sortChats));
+        axios.get(payload.chatData.messages.next).then((response) => {
+            Object.keys(response.data).forEach((key) => {
+                if (key === "results") {
+                    payload.chatData.messages.results.unshift(...response.data.results);
+                } else {
+                    payload.chatData.messages[key] = response.data[key];
+                }
+            })    
+            setChats([...chats].sort(sortChats));
             }
         ).catch(e => console.log(e))
         setIsRefresh(false);
@@ -129,17 +116,19 @@ const MessagesScreen = memo(({route, navigation}) => {
         if (hasAnyUnread) {
             payload.chatData.messages.unread_messages_count = 0;
             payload.chatData.messages.has_unread_messages = false;
-            setChats([...chats])
+            setChats([...chats]);
         }
     }
 
     useEffect(() => {
         navigation.setOptions({title: payload.title});
         if (!payload.chatData || payload.chatData.areMessagesFetched) return;
-        getResponseMessagesData(BaseHTTPURL + `chat/${payload.chatData.public_id}/message/`)
+        axios.get(BaseHTTPURL + `chat/${payload.chatData.public_id}/message/`)
         .then((results) => {
-            payload.chatData.messages.results = results.sort(sortMessages);
-            payload.chatData.areMessagesFetched = true;
+            Object.keys(results.data).forEach((key) => {
+                payload.chatData.messages[key] = results.data[key];
+            })
+            console.log(payload.chatData.messages.next);
             setChats([...chats.sort(sortChats)]);
         })
         .catch(e => console.log(e));
