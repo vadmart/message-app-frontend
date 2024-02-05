@@ -113,6 +113,12 @@ const MainScreen = () => {
                     case "destroy":
                         for (let i = currMessages.length - 1; i >= 0; --i) {
                             if (currMessages[i].public_id == receivedData.message.public_id) {
+                                if (authState.user.public_id != receivedData.message.sender.public_id && currMessages[i].is_read === false) {
+                                    currChat.messages.unread_messages_count -= 1;
+                                    if (currChat.messages.unread_messages_count == 0) {
+                                        currChat.messages.has_unread_messages = false;
+                                    }
+                                }
                                 currMessages.splice(i, 1);
                                 currChat.messages.unread_messages_count -= 1;
                                 setChats([...chats]);
