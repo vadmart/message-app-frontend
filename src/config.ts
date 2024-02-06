@@ -1,6 +1,6 @@
-export const BaseHTTPURL = "https://4636-178-150-167-216.ngrok-free.app/api/v1/";
+export const BaseHTTPURL = "https://2cac-178-150-167-216.ngrok-free.app/api/v1/";
 
-export const BaseWebsocketURL = "wss://4636-178-150-167-216.ngrok-free.app/ws/chat/";
+export const BaseWebsocketURL = "wss://2cac-178-150-167-216.ngrok-free.app/ws/chat/";
 
 const ScreenNames = {
     REGISTRATION: "Registration",

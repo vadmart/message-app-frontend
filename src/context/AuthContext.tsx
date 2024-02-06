@@ -44,8 +44,10 @@ export const AuthProvider = ({children}) => {
             const authDataString = storage.getString("auth");
             console.log(authDataString);
             // TODO: change storing token-user data in MMKV
-            if (authDataString) {
-                const authData = JSON.parse(authDataString);
+            if (!authDataString) return
+            const authData = JSON.parse(authDataString);
+            try {
+                await tokenVerify(authData.access);
                 axios.defaults.headers.common['Authorization'] = `Bearer ${authData.access}`;
                 setAuthState({
                     access: authData.access,
@@ -53,6 +55,12 @@ export const AuthProvider = ({children}) => {
                     user: authData.user,
                     authenticated: true
                 });
+            }
+            catch {
+                setAuthState({
+                    ...authState,
+                    authenticated: false
+                })
             }
         }
         loadAuthData();
@@ -87,6 +95,13 @@ export const AuthProvider = ({children}) => {
         } catch (e) {
             return {error: true, msg: (e as any).response.data}
         }
+    }
+
+    const tokenVerify = async (accessToken: string) => {
+        return await axios.post(BaseHTTPURL + "auth/token/verify/", 
+        {
+            token: accessToken
+        })
     }
 
     const authValue = {
