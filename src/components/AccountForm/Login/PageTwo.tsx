@@ -1,12 +1,8 @@
-import React, { useState, useContext } from "react";
-import { StyleSheet, View, Image, Text, TextInput } from "react-native";
-import axios from "axios";
-import { storage } from "../../../Storage";
+import React, { useState } from "react";
+import { StyleSheet, View, Text, TextInput } from "react-native";
 import { errInputStyle, errLabelStyle } from "../../helpers/errorStyle";
-import { BaseURL } from "./BaseURL";
 import FormButton from "../FormButton";
 import FormContainer from "../FormContainer";
-import { OneSignal } from "react-native-onesignal";
 import {useAuth} from "@app/context/AuthContext";
 
 
@@ -55,10 +51,10 @@ const PageTwo = ({ route, navigation }) => {
     return (
     <FormContainer>
         <View style={styles.topBlock}>
-            <Text style={styles.formTitle}>Login</Text>
+            <Text style={styles.formTitle}>Вхід</Text>
         </View>
         <View style={styles.mainBlock}>
-            <Text style={styles.labelText}>Enter your verification code:</Text>
+            <Text style={styles.labelText}>Введіть код верифікації:</Text>
             <View style={styles.inputContainer}>
             {/* TODO: create a component from text cells */}
                 <View style={styles.inputBlock}>
@@ -141,7 +137,7 @@ const PageTwo = ({ route, navigation }) => {
                 <Text style={[errLabelStyle, {fontSize: 13}]}>{labelText}</Text>
             </View>
             <View style={styles.buttonBlock}>
-                <FormButton text={"Return"} onPress={() => {
+                <FormButton text={"Повернутися"} onPress={() => {
                         navigation.goBack();
                     }} 
                 />

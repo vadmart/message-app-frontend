@@ -26,6 +26,7 @@ const Stack = createNativeStackNavigator();
 OneSignal.Debug.setLogLevel(LogLevel.Verbose); // for OneSignal Debugging
 OneSignal.initialize("ONESIGNAL_APP_ID");
 
+
 function App() {
     return (
             <AuthProvider>

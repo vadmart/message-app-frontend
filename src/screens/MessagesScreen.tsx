@@ -9,7 +9,6 @@ import {useAuth} from "@app/context/AuthContext";
 import {useChat} from "@app/context/ChatContext";
 import {sortChats, sortMessages} from "@app/components/helpers/sort";
 import {Chat_} from "@app/types/ChatType";
-import {User} from "@app/types/UserType";
 import {OneSignal} from "react-native-onesignal";
 import { sendMessage, markMessageAsRead, markAllChatMessagesAsRead } from "@app/api/endpoints/message";
 
@@ -22,7 +21,6 @@ const MessagesScreen = memo(({route, navigation}) => {
     const {chats, setChats} = useChat();
     const {payload}: {payload: {title: string,
                                 chatData?: Chat_,
-                                userData?: User,
                                 chatIndex?: number}} = route.params;
     const {authState} = useAuth();
     const messageForChangeState: {message: Message,

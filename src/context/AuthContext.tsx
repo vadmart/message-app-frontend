@@ -2,7 +2,6 @@ import React, {createContext, useContext, useEffect, useState} from "react"
 import {storage} from "@app/Storage"
 import {BaseHTTPURL} from "@app/config";
 import axios from "axios";
-import {BaseURL} from "@app/components/AccountForm/Login/BaseURL";
 import {OneSignal} from "react-native-onesignal";
 import {User} from "@app/types/UserType"
 
@@ -47,6 +46,7 @@ export const AuthProvider = ({children}) => {
             if (!authDataString) return
             const authData = JSON.parse(authDataString);
             try {
+                console.log(authData.access);
                 await tokenVerify(authData.access);
                 axios.defaults.headers.common['Authorization'] = `Bearer ${authData.access}`;
                 setAuthState({
@@ -77,10 +77,11 @@ export const AuthProvider = ({children}) => {
 
     const verify = async (username: string, phoneNumber: string, otpCode: string) => {
         try {
-            const response = await axios.post(BaseURL + "verify/", {
+            console.log(username, phoneNumber, otpCode);
+            const response = await axios.post(BaseHTTPURL + "auth/verify/", {
                 username,
                 phone_number: phoneNumber,
-                otp_code: otpCode
+                otp: otpCode
             });
             setAuthState({
                 access: response.data.access,

@@ -4,6 +4,7 @@ import axios from "axios";
 import {BaseHTTPURL} from "@app/config";
 import {User} from "@app/types/UserType";
 import ScreenNames from "@app/config";
+import {v4 as uuidv4} from "uuid";
 
 const ContactSearcher = ({navigation}) => {
     const [phoneNumber, setPhoneNumber] = useState("");

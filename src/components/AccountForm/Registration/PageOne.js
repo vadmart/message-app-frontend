@@ -3,7 +3,7 @@ import { StyleSheet, View, Image, TextInput, Pressable, Text } from "react-nativ
 import axios from "axios";
 import { errInputStyle } from "../../helpers/errorStyle";
 import { BaseURL } from "./BaseURL";
-import FormLinkButton from "../FormLinkButton";
+import FormLinkButton from "../FormNavigationButton";
 import FormButton from "../FormButton";
 import capitalize from "../../../utils/capitalize";
 

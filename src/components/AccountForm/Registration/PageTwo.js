@@ -13,7 +13,7 @@ import {
 import axios from "axios";
 import { BaseURL } from "./BaseURL";
 import { errInputStyle } from "../../helpers/errorStyle";
-import FormLinkButton from "../FormLinkButton";
+import FormLinkButton from "../FormNavigationButton";
 import FormButton from "../FormButton";
 
 

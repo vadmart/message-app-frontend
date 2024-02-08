@@ -3,7 +3,7 @@ import { StyleSheet, View, Image, TextInput, Pressable, Text  } from "react-nati
 import { errInputStyle, errLabelStyle } from "../../helpers/errorStyle";
 import { useAuth } from "@app/context/AuthContext"
 import FormButton from "@app/components/AccountForm/FormButton"
-import FormLinkButton from "@app/components/AccountForm/FormLinkButton";
+import FormNavigationButton from "@app/components/AccountForm/FormNavigationButton";
 import FormContainer from "@app/components/AccountForm/FormContainer";
 
 
@@ -32,7 +32,7 @@ const LoginPageOne = ({ navigation }) => {
         }
         const response = await onLogin(username, phoneNumber);
         if (!response.error) {
-            navigation.navigate("LoginPageTwo", {username, phoneNumber})
+            navigation.navigate("LoginPageTwo", {username, phoneNumber: "+380" + phoneNumber})
             return response
         }
         if (response.msg.username) {
@@ -47,11 +47,11 @@ const LoginPageOne = ({ navigation }) => {
     return (
         <FormContainer>
             <View style={styles.topBlock}>
-                <Text style={styles.formTitle}>Login</Text>
+                <Text style={styles.formTitle}>Вхід</Text>
             </View>
             <View style={styles.mainBlock}>
                 <View style={styles.loginBlock}>
-                    <FormLinkButton text={"Registration"} onSubmit={() => navigation.navigate("Registration", {screen: "RegPageOne"})} />
+                    <FormNavigationButton text={"Реєстрація"} onSubmit={() => navigation.navigate("Registration", {screen: "RegPageOne"})} />
                 </View>
                 <View style={styles.inputContainer}>
                     <View>
@@ -99,7 +99,7 @@ const LoginPageOne = ({ navigation }) => {
                     <Text style={errLabelStyle}>{validationErrText}</Text>
                 </View>
                 <View style={styles.buttonBlock}>
-                    <FormButton text={"Continue"}
+                    <FormButton text={"Продовжити"}
                                 onPress={handleLoginSubmit}
                     />
                 </View>
