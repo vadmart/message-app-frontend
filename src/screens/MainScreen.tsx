@@ -19,7 +19,7 @@ type WebSocketResponse = {
     chat: Chat_,
     chat_id?: string,
     message?: Message,
-    action?: "create" | "update" | "destroy"
+    action: "create" | "update" | "destroy"
 }
 
 const MainScreen = () => {
@@ -72,60 +72,82 @@ const MainScreen = () => {
     }, [chats])
 
     useEffect(() => {
-        if (!wsRef.current) return 
-        function onMessage (message: MessageEvent) {
+        if (!wsRef.current) return
+        
+        const handleWSDataWithMessage = (data: WebSocketResponse): void => {
+            let currChat: Chat_ = null;
+            for (let i = 0; i < chats.length; ++i) {
+                console.log(`Current public_id: ${chats[i].public_id}, expected public_id: ${data.message.chat}`);
+                if (chats[i].public_id === data.message.chat) {
+                    currChat = chats[i];
+                    break;
+                }
+            }
+            console.log(`OnMessage: CurrentChat: ${currChat}`);
+            if (currChat === null) {
+                console.log("OnMessage: Haven't found any suitable chat");
+                return
+            }
+            const currMessages = currChat.messages.results;
+            switch (data.action) {
+                case "create":
+                    console.log("Start handling 'create' action")
+                    currMessages.push(data.message);
+                    if (authState.user.public_id != data.message.sender.public_id) {
+                        currChat.messages.unread_messages_count += 1;
+                        currChat.messages.has_unread_messages = true;
+                    }
+                    setChats([...chats.sort(sortChats)]);
+                    break;
+                case "update":
+                    for (let i = currMessages.length - 1; i >= 0; --i) {
+                        if (currMessages[i].public_id == data.message.public_id) {
+                            currMessages[i] = data.message;
+                            setChats([...chats]);
+                            return;
+                        }
+                    }
+                case "destroy":
+                    for (let i = currMessages.length - 1; i >= 0; --i) {
+                        if (currMessages[i].public_id == data.message.public_id) {
+                            if (authState.user.public_id != data.message.sender.public_id && currMessages[i].is_read === false) {
+                                currChat.messages.unread_messages_count -= 1;
+                                if (currChat.messages.unread_messages_count == 0) {
+                                    currChat.messages.has_unread_messages = false;
+                                }
+                            }
+                            currMessages.splice(i, 1);
+                            currChat.messages.unread_messages_count -= 1;
+                            setChats([...chats]);
+                            return;
+                        }
+                    }
+            }
+        }
+
+        const handleWSDataWithChat = (data: WebSocketResponse) => {
+            switch (data.action) {
+                case "create":
+                    setChats([...chats, data.chat]);
+                case "destroy":
+                    for (let i = chats.length - 1; i >= 0; i--) {
+                        if (chats[i].public_id == data.chat.public_id) {
+                            chats.splice(i, 1);
+                            setChats([...chats].sort(sortChats));
+                            break;
+                        }
+                    }
+            }
+        }
+
+        const onMessage = (message: MessageEvent) => {
             const receivedData: WebSocketResponse = JSON.parse(message.data);
             console.log("OnMessage: ");
             console.log(receivedData);
-            let currChat: Chat_ = null;
             if (receivedData.message) {
-                for (let i = 0; i < chats.length; ++i) {
-                    console.log(`Current public_id: ${chats[i].public_id}, expected public_id: ${receivedData.message.chat}`);
-                    if (chats[i].public_id === receivedData.message.chat) {
-                        currChat = chats[i];
-                        break;
-                    }
-                }
-                console.log(`OnMessage: CurrentChat: ${currChat}`);
-                if (currChat === null) {
-                    console.log("OnMessage: Haven't found any suitable chat");
-                    return
-                }
-                const currMessages = currChat.messages.results;
-                switch (receivedData.action) {
-                    case "create":
-                        console.log("Start handling 'create' action")
-                        currMessages.push(receivedData.message);
-                        if (authState.user.public_id != receivedData.message.sender.public_id) {
-                            currChat.messages.unread_messages_count += 1;
-                            currChat.messages.has_unread_messages = true;
-                        }
-                        setChats([...chats.sort(sortChats)]);
-                        break;
-                    case "update":
-                        for (let i = currMessages.length - 1; i >= 0; --i) {
-                            if (currMessages[i].public_id == receivedData.message.public_id) {
-                                currMessages[i] = receivedData.message;
-                                setChats([...chats]);
-                                return;
-                            }
-                        }
-                    case "destroy":
-                        for (let i = currMessages.length - 1; i >= 0; --i) {
-                            if (currMessages[i].public_id == receivedData.message.public_id) {
-                                if (authState.user.public_id != receivedData.message.sender.public_id && currMessages[i].is_read === false) {
-                                    currChat.messages.unread_messages_count -= 1;
-                                    if (currChat.messages.unread_messages_count == 0) {
-                                        currChat.messages.has_unread_messages = false;
-                                    }
-                                }
-                                currMessages.splice(i, 1);
-                                currChat.messages.unread_messages_count -= 1;
-                                setChats([...chats]);
-                                return;
-                            }
-                        }
-                }
+                handleWSDataWithMessage(receivedData);
+            } else if (receivedData.chat) {
+                handleWSDataWithChat(receivedData);
             }
         }
     console.log("All chats: ");
