@@ -1,4 +1,5 @@
 import React, {useEffect, useRef, useState, memo} from "react"
+import {v4 as uuidv4} from "uuid"
 import {FlatList, StyleSheet, View} from "react-native";
 import {BaseHTTPURL} from "@app/config";
 import axios from 'axios';
@@ -7,10 +8,11 @@ import ChatKeyboard from "@app/components/chating/ChatKeyboard";
 import MessageItem from "../components/chating/MessageItem";
 import {useAuth} from "@app/context/AuthContext";
 import {useChat} from "@app/context/ChatContext";
-import {sortChats, sortMessages} from "@app/components/helpers/sort";
+import {sortChats, } from "@app/components/helpers/sort";
 import {Chat_} from "@app/types/ChatType";
 import {OneSignal} from "react-native-onesignal";
-import { sendMessage, markMessageAsRead, markAllChatMessagesAsRead } from "@app/api/endpoints/message";
+import { sendMessage, markAllChatMessagesAsRead } from "@app/api/endpoints/message";
+import { createChat } from "@app/api/endpoints/chat";
 
 
 // @ts-ignore
@@ -20,8 +22,8 @@ const MessagesScreen = memo(({route, navigation}) => {
     const footerRef = useRef(null);
     const {chats, setChats} = useChat();
     const {payload}: {payload: {title: string,
-                                chatData?: Chat_,
-                                chatIndex?: number}} = route.params;
+                                chat: Chat_,
+                                isChatNew: boolean}} = route.params;
     const {authState} = useAuth();
     const messageForChangeState: {message: Message,
                                   setMessageForChange: React.Dispatch<React.SetStateAction<Message>>} = {message: null,
@@ -37,13 +39,13 @@ const MessagesScreen = memo(({route, navigation}) => {
     }
 
     const renderMessage = ({index, item}) => {
-        if (!payload.chatData.messages) return;
+        if (!payload.chat.messages) return;
         return (
                 <View onLayout={e => handleLayout(e, item)}
                         onResponderMove={e => e.nativeEvent.locationY}
                 >
                     <MessageItem index={index}
-                        messages={payload.chatData.messages.results}
+                        messages={payload.chat.messages.results}
                         item={item}
                         messageForChangeState={messageForChangeState}
                     />
@@ -54,14 +56,14 @@ const MessagesScreen = memo(({route, navigation}) => {
 
     const [isRefresh, setIsRefresh] = useState(false);
     const onFlatListRefresh = () => {
-        if (!payload.chatData.messages.next) return;
+        if (!payload.chat.messages.next) return;
         setIsRefresh(true);
-        axios.get(payload.chatData.messages.next).then((response) => {
+        axios.get(payload.chat.messages.next).then((response) => {
             Object.keys(response.data).forEach((key) => {
                 if (key === "results") {
-                    payload.chatData.messages.results.unshift(...response.data.results);
+                    payload.chat.messages.results.unshift(...response.data.results);
                 } else {
-                    payload.chatData.messages[key] = response.data[key];
+                    payload.chat.messages[key] = response.data[key];
                 }
             })    
             setChats([...chats].sort(sortChats));
@@ -73,20 +75,29 @@ const MessagesScreen = memo(({route, navigation}) => {
     const createMessage = (text=null, singleFile=null) => {
         const newMessage = {
             created_at: new Date().toString(),
-            chat: payload.chatData?.public_id,
+            chat: payload.chat.public_id,
             sender: authState.user,
             is_read: false,
             is_edited: false,
             content: text,
-            public_id: Math.random().toString(36).slice(2),
+            public_id: uuidv4(),
             file: singleFile,
             hasSendingError: null
         };
-        sendMessage({...newMessage, public_id: null})
+        if (payload.isChatNew) {
+            createChat(payload.chat)
+            .then(() => {
+                payload.isChatNew = false;
+                setChats([...chats, payload.chat]);
+            })
             .catch((e) => {
-                console.log(e);
+                console.log(e.response.data)
+            })
+        }
+        sendMessage(newMessage)
+            .catch((e) => {
                 newMessage.hasSendingError = true;
-                payload.chatData.messages.results.push(newMessage);
+                payload.chat.messages.results.push(newMessage);
                 setChats([...chats.sort(sortChats)]);
             });
     }
@@ -105,28 +116,29 @@ const MessagesScreen = memo(({route, navigation}) => {
 
     const readAllMessages = (chat_id: string): void => {
         markAllChatMessagesAsRead(chat_id);
-        const messages = payload.chatData.messages.results;
+        const messages = payload.chat.messages.results;
         let hasAnyUnread = false
         for (let message of messages) {
             message.is_read = true;
             hasAnyUnread = true;
         }
         if (hasAnyUnread) {
-            payload.chatData.messages.unread_messages_count = 0;
-            payload.chatData.messages.has_unread_messages = false;
+            payload.chat.messages.unread_messages_count = 0;
+            payload.chat.messages.has_unread_messages = false;
             setChats([...chats]);
         }
     }
 
     useEffect(() => {
         navigation.setOptions({title: payload.title});
-        if (!payload.chatData || payload.chatData.areMessagesFetched) return;
-        axios.get(BaseHTTPURL + `chat/${payload.chatData.public_id}/message/`)
+        if (!payload.chat || payload.chat.areMessagesFetched) return;
+        console.log("Chat id: " + payload.chat.public_id);
+        axios.get(BaseHTTPURL + `chat/${payload.chat.public_id}/message/`)
         .then((results) => {
             Object.keys(results.data).forEach((key) => {
-                payload.chatData.messages[key] = results.data[key];
+                payload.chat.messages[key] = results.data[key];
             })
-            console.log(payload.chatData.messages.next);
+            console.log(payload.chat.messages.next);
             setChats([...chats.sort(sortChats)]);
         })
         .catch(e => console.log(e));
@@ -136,7 +148,7 @@ const MessagesScreen = memo(({route, navigation}) => {
                 console.log("Notification must include 'chat_id'");
                 return
             }
-            if (e.notification.additionalData.chat_id == payload.chatData.public_id) {
+            if (e.notification.additionalData.chat_id == payload.chat.public_id) {
                 e.preventDefault();
             }
         };
@@ -151,15 +163,15 @@ const MessagesScreen = memo(({route, navigation}) => {
         <View style={styles.container}>
             <FlatList
                 style={styles.messageList}
-                data={payload.chatData?.messages?.results}
+                data={payload.chat?.messages?.results}
                 ref={messageListRef}
                 renderItem={renderMessage}
                 keyExtractor={item => item.public_id}
                 onRefresh={onFlatListRefresh}
                 refreshing={isRefresh}
                 onEndReached={() => {
-                    if (!payload.chatData.messages.has_unread_messages) return
-                    readAllMessages(payload.chatData.public_id);
+                    if (!payload.chat.messages.has_unread_messages) return
+                    readAllMessages(payload.chat.public_id);
                 }}
             />
             <View style={styles.footer} ref={footerRef}>

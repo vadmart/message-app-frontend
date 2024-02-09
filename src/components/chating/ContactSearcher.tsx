@@ -5,10 +5,13 @@ import {BaseHTTPURL} from "@app/config";
 import {User} from "@app/types/UserType";
 import ScreenNames from "@app/config";
 import {v4 as uuidv4} from "uuid";
+import { Chat_ } from "@app/types/ChatType";
+import { useAuth } from "@app/context/AuthContext";
 
 const ContactSearcher = ({navigation}) => {
     const [phoneNumber, setPhoneNumber] = useState("");
     const [error, setError] = useState("");
+    const {authState} = useAuth();
 
     const handleSubmit = async () => {
         if (!phoneNumber) {
@@ -17,13 +20,21 @@ const ContactSearcher = ({navigation}) => {
         }
         axios.get(BaseHTTPURL + `user/${encodeURIComponent(phoneNumber)}`)
             .then((response) => {
-                const userData: User = response.data;
-                axios.get(BaseHTTPURL + `chat/get_chat_by_user/?phone_number=${encodeURIComponent(phoneNumber)}`)
+                const companion: User = response.data;
+                axios.get(BaseHTTPURL + `chat/get_chat_by_user/?user__public_id=${companion.public_id}`)
                     .then((resp) => {
-                        navigation.navigate(ScreenNames.MESSAGES_SCREEN, {payload: {chatData: resp.data, title: userData.username}})
+                        console.log("Chat was found!");
+                        navigation.navigate(ScreenNames.MESSAGES_SCREEN, {payload: {chat: resp.data, title: companion.username, isChatNew: false}});
                     })
-                    .catch((e) => {
-                        navigation.navigate(ScreenNames.MESSAGES_SCREEN, {payload: {userData, title: userData.username}})
+                    .catch(() => {
+                        const chat: Chat_ = {
+                            public_id: uuidv4(),
+                            first_user: authState.user,
+                            second_user: companion,
+                            messages: {results: []},
+                            created_at: new Date().toISOString()
+                        };
+                        navigation.navigate(ScreenNames.MESSAGES_SCREEN, {payload: {chat: chat, title: companion.username, isChatNew: true}});
                     })
             })
             .catch((err) => setError(err.response.data["detail"]))

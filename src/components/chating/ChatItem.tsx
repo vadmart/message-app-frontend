@@ -29,7 +29,7 @@ const ChatItem = ({item, navigation}: {item: Chat_, navigation: any}) => {
     return (
         <Pressable style={styles.message} onPress={(e) => {
             console.log("Navigate to messages' screen, UUID: " + item.public_id);
-            navigation.navigate(ScreenNames.MESSAGES_SCREEN, {payload: {chatData: item, title: companion.username}});
+            navigation.navigate(ScreenNames.MESSAGES_SCREEN, {payload: {chat: item, title: companion.username, isChatNew: false}});
         }
         }>
             <View style={styles.avatarBlock}>

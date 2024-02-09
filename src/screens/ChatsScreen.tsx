@@ -25,7 +25,7 @@ const ChatsScreen = memo(({navigation}) => {
                       keyExtractor={item => item.public_id}
             /> : 
             <View style={styles.noChatsBlock}>
-                <Text style={styles.noChatsLabel}>Чатів немає</Text>
+                <Text style={styles.noChatsLabel}>Чатів поки що немає. Час почати спілкування!</Text>
             </View>}
         </View>
     )
@@ -46,7 +46,8 @@ const styles = StyleSheet.create({
     noChatsLabel: {
         fontSize: 20, 
         fontStyle: "italic", 
-        color: "rgba(0.5, 0.5, 0.5, 0.5)"
+        color: "rgba(0.5, 0.5, 0.5, 0.5)",
+        textAlign: "center"
     }
 })
 export default ChatsScreen;
