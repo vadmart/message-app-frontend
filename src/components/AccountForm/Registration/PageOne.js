@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { StyleSheet, View, Image, TextInput, Pressable, Text } from "react-native";
 import axios from "axios";
-import { errInputStyle } from "../../helpers/errorStyle";
+import { errInputStyle } from "../../../helpers/errorStyle";
 import { BaseURL } from "./BaseURL";
 import FormLinkButton from "../FormNavigationButton";
 import FormButton from "../FormButton";

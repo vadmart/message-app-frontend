@@ -8,11 +8,10 @@ import ChatKeyboard from "@app/components/chating/ChatKeyboard";
 import MessageItem from "../components/chating/MessageItem";
 import {useAuth} from "@app/context/AuthContext";
 import {useChat} from "@app/context/ChatContext";
-import {sortChats, } from "@app/components/helpers/sort";
+import {sortChats, } from "@app/helpers/sort";
 import {Chat_} from "@app/types/ChatType";
 import {OneSignal} from "react-native-onesignal";
-import { sendMessage, markAllChatMessagesAsRead } from "@app/api/endpoints/message";
-import { createChat } from "@app/api/endpoints/chat";
+import { readAllMessagesAndSetState } from "@app/helpers/MessageStateAPILayer";
 
 
 // @ts-ignore
@@ -24,7 +23,6 @@ const MessagesScreen = memo(({route, navigation}) => {
     const {payload}: {payload: {title: string,
                                 chat: Chat_,
                                 isChatNew: boolean}} = route.params;
-    const {authState} = useAuth();
     const messageForChangeState: {message: Message,
                                   setMessageForChange: React.Dispatch<React.SetStateAction<Message>>} = {message: null,
                                                                                              setMessageForChange: null};
@@ -32,7 +30,7 @@ const MessagesScreen = memo(({route, navigation}) => {
 
     const handleLayout = (event, item) => {
         const {y} = event.nativeEvent.layout;
-        const footerY = footerRef.current.measureInWindow((x, y) => y);
+        const footerY = footerRef.current.measureInWindow((y: number) => y);
         if (y > footerY) {
             console.log(`Message ${item.pubic_id} is higher than a footer`);
         }
@@ -72,67 +70,10 @@ const MessagesScreen = memo(({route, navigation}) => {
         setIsRefresh(false);
     }
 
-    const createMessage = (text=null, singleFile=null) => {
-        const newMessage = {
-            created_at: new Date().toString(),
-            chat: payload.chat.public_id,
-            sender: authState.user,
-            is_read: false,
-            is_edited: false,
-            content: text,
-            public_id: uuidv4(),
-            file: singleFile,
-            hasSendingError: null
-        };
-        if (payload.isChatNew) {
-            createChat(payload.chat)
-            .then(() => {
-                payload.isChatNew = false;
-                setChats([...chats, payload.chat]);
-            })
-            .catch((e) => {
-                console.log(e.response.data)
-            })
-        }
-        sendMessage(newMessage)
-            .catch((e) => {
-                newMessage.hasSendingError = true;
-                payload.chat.messages.results.push(newMessage);
-                setChats([...chats.sort(sortChats)]);
-            });
-    }
-
-    const updateMessage = (message: Message, text=null, singleFile=null) => {
-        message.content = text;
-        message.file = singleFile;
-        setChats([...chats]);
-        sendMessage(message, "PUT")
-            .then((response) => {
-            //     message = response.data;
-            //     setChats([...chats]);
-            })
-            .catch(() => {message.hasSendingError = true})
-    }
-
-    const readAllMessages = (chat_id: string): void => {
-        markAllChatMessagesAsRead(chat_id);
-        const messages = payload.chat.messages.results;
-        let hasAnyUnread = false
-        for (let message of messages) {
-            message.is_read = true;
-            hasAnyUnread = true;
-        }
-        if (hasAnyUnread) {
-            payload.chat.messages.unread_messages_count = 0;
-            payload.chat.messages.has_unread_messages = false;
-            setChats([...chats]);
-        }
-    }
 
     useEffect(() => {
         navigation.setOptions({title: payload.title});
         if (!payload.chat || payload.chat.areMessagesFetched) return;
-        console.log("Chat id: " + payload.chat.public_id);
         axios.get(BaseHTTPURL + `chat/${payload.chat.public_id}/message/`)
         .then((results) => {
             Object.keys(results.data).forEach((key) => {
@@ -171,13 +112,11 @@ const MessagesScreen = memo(({route, navigation}) => {
                 refreshing={isRefresh}
                 onEndReached={() => {
                     if (!payload.chat.messages.has_unread_messages) return
-                    readAllMessages(payload.chat.public_id);
+                    readAllMessagesAndSetState({chats, setChats}, payload);
                 }}
             />
             <View style={styles.footer} ref={footerRef}>
-                <ChatKeyboard onCreateMessage={createMessage}
-                              onChangeMessage={updateMessage}
-                              messageForChangeState={messageForChangeState} />
+                <ChatKeyboard messageForChangeState={messageForChangeState} payload={payload} />
             </View>
         </View>
     )

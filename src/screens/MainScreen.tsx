@@ -1,11 +1,11 @@
-import React, {useEffect, useState, useRef} from "react";
+import React, {useEffect, useState, useRef, memo} from "react";
 import ChatsScreen from "./ChatsScreen";
 import MessagesScreen from "./MessagesScreen"
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import {Chat_} from "@app/types/ChatType";
 import {ChatProvider} from "@app/context/ChatContext";
 import {useAuth} from "@app/context/AuthContext";
-import {sortChats} from "@app/components/helpers/sort";
+import {sortChats} from "@app/helpers/sort";
 import ScreenNames, {BaseWebsocketURL, BaseHTTPURL} from "@app/config";
 import NetInfo from "@react-native-community/netinfo";
 import axios from "axios";
@@ -15,9 +15,7 @@ import { sendMessage, resendMessagesFromChats } from "@app/api/endpoints/message
 const Stack = createNativeStackNavigator();
 
 type WebSocketResponse = {
-    chats?: Chat_[],
-    chat: Chat_,
-    chat_id?: string,
+    chat?: Chat_,
     message?: Message,
     action: "create" | "update" | "destroy"
 }
@@ -27,7 +25,8 @@ const MainScreen = () => {
     const [chats, setChats] = useState<Chat_[]>([]);
     const [waitingForReconnect, setWaitingForReconnect] = useState(true);
     const {authState} = useAuth();
-    const wsRef = useRef(null);
+    const wsRef = useRef<WebSocket>(null);
+    console.log("Are we waiting for reconnect? " + waitingForReconnect);
 
     useEffect(() => {
         if (waitingForReconnect) return;
@@ -38,34 +37,31 @@ const MainScreen = () => {
             })
             .catch((e) => {console.log("Network error!")});
 
-        if (!wsRef.current) {
-            const client = new WebSocket(BaseWebsocketURL + `?token=${authState.access}`);
-            wsRef.current = client;
-            client.onopen = () => {
-                console.log("WebSocket connection is opened!");
+
+        wsRef.current = new WebSocket(BaseWebsocketURL + `?token=${authState.access}`);
+        wsRef.current.onopen = () => {
+            console.log("WebSocket connection is opened!");
+        }
+        wsRef.current.onclose = () => {
+            if (waitingForReconnect === false) {
+                setWaitingForReconnect(true);
+                console.log("WebSocket connection is closed!");
             }
-            client.onclose = () => {
-                if (wsRef.current) {
-                    setWaitingForReconnect(true);
-                }
-                console.log("Connection is closed!");
-            }
-            return () => {
-                console.log("Reset WebSocket Ref");
-                wsRef.current = null;
-                client.close();
-            }
-        }    
+        }
+        return () => {
+            console.log("Reset WebSocket Ref");
+            wsRef.current.close();
+        }
+
     }, [waitingForReconnect])
 
     useEffect(() => {
         const unsubscribe = NetInfo.addEventListener(state => {
-            console.log("Adding NetInfo listener");
+            // console.log("Adding NetInfo listener");
             if (state.isConnected) {
                 if (waitingForReconnect) {
                     setWaitingForReconnect(false);
                 }
-                resendMessagesFromChats(chats);
             }
         })
         return unsubscribe;
@@ -73,7 +69,7 @@ const MainScreen = () => {
 
     useEffect(() => {
         if (!wsRef.current) return
-        
+
         const handleWSDataWithMessage = (data: WebSocketResponse): void => {
             let currChat: Chat_ = null;
             for (let i = 0; i < chats.length; ++i) {
@@ -97,7 +93,7 @@ const MainScreen = () => {
                         currChat.messages.unread_messages_count += 1;
                         currChat.messages.has_unread_messages = true;
                     }
-                    setChats([...chats.sort(sortChats)]);
+                    setChats([...chats].sort(sortChats));
                     break;
                 case "update":
                     for (let i = currMessages.length - 1; i >= 0; --i) {
@@ -110,7 +106,7 @@ const MainScreen = () => {
                 case "destroy":
                     for (let i = currMessages.length - 1; i >= 0; --i) {
                         if (currMessages[i].public_id == data.message.public_id) {
-                            if (authState.user.public_id != data.message.sender.public_id && currMessages[i].is_read === false) {
+                            if (authState.user.public_id !== data.message.sender.public_id && currMessages[i].is_read === false) {
                                 currChat.messages.unread_messages_count -= 1;
                                 if (currChat.messages.unread_messages_count == 0) {
                                     currChat.messages.has_unread_messages = false;
@@ -140,9 +136,9 @@ const MainScreen = () => {
             }
         }
 
-        const onMessage = (message: MessageEvent) => {
+        wsRef.current.onmessage = (message: MessageEvent) => {
             const receivedData: WebSocketResponse = JSON.parse(message.data);
-            console.log("OnMessage: ");
+            console.log("WebSocket Received Data: ");
             console.log(receivedData);
             if (receivedData.message) {
                 handleWSDataWithMessage(receivedData);
@@ -150,9 +146,9 @@ const MainScreen = () => {
                 handleWSDataWithChat(receivedData);
             }
         }
-    console.log("All chats: ");
-    console.log(chats);
-    wsRef.current.onmessage = onMessage;
+
+        console.log("All chats: ");
+        console.log(chats);
     }, [chats, waitingForReconnect])
 
 

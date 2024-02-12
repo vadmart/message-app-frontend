@@ -1,10 +1,8 @@
 import "react-native-get-random-values";
-import React from "react";
+import React, {StrictMode} from "react";
 import {
-    SafeAreaView,
     StyleSheet,
-    StatusBar, View,
-    Text
+    StatusBar
 } from "react-native";
 import { NavigationContainer } from "@react-navigation/native"
 // @ts-ignore
@@ -44,7 +42,13 @@ export const Layout = () => {
             <NavigationContainer>
                 <Stack.Navigator screenOptions={{headerShown: false}}>
                     {authState?.authenticated ? (
-                        <Stack.Screen component={MainScreen} name={ScreenNames.MAIN_SCREEN}  />
+                            <Stack.Screen name={ScreenNames.MAIN_SCREEN}>
+                                {() => {
+                                    return <StrictMode>
+                                        <MainScreen />
+                                    </StrictMode>
+                                }}
+                            </Stack.Screen>
                     )
                     : (
                         <Stack.Screen component={LoginForm} name={ScreenNames.LOGIN} />

@@ -2,12 +2,16 @@ import React, {useRef, useState} from "react"
 import {StyleSheet, TextInput, View, Pressable, Image, Text} from "react-native"
 import DocumentPicker, {DocumentPickerResponse} from "react-native-document-picker"
 import {Message} from "@app/types/MessageType";
+import { createMessageAndSetState, updateMessageAndSetState } from "@app/helpers/MessageStateAPILayer";
+import { useChat } from "@app/context/ChatContext";
+import { useAuth } from "@app/context/AuthContext";
 
-const ChatKeyboard = ({onCreateMessage, onChangeMessage, messageForChangeState}:
-                          {onCreateMessage: Function,
-                              onChangeMessage: Function
-                        messageForChangeState: {message: Message,
-                                  setMessageForChange: React.Dispatch<React.SetStateAction<Message>>}}) => {
+const ChatKeyboard = ({messageForChangeState, payload}:
+                          {messageForChangeState: {message: Message,
+                                                   setMessageForChange: React.Dispatch<React.SetStateAction<Message>>},
+                           payload: any}) => {
+    const {chats, setChats} = useChat();
+    const {authState} = useAuth();
     const [singleFile, setSingleFile] = useState<DocumentPickerResponse>(null);
     const [inputtedData, setInputtedData] = useState("");
     const inputFieldRef = useRef(null);
@@ -44,10 +48,20 @@ const ChatKeyboard = ({onCreateMessage, onChangeMessage, messageForChangeState}:
                         <Pressable
                                     onPress={() => {
                                         if (messageForChangeState.message) {
-                                            onChangeMessage(messageForChangeState.message, inputtedData, singleFile)
+                                            updateMessageAndSetState({chats, 
+                                                                     setChats}, 
+                                                                     messageForChangeState.message, 
+                                                                     inputtedData, 
+                                                                     singleFile)
                                             messageForChangeState.setMessageForChange(null);
                                         } else {
-                                            onCreateMessage(inputtedData, singleFile);
+                                            createMessageAndSetState({chats, 
+                                                                     setChats}, 
+                                                                     payload,
+                                                                     authState.user,
+                                                                     inputtedData,
+                                                                     singleFile
+                                                                     );
                                         }
                                         inputFieldRef.current.clear();
                                         setInputtedData("");

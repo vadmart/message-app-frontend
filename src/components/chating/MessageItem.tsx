@@ -2,9 +2,9 @@ import React, {useState} from "react";
 import ReactNativeBlobUtil, {ReactNativeBlobUtilConfig} from "react-native-blob-util"
 import {Alert, Image, PermissionsAndroid, Platform, Pressable, StyleSheet, Text, View} from "react-native"
 import {Message} from "@app/types/MessageType";
-import {toReadableDate, toReadableTime} from "@app/components/helpers/chats";
+import {toReadableDate, toReadableTime} from "@app/helpers/chats";
 import Avatar from "@app/components/chating/Avatar";
-import {getFileExtension, getFileName} from "@app/components/helpers/file";
+import {getFileExtension, getFileName} from "@app/helpers/file";
 import {useAuth} from "@app/context/AuthContext";
 import {useChat} from "@app/context/ChatContext";
 import Swipeable from "react-native-gesture-handler/Swipeable";
@@ -13,9 +13,9 @@ import { deleteMessage } from "@app/api/endpoints/message";
 
 const MessageItem = ({index, messages, item, messageForChangeState}:
                      { index: number,
-                         messages: Message[],
-                         item: Message,
-                         messageForChangeState: {message: Message, setMessageForChange: React.Dispatch<React.SetStateAction<Message>>} }) => {
+                        messages: Message[],
+                        item: Message,
+                        messageForChangeState: {message: Message, setMessageForChange: React.Dispatch<React.SetStateAction<Message>>} }): React.JSX.Element => {
     const {authState} = useAuth();
     const {chats, setChats} = useChat();
 
