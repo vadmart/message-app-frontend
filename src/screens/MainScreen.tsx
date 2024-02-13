@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef, memo} from "react";
+import React, {useEffect, useState, useRef, createContext} from "react";
 import ChatsScreen from "./ChatsScreen";
 import MessagesScreen from "./MessagesScreen"
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -7,10 +7,9 @@ import {ChatProvider} from "@app/context/ChatContext";
 import {useAuth} from "@app/context/AuthContext";
 import {sortChats} from "@app/helpers/sort";
 import ScreenNames, {BaseWebsocketURL, BaseHTTPURL} from "@app/config";
-import NetInfo from "@react-native-community/netinfo";
-import axios from "axios";
+import { useConnect } from "@app/context/ConnectionContext";
+import { axiosWithConnectionRetry as axios } from "@app/config";
 import { Message } from "@app/types/MessageType";
-import { sendMessage, resendMessagesFromChats } from "@app/api/endpoints/message";
 
 const Stack = createNativeStackNavigator();
 
@@ -22,14 +21,14 @@ type WebSocketResponse = {
 
 const MainScreen = () => {
     console.log("Rendering MainScreen");
+    const {connected, setConnected} = useConnect();
     const [chats, setChats] = useState<Chat_[]>([]);
-    const [waitingForReconnect, setWaitingForReconnect] = useState(true);
     const {authState} = useAuth();
     const wsRef = useRef<WebSocket>(null);
-    console.log("Are we waiting for reconnect? " + waitingForReconnect);
+    console.log("Are we waiting for reconnect? " + connected);
 
     useEffect(() => {
-        if (waitingForReconnect) return;
+        if (!connected) return;
         
         axios.get(BaseHTTPURL + "chat/")
             .then(response => {
@@ -43,29 +42,15 @@ const MainScreen = () => {
             console.log("WebSocket connection is opened!");
         }
         wsRef.current.onclose = () => {
-            if (waitingForReconnect === false) {
-                setWaitingForReconnect(true);
-                console.log("WebSocket connection is closed!");
-            }
+            console.log("WebSocket connection is closed!");
         }
         return () => {
             console.log("Reset WebSocket Ref");
             wsRef.current.close();
+            wsRef.current = null;
         }
 
-    }, [waitingForReconnect])
-
-    useEffect(() => {
-        const unsubscribe = NetInfo.addEventListener(state => {
-            // console.log("Adding NetInfo listener");
-            if (state.isConnected) {
-                if (waitingForReconnect) {
-                    setWaitingForReconnect(false);
-                }
-            }
-        })
-        return unsubscribe;
-    }, [chats])
+    }, [connected])
 
     useEffect(() => {
         if (!wsRef.current) return
@@ -149,19 +134,19 @@ const MainScreen = () => {
 
         console.log("All chats: ");
         console.log(chats);
-    }, [chats, waitingForReconnect])
+    }, [chats, connected])
 
 
     return (
         <ChatProvider value={{chats, setChats}}>
             <Stack.Navigator initialRouteName={ScreenNames.CHATS_SCREEN}>
                 <Stack.Screen name={ScreenNames.CHATS_SCREEN}
-                              component={ChatsScreen}
-                              options={{headerShown: false}}
+                            component={ChatsScreen}
+                            options={{headerShown: false}}
                 />
                 <Stack.Screen name={ScreenNames.MESSAGES_SCREEN}
-                              component={MessagesScreen}
-                              />
+                            component={MessagesScreen}
+                            />
             </Stack.Navigator>
         </ChatProvider>
     )

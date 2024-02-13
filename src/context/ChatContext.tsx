@@ -1,11 +1,7 @@
 import React, {createContext, useContext} from "react";
-import {Chat_} from "@app/types/ChatType";
-import {Message} from "@app/types/MessageType";
+import {ChatsStateType} from "@app/types/ChatType";
 
-const ChatContext = createContext<{
-    chats?: Chat_[],
-    setChats?: React.Dispatch<React.SetStateAction<Chat_[]>>
-}>({});
+const ChatContext = createContext<ChatsStateType>({chats: null, setChats: null});
 
 export const useChat = () => {
     return useContext(ChatContext);

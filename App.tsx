@@ -6,7 +6,6 @@ import {
 } from "react-native";
 import { NavigationContainer } from "@react-navigation/native"
 // @ts-ignore
-import {Auth} from "@app/Auth";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 // @ts-ignore
 import LoginForm from "@app/screens/LoginForm";
@@ -19,6 +18,8 @@ import {AuthProvider, useAuth} from "@app/context/AuthContext";
 // # TODO: fix ts-ignore
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import {OneSignal, LogLevel} from "react-native-onesignal";
+// @ts-ignore
+import ConnectProvider from "@app/context/ConnectionContext"
 
 
 const Stack = createNativeStackNavigator();
@@ -45,8 +46,10 @@ export const Layout = () => {
                             <Stack.Screen name={ScreenNames.MAIN_SCREEN}>
                                 {() => {
                                     return <StrictMode>
-                                        <MainScreen />
-                                    </StrictMode>
+                                            <ConnectProvider>
+                                                <MainScreen />
+                                            </ConnectProvider>
+                                           </StrictMode>
                                 }}
                             </Stack.Screen>
                     )

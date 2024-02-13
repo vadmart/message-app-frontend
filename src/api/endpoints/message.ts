@@ -1,4 +1,5 @@
-import axios, { AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
+import { axiosWithConnectionRetry as axios } from "../../config";
 import { BaseHTTPURL } from "../../config";
 import { Message } from "../../types/MessageType";
 import { Chat_ } from "../../types/ChatType";

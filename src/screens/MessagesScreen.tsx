@@ -1,12 +1,9 @@
-import React, {useEffect, useRef, useState, memo} from "react"
-import {v4 as uuidv4} from "uuid"
+import React, {useEffect, useRef, useState, memo} from "react";
 import {FlatList, StyleSheet, View} from "react-native";
-import {BaseHTTPURL} from "@app/config";
-import axios from 'axios';
+import {BaseHTTPURL, axiosWithConnectionRetry as axios} from "@app/config";
 import {Message} from "@app/types/MessageType";
 import ChatKeyboard from "@app/components/chating/ChatKeyboard";
 import MessageItem from "../components/chating/MessageItem";
-import {useAuth} from "@app/context/AuthContext";
 import {useChat} from "@app/context/ChatContext";
 import {sortChats, } from "@app/helpers/sort";
 import {Chat_} from "@app/types/ChatType";
@@ -51,11 +48,8 @@ const MessagesScreen = memo(({route, navigation}) => {
                 )
     }
 
-
-    const [isRefresh, setIsRefresh] = useState(false);
     const onFlatListRefresh = () => {
         if (!payload.chat.messages.next) return;
-        setIsRefresh(true);
         axios.get(payload.chat.messages.next).then((response) => {
             Object.keys(response.data).forEach((key) => {
                 if (key === "results") {
@@ -67,7 +61,6 @@ const MessagesScreen = memo(({route, navigation}) => {
             setChats([...chats].sort(sortChats));
             }
         ).catch(e => console.log(e))
-        setIsRefresh(false);
     }
 
 
@@ -108,8 +101,8 @@ const MessagesScreen = memo(({route, navigation}) => {
                 ref={messageListRef}
                 renderItem={renderMessage}
                 keyExtractor={item => item.public_id}
+                refreshing={false}
                 onRefresh={onFlatListRefresh}
-                refreshing={isRefresh}
                 onEndReached={() => {
                     if (!payload.chat.messages.has_unread_messages) return
                     readAllMessagesAndSetState({chats, setChats}, payload);

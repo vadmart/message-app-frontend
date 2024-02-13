@@ -16,6 +16,11 @@ export interface Chat_ {
     areMessagesFetched?: boolean
 }
 
+export interface ChatsStateType {
+    chats: Chat_[],
+    setChats: React.Dispatch<React.SetStateAction<Chat_[]>>
+}
+
 export const isAChat = (obj: any): obj is Chat_ => {
     return "created_at" in obj &&
            "first_user" in obj &&

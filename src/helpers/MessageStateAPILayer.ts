@@ -1,12 +1,11 @@
-import React from "react";
 import {v4 as uuidv4} from "uuid";
-import {Chat_} from "@app/types/ChatType";
 import { User } from "@app/types/UserType";
 import { Message } from "@app/types/MessageType";
 import { sendMessage, markAllChatMessagesAsRead } from "@app/api/endpoints/message";
 import { createChat } from "@app/api/endpoints/chat";
+import { ChatsStateType } from "@app/types/ChatType";
 
-export const updateMessageAndSetState = (chatsState,
+export const updateMessageAndSetState = (chatsState: ChatsStateType,
                               message: Message, 
                               changedText=null, 
                               changedFile=null) => {
@@ -15,12 +14,12 @@ export const updateMessageAndSetState = (chatsState,
     message.is_edited = true;
     chatsState.setChats([...chatsState.chats]);
     sendMessage(message, "PUT")
-        .catch(() => {message.hasSendingError = true})
+        .catch(() => {message.hasSendingError = true}) // need to be planned
 }
 
-export const readAllMessagesAndSetState = (chatsState,
+export const readAllMessagesAndSetState = (chatsState: ChatsStateType,
                                 payload): void => {
-    markAllChatMessagesAsRead(payload.chat.public_id);
+    markAllChatMessagesAsRead(payload.chat.public_id); // need to be planned
     const messages = payload.chat.messages.results;
     let hasAnyUnread = false
     for (let message of messages) {
@@ -34,7 +33,8 @@ export const readAllMessagesAndSetState = (chatsState,
     }
 }
 
-export const createMessageAndSetState = (chatsState,
+export const createMessageAndSetState = (chatsState: ChatsStateType,
+                                         connectedRef: React.MutableRefObject<boolean>,
                                          payload, 
                                          sender: User, 
                                          text=null, 
@@ -51,7 +51,7 @@ export const createMessageAndSetState = (chatsState,
         hasSendingError: null
     };
     if (payload.isChatNew) {
-        createChat(payload.chat)
+        createChat(payload.chat) // need to be planned
             .then(() => {
                 payload.isChatNew = false;
                 chatsState.setChats([...chatsState.chats, payload.chat]);
@@ -62,9 +62,9 @@ export const createMessageAndSetState = (chatsState,
     }
     const newMessageInd = payload.chat.messages.results.push(newMessage) - 1;
     chatsState.setChats(prevState => [...prevState]);
-    sendMessage(newMessage)
+    sendMessage(newMessage) // need to be planned
         .then(response => {
             payload.chat.messages.results[newMessageInd] = response.data;
             chatsState.setChats(prevState => [...prevState]);
-        })
+        });
 }

@@ -1,7 +1,7 @@
 import React, {createContext, useContext, useEffect, useState} from "react"
 import {storage} from "@app/Storage"
 import {BaseHTTPURL} from "@app/config";
-import axios from "axios";
+import { axiosWithConnectionRetry as axios } from "@app/config";
 import {OneSignal} from "react-native-onesignal";
 import {User} from "@app/types/UserType"
 

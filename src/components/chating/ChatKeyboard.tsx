@@ -4,16 +4,19 @@ import DocumentPicker, {DocumentPickerResponse} from "react-native-document-pick
 import {Message} from "@app/types/MessageType";
 import { createMessageAndSetState, updateMessageAndSetState } from "@app/helpers/MessageStateAPILayer";
 import { useChat } from "@app/context/ChatContext";
+import { useConnect } from "@app/context/ConnectionContext";
 import { useAuth } from "@app/context/AuthContext";
+
 
 const ChatKeyboard = ({messageForChangeState, payload}:
                           {messageForChangeState: {message: Message,
                                                    setMessageForChange: React.Dispatch<React.SetStateAction<Message>>},
                            payload: any}) => {
     const {chats, setChats} = useChat();
-    const {authState} = useAuth();
+    const connectedRef = useRef(useConnect().connected);
     const [singleFile, setSingleFile] = useState<DocumentPickerResponse>(null);
     const [inputtedData, setInputtedData] = useState("");
+    const {authState} = useAuth();
     const inputFieldRef = useRef(null);
 
     const selectFile = async () => {
@@ -57,6 +60,7 @@ const ChatKeyboard = ({messageForChangeState, payload}:
                                         } else {
                                             createMessageAndSetState({chats, 
                                                                      setChats}, 
+                                                                     connectedRef,
                                                                      payload,
                                                                      authState.user,
                                                                      inputtedData,
