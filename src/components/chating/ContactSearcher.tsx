@@ -65,11 +65,10 @@ const styles = StyleSheet.create({
     },
     phoneNumberInputBlock: {
         backgroundColor: "white",
-        borderColor: "black",
         flexDirection: "row",
         height: 50,
-        borderWidth: 3,
-        borderRadius: 10,
+        borderWidth: 1,
+        borderRadius: 30,
         paddingLeft: 10,
     },
     phoneNumberInput: {

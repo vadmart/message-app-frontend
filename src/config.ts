@@ -15,8 +15,8 @@ axiosWithConnectionRetry.interceptors.response.use(undefined, async (err) => {
     })
     return delayedRequest.then(() => axiosWithConnectionRetry(config))
 })
-export const BaseHTTPURL = "https://d193-178-150-167-216.ngrok-free.app/api/v1/";
-export const BaseWebsocketURL = "wss://d193-178-150-167-216.ngrok-free.app/ws/chat/";
+export const BaseHTTPURL = "https://562d-178-150-167-216.ngrok-free.app/api/v1/";
+export const BaseWebsocketURL = "wss://562d-178-150-167-216.ngrok-free.app/ws/chat/";
 const ScreenNames = {
     REGISTRATION: "Registration",
     LOGIN: "Login",
