@@ -3,6 +3,7 @@ export const axiosWithConnectionRetry = axios.create();
 
 axiosWithConnectionRetry.interceptors.response.use(undefined, async (err) => {
     const {config, message} = err;
+    console.log(JSON.stringify(config));
     console.log("Axios config and message: ");
     if (!(message.includes("Network Error") || message.includes("timeout"))) {
         return Promise.reject(err);

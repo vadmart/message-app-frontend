@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef, createContext} from "react";
+import React, {useEffect, useState, useRef, useReducer} from "react";
 import ChatsScreen from "./ChatsScreen";
 import MessagesScreen from "./MessagesScreen"
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -10,6 +10,7 @@ import ScreenNames, {BaseWebsocketURL, BaseHTTPURL} from "@app/config";
 import { useConnect } from "@app/context/ConnectionContext";
 import { axiosWithConnectionRetry as axios } from "@app/config";
 import { Message } from "@app/types/MessageType";
+import { storage } from "@app/Storage";
 
 const Stack = createNativeStackNavigator();
 
@@ -21,20 +22,24 @@ type WebSocketResponse = {
 
 const MainScreen = () => {
     console.log("Rendering MainScreen");
-    const {connected, setConnected} = useConnect();
+    const {connected} = useConnect();
     const [chats, setChats] = useState<Chat_[]>([]);
     const {authState} = useAuth();
     const wsRef = useRef<WebSocket>(null);
     console.log("Are we waiting for reconnect? " + connected);
 
     useEffect(() => {
+        const chats = storage.getString("chats");
+        if (chats) {
+            setChats(JSON.parse(chats));
+        } 
         if (!connected) return;
         
         axios.get(BaseHTTPURL + "chat/")
             .then(response => {
                 setChats(response.data);
             })
-            .catch((e) => {console.log("Network error!")});
+            .catch((e) => {console.log(e)});
 
 
         wsRef.current = new WebSocket(BaseWebsocketURL + `?token=${authState.access}`);
@@ -51,6 +56,12 @@ const MainScreen = () => {
         }
 
     }, [connected])
+
+    useEffect(() => {
+        if (chats.length > 0) {
+            storage.set("chats", JSON.stringify(chats));
+        }
+    }, [chats])
 
     useEffect(() => {
         if (!wsRef.current) return
