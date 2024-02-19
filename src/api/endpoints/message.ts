@@ -31,7 +31,7 @@ export const sendMessage = async (message: Message, method="POST") => {
     const url = (method == "POST") ? BaseHTTPURL + `chat/${message.chat}/message/` : BaseHTTPURL + `chat/${message.chat}/message/${message.public_id}/`;
     return axios(url,
         {
-            method: method,
+            method,
             data: formData,
             headers: {
                 "Content-Type": "multipart/form-data",

@@ -23,18 +23,18 @@ const ContactSearcher = ({navigation}) => {
                 const companion: User = response.data;
                 axios.get(BaseHTTPURL + `chat/get_chat_by_user/?user__public_id=${companion.public_id}`)
                     .then((resp) => {
-                        console.log("Chat was found!");
+                        console.log("Chat was found.");
                         navigation.navigate(ScreenNames.MESSAGES_SCREEN, {payload: {chat: resp.data, title: companion.username, isChatNew: false}});
                     })
                     .catch(() => {
+                        console.log("Chat wasn't found, trying to create one...");
                         const chat: Chat_ = {
                             public_id: uuidv4(),
                             first_user: authState.user,
                             second_user: companion,
-                            messages: {results: []},
-                            created_at: new Date().toISOString()
+                            messages: {results: []}
                         };
-                        navigation.navigate(ScreenNames.MESSAGES_SCREEN, {payload: {chat: chat, title: companion.username, isChatNew: true}});
+                        navigation.navigate(ScreenNames.MESSAGES_SCREEN, {payload: {chat, title: companion.username, isChatNew: true}});
                     })
             })
             .catch((err) => setError(err.response.data["detail"]))

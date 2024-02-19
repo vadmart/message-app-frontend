@@ -3,8 +3,13 @@ export const axiosWithConnectionRetry = axios.create();
 
 axiosWithConnectionRetry.interceptors.response.use(undefined, async (err) => {
     const {config, message} = err;
-    console.log(JSON.stringify(config));
-    console.log("Axios config and message: ");
+    if (config.retry === undefined)
+        config.retry = 2;
+    else if (config.retry === 0) {
+        console.log("Message hasn't been sent!");
+        return Promise.reject()
+    }
+    config.retry -= 1;
     if (!(message.includes("Network Error") || message.includes("timeout"))) {
         return Promise.reject(err);
     }
@@ -16,8 +21,8 @@ axiosWithConnectionRetry.interceptors.response.use(undefined, async (err) => {
     })
     return delayedRequest.then(() => axiosWithConnectionRetry(config))
 })
-export const BaseHTTPURL = "https://562d-178-150-167-216.ngrok-free.app/api/v1/";
-export const BaseWebsocketURL = "wss://562d-178-150-167-216.ngrok-free.app/ws/chat/";
+export const BaseHTTPURL = "http://localhost:1337/api/v1/";
+export const BaseWebsocketURL = "ws://localhost:1337/ws/chat/";
 const ScreenNames = {
     REGISTRATION: "Registration",
     LOGIN: "Login",

@@ -66,7 +66,7 @@ const MessagesScreen = memo(({route, navigation}) => {
 
     useEffect(() => {
         navigation.setOptions({title: payload.title});
-        if (!payload.chat || payload.chat.areMessagesFetched) return;
+        if (!payload.chat.areMessagesFetched) return;
         axios.get(BaseHTTPURL + `chat/${payload.chat.public_id}/message/`)
         .then((results) => {
             Object.keys(results.data).forEach((key) => {

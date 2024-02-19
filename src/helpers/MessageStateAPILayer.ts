@@ -14,12 +14,12 @@ export const updateMessageAndSetState = (chatsState: ChatsStateType,
     message.is_edited = true;
     chatsState.setChats([...chatsState.chats]);
     sendMessage(message, "PUT")
-        .catch(() => {message.hasSendingError = true}) // need to be planned
+        .catch(() => {message.hasSendingError = true})
 }
 
 export const readAllMessagesAndSetState = (chatsState: ChatsStateType,
                                 payload): void => {
-    markAllChatMessagesAsRead(payload.chat.public_id); // need to be planned
+    markAllChatMessagesAsRead(payload.chat.public_id);
     const messages = payload.chat.messages.results;
     let hasAnyUnread = false
     for (let message of messages) {
@@ -33,12 +33,12 @@ export const readAllMessagesAndSetState = (chatsState: ChatsStateType,
     }
 }
 
-export const createMessageAndSetState = (chatsState: ChatsStateType,
-                                         connectedRef: React.MutableRefObject<boolean>,
-                                         payload, 
-                                         sender: User, 
-                                         text=null, 
-                                         file=null) => {
+
+export const createMessageAndSetState = async (chatsState: ChatsStateType,
+                                                payload, 
+                                                sender: User, 
+                                                text=null, 
+                                                file=null) => {
     const newMessage = {
         created_at: new Date().toString(),
         chat: payload.chat.public_id,
@@ -50,21 +50,18 @@ export const createMessageAndSetState = (chatsState: ChatsStateType,
         file: file,
         hasSendingError: null
     };
+    let newMessageInd = null;
     if (payload.isChatNew) {
-        createChat(payload.chat) // need to be planned
-            .then(() => {
-                payload.isChatNew = false;
-                chatsState.setChats([...chatsState.chats, payload.chat]);
-            })
-            .catch((e) => {
-                console.log(e.response.data)
-            })
+        console.log("Creating a chat.");
+        payload.chat = (await createChat(payload.chat)).data;
+        payload.isChatNew = false;
+        newMessageInd = payload.chat.messages.results.push(newMessage) - 1;
+        chatsState.setChats(prevState => [...prevState, payload.chat]);
+    } else {
+        newMessageInd = payload.chat.messages.results.push(newMessage) - 1;
+        chatsState.setChats(prevState => [...prevState]);
     }
-    const newMessageInd = payload.chat.messages.results.push(newMessage) - 1;
+    const response = await sendMessage(newMessage);
+    payload.chat.messages.results[newMessageInd] = response.data;
     chatsState.setChats(prevState => [...prevState]);
-    sendMessage(newMessage) // need to be planned
-        .then(response => {
-            payload.chat.messages.results[newMessageInd] = response.data;
-            chatsState.setChats(prevState => [...prevState]);
-        });
 }

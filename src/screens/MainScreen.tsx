@@ -20,10 +20,11 @@ type WebSocketResponse = {
     action: "create" | "update" | "destroy"
 }
 
+
 const MainScreen = () => {
     console.log("Rendering MainScreen");
     const {connected} = useConnect();
-    const [chats, setChats] = useState<Chat_[]>([]);
+    const [chats, setChats] = useState([]);
     const {authState} = useAuth();
     const wsRef = useRef<WebSocket>(null);
     console.log("Are we waiting for reconnect? " + connected);
