@@ -4,12 +4,13 @@ import ContactSearcher from "@app/components/chating/ContactSearcher";
 import ChatItem from "@app/components/chating/ChatItem";
 import {useChat} from "@app/context/ChatsContext";
 import { Swipeable } from "react-native-gesture-handler";
+import { destroyChatAndSetState } from "@app/helpers/ChatsStateAPILayer";
 
 
 // @ts-ignore
 const ChatsScreen = memo(({navigation}) => {
     console.log("Rendering ChatsScreen");
-    const {chats} = useChat();
+    const {chats, setChats} = useChat();
 
     const onRenderRightActions = (
         _progress: Animated.AnimatedInterpolation<number>,
@@ -46,7 +47,7 @@ const ChatsScreen = memo(({navigation}) => {
                                     <Swipeable 
                                         renderRightActions={onRenderRightActions} 
                                         onSwipeableOpen={() => {
-                                            console.log("Swipeable is opened.")
+                                            destroyChatAndSetState({chats, setChats}, item)
                                         }}>
                                         <ChatItem item={item}
                                                     navigation={navigation}

@@ -2,8 +2,8 @@ import {v4 as uuidv4} from "uuid";
 import { User } from "@app/types/UserType";
 import { Message } from "@app/types/MessageType";
 import { createMessage, markAllChatMessagesAsRead } from "@app/api/endpoints/message";
-import { createChat } from "@app/api/endpoints/chat";
-import { ChatsStateType } from "@app/types/ChatType";
+import { createChat, destroyChat } from "@app/api/endpoints/chat";
+import { Chat_, ChatsStateType } from "@app/types/ChatType";
 
 export const updateMessageAndSetState = (chatsState: ChatsStateType,
                               message: Message, 
@@ -64,11 +64,33 @@ export const createMessageAndSetState = async (chatsState: ChatsStateType,
         }
     } catch(e) {
         if (e.response) {
-            console.log(e.response.data);
+            console.error(e.response.data);
         } else {
-            console.log(e);
+            console.error(e);
         }
     }
     
     chatsState.setChats(prevState => [...prevState]);
 }
+
+export const destroyChatAndSetState = async (chatsState: ChatsStateType,
+                                       currChat: Chat_) => 
+        {
+            try {
+                await destroyChat(currChat);
+                for (let i = 0; i < chatsState.chats.length; i++) {
+                    if (chatsState.chats[i].public_id === currChat.public_id) {
+                        chatsState.chats.splice(i, 1);
+                        chatsState.setChats(prevValues => [...prevValues])
+                        return
+                    }
+                }
+            } catch(e) {
+                if (e.response) {
+                    console.error(e.response.data);
+                } else {
+                    console.error(e);
+                }
+            }
+            
+        }
