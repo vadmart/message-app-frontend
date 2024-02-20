@@ -1,9 +1,9 @@
 import React, {useEffect, useState, useRef, useReducer} from "react";
 import ChatsScreen from "./ChatsScreen";
-import MessagesScreen from "./MessagesScreen"
+import PrivateChatScreen from "./PrivateChatScreen"
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import {Chat_} from "@app/types/ChatType";
-import {ChatProvider} from "@app/context/ChatContext";
+import {ChatProvider} from "@app/context/ChatsContext";
 import {useAuth} from "@app/context/AuthContext";
 import {sortChats} from "@app/helpers/sort";
 import ScreenNames, {BaseWebsocketURL, BaseHTTPURL} from "@app/config";
@@ -27,7 +27,6 @@ const MainScreen = () => {
     const [chats, setChats] = useState([]);
     const {authState} = useAuth();
     const wsRef = useRef<WebSocket>(null);
-    console.log("Are we waiting for reconnect? " + connected);
 
     useEffect(() => {
         const chats = storage.getString("chats");
@@ -157,7 +156,7 @@ const MainScreen = () => {
                             options={{headerShown: false}}
                 />
                 <Stack.Screen name={ScreenNames.MESSAGES_SCREEN}
-                            component={MessagesScreen}
+                            component={PrivateChatScreen}
                             />
             </Stack.Navigator>
         </ChatProvider>

@@ -1,6 +1,6 @@
 import React from "react";
 import {View, Text, Pressable} from "react-native";
-import {useChat} from "@app/context/ChatContext";
+import {useChat} from "@app/context/ChatsContext";
 import {Message} from "@app/types/MessageType";
 
 export const Button = ({text, bgColor, fontColor="black", onPress}: {text: string,

@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import {Image, Pressable, StyleSheet, Text, TextInput, View} from "react-native";
-import axios from "axios";
+import { axiosWithConnectionRetry } from "@app/config";
 import {BaseHTTPURL} from "@app/config";
 import {User} from "@app/types/UserType";
 import ScreenNames from "@app/config";
@@ -18,10 +18,10 @@ const ContactSearcher = ({navigation}) => {
             setError("This field might not be empty!");
             return
         }
-        axios.get(BaseHTTPURL + `user/${encodeURIComponent(phoneNumber)}`)
+        axiosWithConnectionRetry.get(BaseHTTPURL + `user/${encodeURIComponent(phoneNumber)}`)
             .then((response) => {
                 const companion: User = response.data;
-                axios.get(BaseHTTPURL + `chat/get_chat_by_user/?user__public_id=${companion.public_id}`)
+                axiosWithConnectionRetry.get(BaseHTTPURL + `chat/get_chat_by_user/?user__public_id=${companion.public_id}`)
                     .then((resp) => {
                         console.log("Chat was found.");
                         navigation.navigate(ScreenNames.MESSAGES_SCREEN, {payload: {chat: resp.data, title: companion.username, isChatNew: false}});

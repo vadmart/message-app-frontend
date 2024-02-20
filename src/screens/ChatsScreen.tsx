@@ -2,7 +2,7 @@ import React, {memo} from "react";
 import {FlatList, StyleSheet, View, Text} from "react-native";
 import ContactSearcher from "@app/components/chating/ContactSearcher";
 import ChatItem from "@app/components/chating/ChatItem";
-import {useChat} from "@app/context/ChatContext";
+import {useChat} from "@app/context/ChatsContext";
 
 
 // @ts-ignore

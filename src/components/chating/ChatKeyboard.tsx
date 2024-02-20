@@ -2,8 +2,8 @@ import React, {useRef, useState} from "react"
 import {StyleSheet, TextInput, View, Pressable, Image, Text} from "react-native"
 import DocumentPicker, {DocumentPickerResponse} from "react-native-document-picker"
 import {Message} from "@app/types/MessageType";
-import { createMessageAndSetState, updateMessageAndSetState } from "@app/helpers/MessageStateAPILayer";
-import { useChat } from "@app/context/ChatContext";
+import { createMessageAndSetState, updateMessageAndSetState } from "@app/helpers/ChatsStateAPILayer";
+import { useChat } from "@app/context/ChatsContext";
 import { useAuth } from "@app/context/AuthContext";
 
 

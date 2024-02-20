@@ -6,7 +6,7 @@ import {toReadableDate, toReadableTime} from "@app/helpers/chats";
 import Avatar from "@app/components/chating/Avatar";
 import {getFileExtension, getFileName} from "@app/helpers/file";
 import {useAuth} from "@app/context/AuthContext";
-import {useChat} from "@app/context/ChatContext";
+import {useChat} from "@app/context/ChatsContext";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import {ChangeMessageButton, DeleteMessageButton} from "@app/components/chating/Button";
 import { deleteMessage } from "@app/api/endpoints/message";
@@ -100,7 +100,7 @@ const MessageItem = ({index, messages, item, messageForChangeState}:
                 <View style={styles.leftBlock}>
                     {((currentDateTime.getDate() !== nextDateTime.getDate() ||
                             currentDateTime.getMonth() !== nextDateTime.getMonth())
-                        || item.sender.username !== nextSender.username) ?
+                        || item.sender !== nextSender) ?
                         <Avatar user={item.sender}/> : null}
                 </View>
                 {(authState.user.public_id == item.sender.public_id) ? 

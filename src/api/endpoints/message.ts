@@ -12,7 +12,7 @@ export const deleteMessage = async (message: Message) => {
     })
 }
 
-export const sendMessage = async (message: Message, method="POST") => {
+export const createMessage = async (message: Message, method="POST") => {
     const formData = new FormData();
     if (message.public_id) {
         formData.append("public_id", message.public_id);
@@ -50,7 +50,7 @@ export const resendMessagesFromChats = async (chats: Chat_[]) => {
             } else break;
         }
         for (let k = errorMessagesIndexes.length - 1; k >= 0; --k) {
-            const data = (await sendMessage(messages[errorMessagesIndexes[k]])).data;
+            const data = (await createMessage(messages[errorMessagesIndexes[k]])).data;
             messages[errorMessagesIndexes[k]] = data;
         }
     }
