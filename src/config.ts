@@ -4,7 +4,7 @@ export const axiosWithConnectionRetry = axios.create();
 axiosWithConnectionRetry.interceptors.response.use(undefined, async (err) => {
     const {config, message} = err;
     if (config.retry === undefined)
-        config.retry = 2;
+        config.retry = 50;
     else if (config.retry === 0) {
         console.log("Message hasn't been sent!");
         return Promise.reject()
