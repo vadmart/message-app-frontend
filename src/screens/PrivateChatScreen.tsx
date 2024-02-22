@@ -30,19 +30,11 @@ const PrivateChatScreen = memo(({route}) => {
                                                                                              setMessageForChange: null};
     [messageForChangeState.message, messageForChangeState.setMessageForChange] = useState(null);
 
-    const handleLayout = (event, item) => {
-        const {y} = event.nativeEvent.layout;
-        const footerY = footerRef.current.measureInWindow((y: number) => y);
-        if (y > footerY) {
-            console.log(`Message ${item.pubic_id} is higher than a footer`);
-        }
-    }
 
     const renderMessage = ({index, item}) => {
         if (!payload.chat.messages) return;
         return (
-                <View onLayout={e => handleLayout(e, item)}
-                        onResponderMove={e => e.nativeEvent.locationY}
+                <View onResponderMove={e => e.nativeEvent.locationY}
                 >
                     <MessageItem index={index}
                         messages={payload.chat.messages.results}
@@ -121,7 +113,7 @@ const PrivateChatScreen = memo(({route}) => {
                     }
                 }}
             />
-            <View style={styles.footer} ref={footerRef}>
+            <View style={styles.chatKeyboardContainer}>
                 <ChatKeyboard messageForChangeState={messageForChangeState} payload={payload} />
             </View>
         </View>
@@ -134,14 +126,16 @@ const styles = StyleSheet.create({
         backgroundColor: "#007767"
     },
     messageList: {
-        flex: 1,
         paddingTop: 10,
         backgroundColor: "#fff",
         borderTopLeftRadius: 30,
-        borderTopRightRadius: 30
+        borderTopRightRadius: 30,
+        // overflow: "hidden"
     },
-    footer: {
-        backgroundColor: "#FFFFFF",
-    },
+    chatKeyboardContainer: {
+        backgroundColor: "white", 
+        paddingVertical: 20, 
+        alignItems: "center"
+    }
 })
 export default PrivateChatScreen;

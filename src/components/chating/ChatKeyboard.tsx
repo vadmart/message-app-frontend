@@ -7,8 +7,8 @@ import { useChat } from "@app/context/ChatsContext";
 import { useAuth } from "@app/context/AuthContext";
 
 
-const ChatKeyboardButton = ({onPress=null, disabled=false, source=null}: {onPress: (e: GestureResponderEvent) => void, disabled: boolean, source: ImageSourcePropType}) => {
-    return <Pressable style={{padding: 3}} onPress={onPress}>
+const ChatKeyboardButton = ({onPress=null, disabled=false, source=null}: {onPress?: (e: GestureResponderEvent) => void, disabled?: boolean, source?: ImageSourcePropType}) => {
+    return <Pressable style={styles.chatKeyboardButton} onPress={onPress} disabled={disabled}>
                 <Image style={styles.buttonIcon} source={source} resizeMethod={"resize"} />
             </Pressable>
 }
@@ -42,7 +42,7 @@ const ChatKeyboard = ({messageForChangeState, payload}:
         }
     }
         return (
-            <View style={styles.container}>
+            <View style={{width: "90%"}}>
                 {singleFile && <Text style={styles.fileName}>{singleFile.name}</Text>}
                 <View style={styles.keyboardBlock}>
                     <TextInput style={styles.keyboard}
@@ -77,9 +77,7 @@ const ChatKeyboard = ({messageForChangeState, payload}:
                                     disabled={(inputtedData === "" && singleFile === null)}
                                     source={require("@img/chat-icons/send.png")}>
                         </ChatKeyboardButton>
-                        <Pressable style={{padding: 3}} onPress={selectFile}>
-                            <Image style={styles.buttonIcon} source={require("@img/chat-icons/clip_icon.png")} resizeMethod={"resize"} />
-                        </Pressable>
+                        <ChatKeyboardButton onPress={selectFile} source={require("@img/chat-icons/clip_icon.png")} />
                     </View>
                 </View>
             </View>
@@ -87,39 +85,41 @@ const ChatKeyboard = ({messageForChangeState, payload}:
 }
 
 const styles = StyleSheet.create({
-    container: {
-        alignItems: "center"
-    },
     fileName: {
         fontSize: 18,
         padding: 10,
     },
     keyboardBlock: {
-        backgroundColor: "#AAAAAA40",
+        backgroundColor: "#C5C5C5",
         flexDirection: "row",
         height: 45,
-        width: "90%",
+        width: "100%",
         borderTopLeftRadius: 20,
         borderBottomLeftRadius: 20,
         borderTopRightRadius: 20,
         borderBottomRightRadius: 20,
-        marginBottom: 10
     },
     keyboard: {
         fontSize: 18,
         flex: 1,
         paddingLeft: 15,
-        borderRightWidth: 1,
-        borderRightColor: "rgba(100, 100, 100, 0.3)",
     },
     optionsBlock: {
         justifyContent: "center",
         alignItems: "center",
         flexDirection: "row",
-        columnGap: 5
+        columnGap: 5,
+    },
+    chatKeyboardButton: {
+        alignItems: "center", 
+        justifyContent: "center",
+        borderRadius: 50,
+        backgroundColor: "#007767",
+        height: "90%",
+        aspectRatio: 1
     },
     buttonIcon: {
-        height: "85%",
+        height: "60%",
         aspectRatio: 1
     },
 });

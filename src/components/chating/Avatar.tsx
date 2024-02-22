@@ -14,7 +14,7 @@ const Avatar = ({user}: {user: User}) => {
 }
 const styles = StyleSheet.create({
     avatar: {
-        backgroundColor: "#D9D9D990",
+        backgroundColor: "#E1E1E1",
         height: 50,
         borderRadius: 50,
         aspectRatio: 1,

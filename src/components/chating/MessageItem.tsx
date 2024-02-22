@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     },
     contentTimeBlock: {
         borderRadius: 10,
-        backgroundColor: "#D9D9D990",
+        backgroundColor: "#E1E1E1",
         padding: 10,
         maxWidth: "90%"
     },
@@ -172,7 +172,8 @@ const styles = StyleSheet.create({
         paddingLeft: 10,
     },
     content: {
-        fontSize: 16
+        fontSize: 16,
+        // color: "grey"
     },
     time: {
         color: "#777777",

@@ -39,7 +39,7 @@ export const Layout = () => {
     const {authState} = useAuth();
     return (
         <GestureHandlerRootView style={styles.container}>
-            <StatusBar backgroundColor={'#001100'} />
+            <StatusBar backgroundColor={'#007767'} />
             <NavigationContainer>
                 <Stack.Navigator screenOptions={{headerShown: false}}>
                     {authState?.authenticated ? (

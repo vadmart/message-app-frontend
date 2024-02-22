@@ -158,9 +158,10 @@ const MainScreen = () => {
                             component={PrivateChatScreen}
                             options={{
                                 headerStyle: {backgroundColor: "#007767"}, 
-                                    headerTitleAlign: "center",
-                                    headerShadowVisible: false,
-                                   headerTintColor: "#fff",
+                                headerTitleAlign: "center",
+                                headerShadowVisible: false,
+                                headerTintColor: "#fff",
+                                   
                             }}
                             />
             </Stack.Navigator>
