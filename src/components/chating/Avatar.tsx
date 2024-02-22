@@ -6,7 +6,7 @@ const Avatar = ({user}: {user: User}) => {
     return (
         <>
             <View style={styles.avatar}>
-                {user.avatar ? <Image source={require("@img/chat-icons/convert.png")} /> :
+                {user.avatar ? <Image source={require("@img/chat-icons/convert.png")} resizeMethod={"resize"} /> :
                     <Text style={styles.avatarText}>{user.username[0]}</Text>}
             </View>
         </>
@@ -14,8 +14,8 @@ const Avatar = ({user}: {user: User}) => {
 }
 const styles = StyleSheet.create({
     avatar: {
-        backgroundColor: "#D9D9D9",
-        height: 35,
+        backgroundColor: "#D9D9D990",
+        height: 50,
         borderRadius: 50,
         aspectRatio: 1,
         justifyContent: "center",

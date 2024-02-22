@@ -19,7 +19,7 @@ const ChatsScreen = memo(({navigation}) => {
         const trans = dragX.interpolate({
             inputRange: [-80, 0],
             outputRange: [1, 0],
-            extrapolate: "clamp"
+            extrapolate: "extend"
         })
         return (
             <Animated.View style={{flex: 1, 
@@ -37,7 +37,6 @@ const ChatsScreen = memo(({navigation}) => {
     }
     
     return (
-        
             <View style={styles.container}>
                     <ContactSearcher navigation={navigation}/>
                     {(chats.length > 0) ? 

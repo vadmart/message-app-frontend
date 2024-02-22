@@ -1,10 +1,17 @@
 import React, {useRef, useState} from "react"
-import {StyleSheet, TextInput, View, Pressable, Image, Text} from "react-native"
+import {StyleSheet, TextInput, View, Pressable, Image, Text, GestureResponderEvent, ImageSourcePropType} from "react-native"
 import DocumentPicker, {DocumentPickerResponse} from "react-native-document-picker"
 import {Message} from "@app/types/MessageType";
 import { createMessageAndSetState, updateMessageAndSetState } from "@app/helpers/ChatsStateAPILayer";
 import { useChat } from "@app/context/ChatsContext";
 import { useAuth } from "@app/context/AuthContext";
+
+
+const ChatKeyboardButton = ({onPress=null, disabled=false, source=null}: {onPress: (e: GestureResponderEvent) => void, disabled: boolean, source: ImageSourcePropType}) => {
+    return <Pressable style={{padding: 3}} onPress={onPress}>
+                <Image style={styles.buttonIcon} source={source} resizeMethod={"resize"} />
+            </Pressable>
+}
 
 
 const ChatKeyboard = ({messageForChangeState, payload}:
@@ -45,8 +52,8 @@ const ChatKeyboard = ({messageForChangeState, payload}:
                                defaultValue={messageForChangeState.message?.content}
                     />
                     <View style={styles.optionsBlock}>
-                        <Pressable
-                                    onPress={() => {
+                        <ChatKeyboardButton
+                                    onPress={async () => {
                                         if (messageForChangeState.message) {
                                             updateMessageAndSetState({chats, 
                                                                      setChats}, 
@@ -68,9 +75,8 @@ const ChatKeyboard = ({messageForChangeState, payload}:
                                         setSingleFile(null);
                                     }}
                                     disabled={(inputtedData === "" && singleFile === null)}
-                                    style={{padding: 3}}>
-                            <Image style={styles.buttonIcon} source={require("@img/chat-icons/send.png")} resizeMethod={"resize"} />
-                        </Pressable>
+                                    source={require("@img/chat-icons/send.png")}>
+                        </ChatKeyboardButton>
                         <Pressable style={{padding: 3}} onPress={selectFile}>
                             <Image style={styles.buttonIcon} source={require("@img/chat-icons/clip_icon.png")} resizeMethod={"resize"} />
                         </Pressable>
@@ -82,15 +88,22 @@ const ChatKeyboard = ({messageForChangeState, payload}:
 
 const styles = StyleSheet.create({
     container: {
-
+        alignItems: "center"
     },
     fileName: {
         fontSize: 18,
         padding: 10,
     },
     keyboardBlock: {
+        backgroundColor: "#AAAAAA40",
         flexDirection: "row",
-        height: 45
+        height: 45,
+        width: "90%",
+        borderTopLeftRadius: 20,
+        borderBottomLeftRadius: 20,
+        borderTopRightRadius: 20,
+        borderBottomRightRadius: 20,
+        marginBottom: 10
     },
     keyboard: {
         fontSize: 18,

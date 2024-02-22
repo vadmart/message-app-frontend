@@ -24,7 +24,7 @@ const ContactSearcher = ({navigation}) => {
                 axiosWithConnectionRetry.get(BaseHTTPURL + `chat/get_chat_by_user/?user__public_id=${companion.public_id}`)
                     .then((resp) => {
                         console.log("Chat was found.");
-                        navigation.navigate(ScreenNames.MESSAGES_SCREEN, {payload: {chat: resp.data, title: companion.username, isChatNew: false}});
+                        navigation.navigate(ScreenNames.MESSAGES_SCREEN, {payload: {chat: resp.data, companion, isChatNew: false}});
                     })
                     .catch(() => {
                         console.log("Chat wasn't found, trying to create one...");
@@ -34,7 +34,7 @@ const ContactSearcher = ({navigation}) => {
                             second_user: companion,
                             messages: {results: []}
                         };
-                        navigation.navigate(ScreenNames.MESSAGES_SCREEN, {payload: {chat, title: companion.username, isChatNew: true}});
+                        navigation.navigate(ScreenNames.MESSAGES_SCREEN, {payload: {chat, companion, isChatNew: true}});
                     })
             })
             .catch((err) => setError(err.response.data["detail"]))

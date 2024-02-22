@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState, memo} from "react";
-import {FlatList, StyleSheet, View} from "react-native";
+import {FlatList, StyleSheet, View, Text} from "react-native";
 import {BaseHTTPURL, axiosWithConnectionRetry as axios} from "@app/config";
 import {Message} from "@app/types/MessageType";
 import ChatKeyboard from "@app/components/chating/ChatKeyboard";
@@ -9,20 +9,22 @@ import {sortChats, } from "@app/helpers/sort";
 import {Chat_} from "@app/types/ChatType";
 import {OneSignal} from "react-native-onesignal";
 import { readAllMessagesAndSetState } from "@app/helpers/ChatsStateAPILayer";
-import { useAuth } from "@app/context/AuthContext";
+import {useNavigation} from "@react-navigation/native"
+import Avatar from "@app/components/chating/Avatar";
+import { User } from "@app/types/UserType";
 
 
 // @ts-ignore
-const PrivateChatScreen = memo(({route, navigation}) => {
+const PrivateChatScreen = memo(({route}) => {
     console.log("Rendering MessagesScreen");
     const messageListRef = useRef(null);
     const footerRef = useRef(null);
     const {chats, setChats} = useChat();
-    const {payload}: {payload: {title: string,
+    const navigation = useNavigation();
+    const {payload}: {payload: {companion: User,
                                 chat: Chat_,
                                 isChatNew: boolean}} = route.params;
-    const {authState} = useAuth();
-    const companion = (authState.user.public_id === payload.chat.first_user.public_id) ? payload.chat.second_user : payload.chat.first_user
+    console.log(payload);
     const messageForChangeState: {message: Message,
                                   setMessageForChange: React.Dispatch<React.SetStateAction<Message>>} = {message: null,
                                                                                              setMessageForChange: null};
@@ -68,18 +70,25 @@ const PrivateChatScreen = memo(({route, navigation}) => {
 
 
     useEffect(() => {
-        navigation.setOptions({title: payload.title});
-        if (!payload.chat.areMessagesFetched) return;
-        axios.get(BaseHTTPURL + `chat/${payload.chat.public_id}/message/`)
-        .then((results) => {
-            Object.keys(results.data).forEach((key) => {
-                payload.chat.messages[key] = results.data[key];
-            })
-            console.log(payload.chat.messages.next);
-            setChats([...chats.sort(sortChats)]);
-        })
-        .catch(e => console.log(e));
-        messageListRef.current?.scrollToEnd({animating: true});
+        async function _setupPrivateChat() {
+            navigation.setOptions({
+                                   title: payload.companion.username,
+                                });
+            if (!payload.chat.areMessagesFetched) return;
+            try {
+                const response = await axios.get(BaseHTTPURL + `chat/${payload.chat.public_id}/message/`);
+                Object.keys(response.data).forEach((key) => {
+                    payload.chat.messages[key] = response.data[key];
+                })
+                console.log(payload.chat.messages.next);
+                setChats([...chats].sort(sortChats));
+                messageListRef.current?.scrollToEnd({animating: true});
+            }
+            catch (e) {
+                console.log(e)
+            }  
+        }
+        _setupPrivateChat();
         const foregroundNotificationListener = (e) => {
             if (!("chat_id" in e.notification.additionalData)) {
                 console.log("Notification must include 'chat_id'");
@@ -107,8 +116,9 @@ const PrivateChatScreen = memo(({route, navigation}) => {
                 refreshing={false}
                 onRefresh={onFlatListRefresh}
                 onEndReached={() => {
-                    if (!payload.chat.messages.has_unread_messages) return
-                    readAllMessagesAndSetState({chats, setChats}, payload);
+                    if (payload.chat.messages.has_unread_messages) {
+                        readAllMessagesAndSetState({chats, setChats}, payload);
+                    }
                 }}
             />
             <View style={styles.footer} ref={footerRef}>
@@ -126,6 +136,9 @@ const styles = StyleSheet.create({
     messageList: {
         flex: 1,
         paddingTop: 10,
+        backgroundColor: "#fff",
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30
     },
     footer: {
         backgroundColor: "#FFFFFF",

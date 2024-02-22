@@ -96,16 +96,16 @@ const MessageItem = ({index, messages, item, messageForChangeState}:
                     </View>
                 </View>}
             <View
-                style={[styles.messageBlock, (authState.user.public_id == item.sender.public_id && {flexDirection: "row-reverse"})]}>
+                style={[styles.messageItemBlock, (authState.user.public_id == item.sender.public_id && {flexDirection: "row-reverse"})]}>
                 <View style={styles.leftBlock}>
                     {((currentDateTime.getDate() !== nextDateTime.getDate() ||
                             currentDateTime.getMonth() !== nextDateTime.getMonth())
-                        || item.sender !== nextSender) ?
+                        || item.sender.public_id !== nextSender.public_id) ?
                         <Avatar user={item.sender}/> : null}
                 </View>
                 {(authState.user.public_id == item.sender.public_id) ? 
                 <Swipeable renderRightActions={onRenderRightActions} renderLeftActions={() => null} containerStyle={{flex: 0.85}}>
-                    <View style={[styles.rightBlock, {alignItems: "flex-end"}]}>
+                    <View style={[styles.messageContentBlock, {alignItems: "flex-end"}]}>
                         <View style={[styles.contentTimeBlock, (item == messageForChangeState.message && {backgroundColor: "#4477FF"})]}>
                             {(item.file) &&
                                 <View style={styles.fileBlock}>
@@ -122,7 +122,7 @@ const MessageItem = ({index, messages, item, messageForChangeState}:
                     </View>
                 </Swipeable> 
                 :
-                <View style={[styles.rightBlock]}>
+                <View style={[styles.messageContentBlock]}>
                     <View style={[styles.contentTimeBlock]}>
                         {(item.file) &&
                             <View style={styles.fileBlock}>
@@ -144,7 +144,7 @@ const MessageItem = ({index, messages, item, messageForChangeState}:
 }
 
 const styles = StyleSheet.create({
-    messageBlock: {
+    messageItemBlock: {
         marginBottom: 20,
         flexDirection: "row"
     },
@@ -153,13 +153,13 @@ const styles = StyleSheet.create({
         justifyContent: "flex-end",
         alignItems: "center"
     },
-    rightBlock: {
+    messageContentBlock: {
         flex: 0.85,
         alignItems: "flex-start"
     },
     contentTimeBlock: {
         borderRadius: 10,
-        backgroundColor: "#D9D9D9",
+        backgroundColor: "#D9D9D990",
         padding: 10,
         maxWidth: "90%"
     },
@@ -179,13 +179,12 @@ const styles = StyleSheet.create({
         alignSelf: "flex-end"
     },
     dateBlock: {
-        alignItems: "center"
+        alignItems: "center",
     },
     date: {
         marginBottom: 10
     },
     dateText: {
-        color: "#FFFFFF",
         fontSize: 18
     },
     downloadButton: {

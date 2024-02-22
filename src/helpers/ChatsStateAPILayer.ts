@@ -5,7 +5,7 @@ import { createMessage, markAllChatMessagesAsRead } from "@app/api/endpoints/mes
 import { createChat, destroyChat } from "@app/api/endpoints/chat";
 import { Chat_, ChatsStateType } from "@app/types/ChatType";
 
-export const updateMessageAndSetState = (chatsState: ChatsStateType,
+export const updateMessageAndSetState = async (chatsState: ChatsStateType,
                               message: Message, 
                               changedText=null, 
                               changedFile=null) => {
@@ -13,8 +13,11 @@ export const updateMessageAndSetState = (chatsState: ChatsStateType,
     message.file = changedFile;
     message.is_edited = true;
     chatsState.setChats([...chatsState.chats]);
-    createMessage(message, "PUT")
-        .catch(() => {message.hasSendingError = true})
+    try {
+        await createMessage(message, "PUT");
+    } catch {
+        message.hasSendingError = true;
+    }
 }
 
 export const readAllMessagesAndSetState = (chatsState: ChatsStateType,
@@ -53,14 +56,18 @@ export const createMessageAndSetState = async (chatsState: ChatsStateType,
     const newMessageInd = payload.chat.messages.results.push(newMessage) - 1;
     try {
         if (payload.isChatNew) {
-            console.log("Creating a chat.");
-            chatsState.setChats(prevState => [...prevState, payload.chat]);
-            payload.chat = (await createChat(payload.chat, newMessage)).data;
             payload.isChatNew = false;
+            const newChatInd = chatsState.chats.push(payload.chat) - 1;
+            chatsState.setChats([...chatsState.chats]);
+            const response = await createChat(payload.chat);
+            chatsState.chats[newChatInd] = response.data;
+            payload.chat = chatsState.chats[newChatInd];
+            chatsState.setChats([...chatsState.chats]);
         } else {
-            chatsState.setChats(prevState => [...prevState]);
+            chatsState.setChats([...chatsState.chats]);
             const response = await createMessage(newMessage);
             payload.chat.messages.results[newMessageInd] = response.data;  
+            chatsState.setChats([...chatsState.chats]);
         }
     } catch(e) {
         if (e.response) {
@@ -70,27 +77,17 @@ export const createMessageAndSetState = async (chatsState: ChatsStateType,
         }
     }
     
-    chatsState.setChats(prevState => [...prevState]);
 }
 
 export const destroyChatAndSetState = async (chatsState: ChatsStateType,
                                        currChat: Chat_) => 
         {
-            try {
-                await destroyChat(currChat);
-                for (let i = 0; i < chatsState.chats.length; i++) {
-                    if (chatsState.chats[i].public_id === currChat.public_id) {
-                        chatsState.chats.splice(i, 1);
-                        chatsState.setChats(prevValues => [...prevValues])
-                        return
-                    }
-                }
-            } catch(e) {
-                if (e.response) {
-                    console.error(e.response.data);
-                } else {
-                    console.error(e);
+            for (let i = 0; i < chatsState.chats.length; i++) {
+                if (chatsState.chats[i].public_id === currChat.public_id) {
+                    chatsState.chats.splice(i, 1);
+                    chatsState.setChats(prevValues => [...prevValues])
+                    break
                 }
             }
-            
+            await destroyChat(currChat);
         }
