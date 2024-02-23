@@ -20,18 +20,15 @@ const countUnreadMessages = (currUser: User, messages: Message[]): number => {
     return count;
 }
 
-
 const ChatItem = ({item, navigation}: {item: Chat_, navigation: any}) => {
     const user = useAuth().authState.user;
     const companion = (item.first_user.username == user.username) ? item.second_user : item.first_user;
     
-
     return (
         <Pressable style={styles.message} onPress={(e) => {
             console.log("Navigate to messages' screen, UUID: " + item.public_id);
             navigation.navigate(ScreenNames.MESSAGES_SCREEN, {payload: {chat: item, companion, isChatNew: false}});
-        }
-        }>
+        }}>
             <View style={styles.avatarBlock}>
                 <Avatar user={companion} />
             </View>

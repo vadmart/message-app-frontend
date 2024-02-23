@@ -10,7 +10,6 @@ import {Chat_} from "@app/types/ChatType";
 import {OneSignal} from "react-native-onesignal";
 import { readAllMessagesAndSetState } from "@app/helpers/ChatsStateAPILayer";
 import {useNavigation} from "@react-navigation/native"
-import Avatar from "@app/components/chating/Avatar";
 import { User } from "@app/types/UserType";
 
 
@@ -18,7 +17,6 @@ import { User } from "@app/types/UserType";
 const PrivateChatScreen = memo(({route}) => {
     console.log("Rendering MessagesScreen");
     const messageListRef = useRef(null);
-    const footerRef = useRef(null);
     const {chats, setChats} = useChat();
     const navigation = useNavigation();
     const {payload}: {payload: {companion: User,

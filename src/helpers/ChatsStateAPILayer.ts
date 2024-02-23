@@ -53,30 +53,40 @@ export const createMessageAndSetState = async (chatsState: ChatsStateType,
         file: file,
         hasSendingError: null
     };
-    const newMessageInd = payload.chat.messages.results.push(newMessage) - 1;
-    try {
-        if (payload.isChatNew) {
-            payload.isChatNew = false;
-            const newChatInd = chatsState.chats.push(payload.chat) - 1;
-            chatsState.setChats([...chatsState.chats]);
+    payload.chat.messages.results.push(newMessage);
+    if (payload.isChatNew) {
+        payload.isChatNew = false;
+        chatsState.setChats(prevState => [...prevState, payload.chat]);
+        try {
             const response = await createChat(payload.chat);
-            chatsState.chats[newChatInd] = response.data;
-            payload.chat = chatsState.chats[newChatInd];
-            chatsState.setChats([...chatsState.chats]);
-        } else {
-            chatsState.setChats([...chatsState.chats]);
+            Object.keys(response.data).forEach(key => {
+                payload.chat[key] = response.data[key];
+            })
+            chatsState.setChats(prevState => [...prevState]);
+        }
+        catch(e) {
+            if (e.response) {
+                console.error(e.response.data);
+            } else {
+                console.error(e);
+            }
+        }
+    } else {
+        try {
+            chatsState.setChats(prevState => [...prevState]);
             const response = await createMessage(newMessage);
-            payload.chat.messages.results[newMessageInd] = response.data;  
-            chatsState.setChats([...chatsState.chats]);
-        }
-    } catch(e) {
-        if (e.response) {
-            console.error(e.response.data);
-        } else {
-            console.error(e);
-        }
+            Object.keys(response.data).forEach(key => {
+                newMessage[key] = response.data[key]
+            });
+            chatsState.setChats(prevState => [...prevState]);
+        } catch (e) {
+            if (e.response) {
+                console.error(e.response.data);
+            } else {
+                console.error(e);
+            }
+        }   
     }
-    
 }
 
 export const destroyChatAndSetState = async (chatsState: ChatsStateType,

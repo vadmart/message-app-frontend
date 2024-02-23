@@ -10,7 +10,7 @@ import ScreenNames, {BaseWebsocketURL, BaseHTTPURL} from "@app/config";
 import { useConnect } from "@app/context/ConnectionContext";
 import { axiosWithConnectionRetry as axios } from "@app/config";
 import { Message } from "@app/types/MessageType";
-import { storage } from "@app/Storage";
+// import { storage } from "@app/Storage";
 
 const Stack = createNativeStackNavigator();
 
@@ -29,7 +29,7 @@ const MainScreen = () => {
     const wsRef = useRef<WebSocket>(null);
 
     useEffect(() => {
-        const chatsFromStorage = storage.getString("chats");
+        // const chatsFromStorage = storage.getString("chats");
         // if (chatsFromStorage) {
         //     setChats(JSON.parse(chatsFromStorage));
         // } 
@@ -38,7 +38,7 @@ const MainScreen = () => {
         axios.get(BaseHTTPURL + "chat/")
             .then(response => {
                 setChats(response.data);
-                storage.set("chat", JSON.stringify(chats));
+                // storage.set("chat", JSON.stringify(chats));
             })
             .catch((e) => {console.log(e)});
 
@@ -84,14 +84,14 @@ const MainScreen = () => {
                         currChat.messages.has_unread_messages = true;
                     }
                     setChats([...chats].sort(sortChats));
-                    storage.set("chat", JSON.stringify(chats));
+                    // storage.set("chat", JSON.stringify(chats));
                     break;
                 case "update":
                     for (let i = currMessages.length - 1; i >= 0; --i) {
                         if (currMessages[i].public_id == data.message.public_id) {
                             currMessages[i] = data.message;
                             setChats([...chats]);
-                            storage.set("chat", JSON.stringify(chats));
+                            // storage.set("chat", JSON.stringify(chats));
                             return;
                         }
                     }
@@ -107,7 +107,7 @@ const MainScreen = () => {
                             currMessages.splice(i, 1);
                             currChat.messages.unread_messages_count -= 1;
                             setChats([...chats]);
-                            storage.set("chat", JSON.stringify(chats));
+                            // storage.set("chat", JSON.stringify(chats));
                             return;
                         }
                     }
@@ -118,13 +118,13 @@ const MainScreen = () => {
             switch (data.action) {
                 case "create":
                     setChats(prevState => [...prevState, data.chat]);
-                    storage.set("chat", JSON.stringify(chats));
+                    // storage.set("chat", JSON.stringify(chats));
                 case "destroy":
                     for (let i = chats.length - 1; i >= 0; i--) {
                         if (chats[i].public_id == data.chat.public_id) {
                             chats.splice(i, 1);
                             setChats([...chats].sort(sortChats));
-                            storage.set("chat", JSON.stringify(chats));
+                            // storage.set("chat", JSON.stringify(chats));
                             break;
                         }
                     }
@@ -163,7 +163,7 @@ const MainScreen = () => {
                                 headerTintColor: "#fff",
                                    
                             }}
-                            />
+                />
             </Stack.Navigator>
         </ChatProvider>
     )
