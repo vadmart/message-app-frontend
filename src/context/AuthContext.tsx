@@ -3,7 +3,7 @@ import {storage} from "@app/Storage"
 import {BaseHTTPURL} from "@app/config";
 import { axiosWithConnectionRetry as axios } from "@app/config";
 import {OneSignal} from "react-native-onesignal";
-import {User} from "@app/types/UserType"
+import {User} from "@app/types/UserType";
 
 export interface AuthState {
     access: string | null,
@@ -15,8 +15,10 @@ export interface AuthState {
 interface AuthProps {
     authState?: AuthState;
     onRegister?: (data: object) => Promise<any>;
-    onLogin?: (username: string, phoneNumber: string) => Promise<any>;
-    onVerify?: (username: string, phoneNumber: string, otpCode: string) => Promise<any>
+    onLogin?: (username: string, phone_number: string) => Promise<any>;
+    onVerify?: (username: string, phone_number: string, otpCode: string) => Promise<any>;
+    onResend?: (username: string, phone_number: string) => Promise<any>;
+    onLogout?: () => void
 }
 
 const AuthContext = createContext<AuthProps>({});
@@ -66,22 +68,22 @@ export const AuthProvider = ({children}) => {
         loadAuthData();
     }, []);
 
-    const login = async (username: string, phoneNumber: string) => {
+    const login = async (username: string, phone_number: string) => {
         try {
             return await axios.post(BaseHTTPURL + "auth/login/",
-                {username, phone_number: "+380" + phoneNumber});
+                {username, phone_number: "+380" + phone_number});
         } catch (e) {
             return {error: true, msg: (e).response.data}
         }
     }
 
-    const verify = async (username: string, phoneNumber: string, otpCode: string) => {
+    const verify = async (username: string, phone_number: string, otp_code: string) => {
         try {
-            console.log(username, phoneNumber, otpCode);
+            console.log(username, phone_number, otp_code);
             const response = await axios.post(BaseHTTPURL + "auth/verify/", {
                 username,
-                phone_number: phoneNumber,
-                otp: otpCode
+                phone_number,
+                otp_code
             });
             setAuthState({
                 access: response.data.access,
@@ -105,10 +107,27 @@ export const AuthProvider = ({children}) => {
         })
     }
 
+    const logout = () => {
+        storage.delete("auth");
+        setAuthState({
+            user: null,
+            access: null,
+            refresh: null,
+            authenticated: false
+        });
+    }
+
+    const resend = async (username: string, phone_number: string) => {
+        return await axios.post(BaseHTTPURL + "auth/verify/resend/",
+            {username, phone_number})
+    }
+
     const authValue = {
         onRegister: async () => {},
         onLogin: login,
         onVerify: verify,
+        onLogout: logout,
+        onResend: resend,
         authState
     };
     return <AuthContext.Provider value={authValue}>{children}</AuthContext.Provider>

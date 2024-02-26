@@ -57,7 +57,8 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         paddingLeft: 5,
         paddingVertical: 10,
-        justifyContent: "space-between"
+        justifyContent: "space-between",
+        borderRadius: 20
     },
     avatarBlock: {
         justifyContent: "center",

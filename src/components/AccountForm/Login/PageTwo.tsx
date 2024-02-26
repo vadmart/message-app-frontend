@@ -1,149 +1,98 @@
-import React, { useState } from "react";
-import { StyleSheet, View, Text, TextInput } from "react-native";
+import React, { useState, useRef } from "react";
+import { StyleSheet, View, Text, TextInput, Pressable, NativeSyntheticEvent, TextInputKeyPressEventData } from "react-native";
 import { errInputStyle, errLabelStyle } from "../../../helpers/errorStyle";
 import FormButton from "../FormButton";
 import FormContainer from "../FormContainer";
 import {useAuth} from "@app/context/AuthContext";
+import { FlatList } from "react-native-gesture-handler";
 
 
 const PageTwo = ({ route, navigation }) => {
     const {username, phoneNumber} = route.params;
-    const {onVerify} = useAuth();
+    const {onVerify, onResend} = useAuth();
+    const [otpCode, setOtpCode] = useState(Array<string>(6).fill(""));
+    const [errStyle, setErrStyle] = useState(null);
+    const [labelText, setLabelText] = useState("");
+    const fields = useRef(Array(6));
+
     async function handleForm() {
-        setIsFormHandled(true);
-        const otpCode = firstValue + secondValue + thirdValue + fourthValue + fifthValue + sixthValue;
-        const response = await onVerify(username, phoneNumber, otpCode);
+        const otp = otpCode.join("");
+        console.log(otp);
+        return
+        const response = await onVerify(username, phoneNumber, otp);
         if (response.error) {
             setLabelText(response.msg.detail);
             setErrStyle(errInputStyle)
         }
     }
 
+    const handleChangeText = (text: string, index: number) => {
+        const newOtpCode = [...otpCode];
+        newOtpCode[index] = text;
+        setOtpCode(() => {
+            console.log("State changes.")
+            return newOtpCode
+        });
+        if (index < 5 && text !== "") {
+            fields.current[index + 1].focus();
+        }
+        if (index === 5) {
+            console.log("Start form handling");
+            handleForm();
+        }
+    }
 
-    const [firstValue, onChangeFirstValue] = useState("");
-    const [isFirstFieldEditable, setIsFirstFieldsEditable] = useState(true);
-
-    const [secondValue, onChangeSecondValue] = useState("");
-    const [isSecondFieldEditable, setIsSecondFieldEditable] = useState(true);
-
-    const [thirdValue, onChangeThirdValue] = useState("");
-    const [isThirdFieldEditable, setIsThirdFieldEditable] = useState(true);
-
-    const [fourthValue, onChangeFourthValue] = useState("");
-    const [isFourthFieldEditable, setIsFourthFieldEditable] = useState(true);
-
-    const [fifthValue, onChangeFifthValue] = useState("");
-    const [isFifthFieldEditable, setIsFifthFieldEditable] = useState(true);
-
-    const [sixthValue, onChangeSixthValue] = useState("");
-    const [isSixthFieldEditable, setIsSixthFieldEditable] = useState(true);
-
-    const [errStyle, setErrStyle] = useState(null);
-    const [labelText, setLabelText] = useState("");
-    const [isFormHandled, setIsFormHandled] = useState(false);
-
-    const fields = {first: null, second: null, third: null, fourth: null, fifth: null, sixth: null};
-
-    if (sixthValue && !isFormHandled) {
-        handleForm();
+    const handleKeyPress = (e: NativeSyntheticEvent<TextInputKeyPressEventData>, index: number) => {
+        if (e.nativeEvent.key === "Backspace" && index > 0) {
+            if (otpCode[index] === "") {
+                const newOtpCode = [...otpCode];
+                newOtpCode[index - 1] = "";
+                setOtpCode(newOtpCode);
+            }
+            fields.current[index - 1].focus();
+        }
     }
 
     return (
-    <FormContainer>
-        <View style={styles.topBlock}>
-            <Text style={styles.formTitle}>Вхід</Text>
-        </View>
-        <View style={styles.mainBlock}>
-            <Text style={styles.labelText}>Введіть код верифікації:</Text>
-            <View style={styles.inputContainer}>
-            {/* TODO: create a component from text cells */}
-                <View style={styles.inputBlock}>
-                    <View style={styles.inputHalfBlock}>
-                        <TextInput style={[styles.input, errStyle]}
-                                keyboardType={"decimal-pad"}
-                                maxLength={1}
-                                ref={input => fields.first = input}
-                                onChangeText={onChangeFirstValue}
-                                onChange={() => {
-                                    fields.second.focus();
-                                    setIsFirstFieldsEditable(false);
+        <FormContainer>
+            <View style={styles.topBlock}>
+                <Text style={styles.formTitle}>Вхід</Text>
+            </View>
+            <View style={styles.mainBlock}>
+                <Text style={styles.labelText}>Введіть код верифікації:</Text>
+                <View style={styles.inputContainer}>
+                    <FlatList style={styles.inputBlock} 
+                            horizontal={true} 
+                            data={fields.current} 
+                            contentContainerStyle={{columnGap: 5}}
+                            renderItem={({index}) => {
+                                return (
+                                    <TextInput style={[styles.input, errStyle]}
+                                        keyboardType={"decimal-pad"}
+                                        ref={input => fields.current[index] = input}
+                                        maxLength={1}
+                                        onChangeText={text => handleChangeText(text, index)}
+                                        onKeyPress={e => handleKeyPress(e, index)}
+                                        value={otpCode[index]}
+                                    />
+                                    )
                                 }}
-                                value={firstValue} 
-                                editable={isFirstFieldEditable}
-                        />                   
-                        <TextInput style={[styles.input, errStyle]}
-                                keyboardType={"decimal-pad"}
-                                ref={input => fields.second = input}
-                                onChangeText={onChangeSecondValue}
-                                onChange={() => {
-                                    fields.third.focus();
-                                    setIsSecondFieldEditable(false);
-                                }}
-                                maxLength={1}
-                                value={secondValue}
-                                editable={isSecondFieldEditable}
-                        />
-                        <TextInput style={[styles.input, errStyle]}
-                                keyboardType={"decimal-pad"}
-                                onChangeText={onChangeThirdValue}
-                                ref={input => fields.third = input}
-                                onChange={() => {
-                                    setIsThirdFieldEditable(false);
-                                    fields.fourth.focus();
-                                }}
-                                maxLength={1}
-                                value={thirdValue}
-                                editable={isThirdFieldEditable}
-                        />
-                    </View>
-                    <View style={styles.inputHalfBlock}>
-                        <TextInput style={[styles.input, errStyle]}
-                                keyboardType={"decimal-pad"}
-                                ref={input => fields.fourth = input}
-                                onChangeText={onChangeFourthValue}
-                                onChange={() => {
-                                    setIsFourthFieldEditable(false);
-                                    fields.fifth.focus();
-                                }}
-                                maxLength={1}
-                                value={fourthValue}
-                                editable={isFourthFieldEditable}
-                        />
-                        <TextInput style={[styles.input, errStyle]}
-                                keyboardType={"decimal-pad"}
-                                ref={input => fields.fifth = input}
-                                onChangeText={onChangeFifthValue}
-                                onChange={() => {
-                                    setIsFifthFieldEditable(false);
-                                    fields.sixth.focus();
-                                }}
-                                maxLength={1}
-                                value={fifthValue}
-                                editable={isFifthFieldEditable}
-                        />
-                        <TextInput style={[styles.input, errStyle]}
-                                keyboardType={"decimal-pad"}
-                                ref={input => fields.sixth = input}
-                                onChange={({nativeEvent}) => {
-                                    onChangeSixthValue(nativeEvent.text);
-                                    setIsSixthFieldEditable(false);
-                                }}
-                                maxLength={1}
-                                value={sixthValue}
-                                editable={isSixthFieldEditable}        
-                        />
-                    </View>
+                    />
+                    <Text style={[errLabelStyle, {fontSize: 13}]}>{labelText}</Text>
+                    <Pressable onPress={() => {
+                            onResend(username, phoneNumber)
+                    }}>
+                        <Text>Надіслати новий код</Text>
+                    </Pressable>
                 </View>
-                <Text style={[errLabelStyle, {fontSize: 13}]}>{labelText}</Text>
+                <View style={styles.buttonBlock}>
+                    <FormButton text={"Повернутися"} onPress={() => {
+                            navigation.goBack();
+                        }} 
+                    />
+                </View>
             </View>
-            <View style={styles.buttonBlock}>
-                <FormButton text={"Повернутися"} onPress={() => {
-                        navigation.goBack();
-                    }} 
-                />
-            </View>
-        </View>
-    </FormContainer>
+        </FormContainer>
     )
 }
 
@@ -178,12 +127,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     inputBlock: {
-        paddingTop: 2,
-        rowGap: 15,
-        borderRadius: 10,
-        height: 40,
         columnGap: 10,
-        flexDirection: "row",
         marginBottom: 12.5,
     },
     input: {

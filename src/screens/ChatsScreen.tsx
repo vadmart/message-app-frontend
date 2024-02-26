@@ -5,12 +5,16 @@ import ChatItem from "@app/components/chating/ChatItem";
 import {useChat} from "@app/context/ChatsContext";
 import { Swipeable } from "react-native-gesture-handler";
 import { destroyChatAndSetState } from "@app/helpers/ChatsStateAPILayer";
+import {Menu, MenuOptions, MenuTrigger, MenuOption, MenuProvider} from "react-native-popup-menu";
+import { useAuth } from "@app/context/AuthContext";
+import ScreenNames from "@app/config";
 
 
 // @ts-ignore
 const ChatsScreen = memo(({navigation}) => {
     console.log("Rendering ChatsScreen");
     const {chats, setChats} = useChat();
+    const {onLogout} = useAuth();
 
     const onRenderRightActions = (
         _progress: Animated.AnimatedInterpolation<number>,
@@ -35,10 +39,26 @@ const ChatsScreen = memo(({navigation}) => {
             </Animated.View>
         )
     }
+
     
     return (
+        <MenuProvider>
             <View style={styles.container}>
+                <View style={{flexDirection: "row", justifyContent: "space-around", alignItems: "center"}}>
+                        <Menu>
+                            <MenuTrigger style={{rowGap: 5}}>
+                                <View style={styles.menuDot}/>
+                                <View style={styles.menuDot}/>
+                                <View style={styles.menuDot}/>
+                            </MenuTrigger>
+                            <MenuOptions>
+                                <MenuOption onSelect={() => {
+                                    onLogout();
+                                }} text={"Вийти"}/> 
+                            </MenuOptions>
+                        </Menu>
                     <ContactSearcher navigation={navigation}/>
+                </View>
                     {(chats.length > 0) ? 
                     <FlatList data={chats}
                             renderItem={({item}) => {
@@ -60,6 +80,7 @@ const ChatsScreen = memo(({navigation}) => {
                         <Text style={styles.noChatsLabel}>Чатів поки що немає. Час почати спілкування!</Text>
                     </View>}
             </View>
+            </MenuProvider>
     )
 })
 
@@ -80,6 +101,12 @@ const styles = StyleSheet.create({
         fontStyle: "italic", 
         color: "rgba(0.5, 0.5, 0.5, 0.5)",
         textAlign: "center"
+    },
+    menuDot: {
+        width: 5, 
+        aspectRatio: 1, 
+        backgroundColor: "white", 
+        borderRadius: 50
     }
 })
 export default ChatsScreen;

@@ -10,6 +10,9 @@ import ScreenNames, {BaseWebsocketURL, BaseHTTPURL} from "@app/config";
 import { useConnect } from "@app/context/ConnectionContext";
 import { axiosWithConnectionRetry as axios } from "@app/config";
 import { Message } from "@app/types/MessageType";
+import { Pressable, View, StyleSheet } from "react-native";
+import ContactSearcher from "@app/components/chating/ContactSearcher";
+import { useNavigation } from "@react-navigation/native";
 // import { storage } from "@app/Storage";
 
 const Stack = createNativeStackNavigator();
@@ -26,6 +29,7 @@ const MainScreen = () => {
     const {connected} = useConnect();
     const [chats, setChats] = useState<Chat_[]>([]);
     const {authState} = useAuth();
+    const navigation = useNavigation();
     const wsRef = useRef<WebSocket>(null);
 
     useEffect(() => {
@@ -168,5 +172,14 @@ const MainScreen = () => {
         </ChatProvider>
     )
 }
+
+const styles = StyleSheet.create({
+    menuDot: {
+        width: 8, 
+        aspectRatio: 1, 
+        backgroundColor: "white", 
+        borderRadius: 50
+    }
+})
 
 export default MainScreen;

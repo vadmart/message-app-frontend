@@ -12,6 +12,8 @@ import LoginForm from "@app/screens/LoginForm";
 // @ts-ignore
 import MainScreen from '@app/screens/MainScreen';
 // @ts-ignore
+import RegistrationForm from '@app/screens/RegistrationForm';
+// @ts-ignore
 import ScreenNames from '@app/config';
 // @ts-ignore
 import {AuthProvider, useAuth} from "@app/context/AuthContext";
@@ -54,7 +56,10 @@ export const Layout = () => {
                             </Stack.Screen>
                     )
                     : (
-                        <Stack.Screen component={LoginForm} name={ScreenNames.LOGIN} />
+                        <>
+                            <Stack.Screen component={LoginForm} name={ScreenNames.LOGIN} />
+                            <Stack.Screen component={RegistrationForm} name={ScreenNames.REGISTRATION} />
+                        </>
                     )
                 }
                 </Stack.Navigator>

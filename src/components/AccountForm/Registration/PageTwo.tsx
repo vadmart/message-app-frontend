@@ -1,36 +1,24 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Image, Text, TextInput, Pressable, ImageBackground } from "react-native";
-import axios from "axios";
-import { storage } from "../../../Storage";
+import { StyleSheet, View, Text, TextInput } from "react-native";
 import { errInputStyle, errLabelStyle } from "../../../helpers/errorStyle";
-import { BaseURL } from "./BaseURL";
 import FormButton from "../FormButton";
+import FormContainer from "../FormContainer";
+import {useAuth} from "@app/context/AuthContext";
 
 
-const PageFour = ({ route, navigation }) => {
-
-    function handleForm() {
+const PageTwo = ({ route, navigation }) => {
+    const {username, phoneNumber} = route.params;
+    const {onVerify} = useAuth();
+    async function handleForm() {
+        setIsFormHandled(true);
         const otpCode = firstValue + secondValue + thirdValue + fourthValue + fifthValue + sixthValue;
-        axios.post(BaseURL, {
-            "employee_id": employeeID,
-            "first_name": firstname,
-            "last_name": lastname,
-            "password": password,
-            "phone_number": phoneNumber,
-            "otp_code": otpCode
-        })
-        .then((response) => {
-            storage.set("auth", JSON.stringify(response.data));
-            console.log(JSON.parse(storage.getString("auth")))
-        })
-        .catch((e) => {
-            setIsFormHandled(true);
-            setErrStyle(errInputStyle);
-            setLabelText(e.response.data["error"] || e.response.data["employee_id"]);
-        })
+        const response = await onVerify(username, phoneNumber, otpCode);
+        if (response.error) {
+            setLabelText(response.msg.detail);
+            setErrStyle(errInputStyle)
+        }
     }
 
-    const {employeeID, firstname, lastname, password, phoneNumber } = route.params || {};
 
     const [firstValue, onChangeFirstValue] = useState("");
     const [isFirstFieldEditable, setIsFirstFieldsEditable] = useState(true);
@@ -54,20 +42,21 @@ const PageFour = ({ route, navigation }) => {
     const [labelText, setLabelText] = useState("");
     const [isFormHandled, setIsFormHandled] = useState(false);
 
-    const fields = {};
+    const fields = {first: null, second: null, third: null, fourth: null, fifth: null, sixth: null};
 
     if (sixthValue && !isFormHandled) {
         handleForm();
-    };
+    }
 
     return (
-    <View style={styles.container}>
+    <FormContainer>
         <View style={styles.topBlock}>
-            <Image source={require("../../../../assets/images/registration.png")} style={styles.logo} />
+            <Text style={styles.formTitle}>Реєстрація</Text>
         </View>
         <View style={styles.mainBlock}>
-            <Text style={styles.labelText}>Enter your verification code:</Text>
+            <Text style={styles.labelText}>Введіть код верифікації:</Text>
             <View style={styles.inputContainer}>
+            {/* TODO: create a component from text cells */}
                 <View style={styles.inputBlock}>
                     <View style={styles.inputHalfBlock}>
                         <TextInput style={[styles.input, errStyle]}
@@ -148,22 +137,20 @@ const PageFour = ({ route, navigation }) => {
                 <Text style={[errLabelStyle, {fontSize: 13}]}>{labelText}</Text>
             </View>
             <View style={styles.buttonBlock}>
-                <FormButton text={"Return"} onPress={() => {
+                <FormButton text={"Повернутися"} onPress={() => {
                         navigation.goBack();
                     }} 
                 />
             </View>
         </View>
-    </View>
+    </FormContainer>
     )
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "space-between",
-        alignItems: "center",
-        backgroundColor: "#003867",
+    formTitle: {
+        fontSize: 25,
+        color: "white",
     },
     logo: {
         height: 30,
@@ -234,4 +221,4 @@ const styles = StyleSheet.create({
         columnGap: 5,
     },
 });
-export default PageFour;
+export default PageTwo;

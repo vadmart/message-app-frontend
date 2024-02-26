@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import { StyleSheet, View, Image, TextInput, Pressable, Text  } from "react-native";
-import { errInputStyle, errLabelStyle } from "../../../helpers/errorStyle";
+import { errInputStyle, errLabelStyle } from "@app/helpers/errorStyle";
 import { useAuth } from "@app/context/AuthContext"
 import FormButton from "@app/components/AccountForm/FormButton"
 import FormNavigationButton from "@app/components/AccountForm/FormNavigationButton";
@@ -20,7 +20,7 @@ const LoginPageOne = ({ navigation }) => {
     const {onLogin} = useAuth();
 
 
-    async function handleLoginSubmit(e) {
+    async function handleRegistrationSubmit(e) {
         if (!username) {
             setUsernameInputStyle(errInputStyle);
             setUsernameLabelText("Field cannot be empty.");
@@ -37,18 +37,18 @@ const LoginPageOne = ({ navigation }) => {
                 setValidationErrText(val);
             }
         } else {
-            navigation.navigate("LoginPageTwo", {username, phoneNumber: "+380" + phoneNumber})
+            navigation.navigate("RegPageTwo", {username, phoneNumber: "+380" + phoneNumber})
         }
     }
 
     return (
         <FormContainer>
             <View style={styles.topBlock}>
-                <Text style={styles.formTitle}>Вхід</Text>
+                <Text style={styles.formTitle}>Реєстрація</Text>
             </View>
             <View style={styles.mainBlock}>
                 <View style={styles.loginBlock}>
-                    <FormNavigationButton text={"Реєстрація"} onSubmit={() => navigation.navigate(ScreenNames.REGISTRATION, {screen: "RegPageOne"})} />
+                    <FormNavigationButton text={"Вхід"} onSubmit={() => navigation.navigate(ScreenNames.LOGIN)} />
                 </View>
                 <View style={styles.inputContainer}>
                     <View>
@@ -97,7 +97,7 @@ const LoginPageOne = ({ navigation }) => {
                 </View>
                 <View style={styles.buttonBlock}>
                     <FormButton text={"Продовжити"}
-                                onPress={handleLoginSubmit}
+                                onPress={handleRegistrationSubmit}
                     />
                 </View>
             </View>

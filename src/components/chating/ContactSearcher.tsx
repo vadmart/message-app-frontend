@@ -49,7 +49,7 @@ const ContactSearcher = ({navigation}) => {
                 }}/>
                 <Pressable style={styles.phoneNumberButton} onPress={handleSubmit}>
                     <Image source={require("@img/chat-icons/submit.png")}
-                           style={styles.phoneNumberButtonImage}/>
+                        style={styles.phoneNumberButtonImage}/>
                 </Pressable>
             </View>
             <Text style={styles.phoneNumberError}>{error}</Text>
@@ -60,8 +60,8 @@ const ContactSearcher = ({navigation}) => {
 
 const styles = StyleSheet.create({
     phoneNumberBlock: {
-        alignSelf: "center",
-        width: "80%"
+        // alignSelf: "center",
+        flex: 0.8
     },
     phoneNumberInputBlock: {
         backgroundColor: "white",
