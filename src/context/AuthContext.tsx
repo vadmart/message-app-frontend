@@ -14,7 +14,7 @@ export interface AuthState {
 
 interface AuthProps {
     authState?: AuthState;
-    onRegister?: (data: object) => Promise<any>;
+    onRegister?: (username: string, phone_number: string) => Promise<any>;
     onLogin?: (username: string, phone_number: string) => Promise<any>;
     onVerify?: (username: string, phone_number: string, otpCode: string) => Promise<any>;
     onResend?: (username: string, phone_number: string) => Promise<any>;
@@ -68,6 +68,14 @@ export const AuthProvider = ({children}) => {
         loadAuthData();
     }, []);
 
+    const register = async (username: string, phone_number: string) => {
+        try {
+            return await axios.post(BaseHTTPURL + "auth/register/", {username, phone_number})
+        } catch(e) {
+            return {error: true, msg: (e).response.data}
+        }
+    }
+
     const login = async (username: string, phone_number: string) => {
         try {
             return await axios.post(BaseHTTPURL + "auth/login/",
@@ -77,13 +85,12 @@ export const AuthProvider = ({children}) => {
         }
     }
 
-    const verify = async (username: string, phone_number: string, otp_code: string) => {
+    const verify = async (username: string, phone_number: string, otp: string) => {
         try {
-            console.log(username, phone_number, otp_code);
             const response = await axios.post(BaseHTTPURL + "auth/verify/", {
                 username,
                 phone_number,
-                otp_code
+                otp
             });
             setAuthState({
                 access: response.data.access,
@@ -123,7 +130,7 @@ export const AuthProvider = ({children}) => {
     }
 
     const authValue = {
-        onRegister: async () => {},
+        onRegister: register,
         onLogin: login,
         onVerify: verify,
         onLogout: logout,

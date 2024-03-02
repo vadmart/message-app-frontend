@@ -161,11 +161,8 @@ const MainScreen = () => {
                 <Stack.Screen name={ScreenNames.MESSAGES_SCREEN}
                             component={PrivateChatScreen}
                             options={{
-                                headerStyle: {backgroundColor: "#007767"}, 
                                 headerTitleAlign: "center",
                                 headerShadowVisible: false,
-                                headerTintColor: "#fff",
-                                   
                             }}
                 />
             </Stack.Navigator>

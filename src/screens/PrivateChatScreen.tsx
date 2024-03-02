@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState, memo} from "react";
-import {FlatList, StyleSheet, View, Text} from "react-native";
+import {FlatList, StyleSheet, View, StatusBar} from "react-native";
 import {BaseHTTPURL, axiosWithConnectionRetry as axios} from "@app/config";
 import {Message} from "@app/types/MessageType";
 import ChatKeyboard from "@app/components/chating/ChatKeyboard";
@@ -40,7 +40,7 @@ const PrivateChatScreen = memo(({route}) => {
                         messageForChangeState={messageForChangeState}
                     />
                 </View>
-                )
+            )
     }
 
     const onFlatListRefresh = () => {
@@ -97,8 +97,9 @@ const PrivateChatScreen = memo(({route}) => {
 
     return (
         <View style={styles.container}>
+            <StatusBar backgroundColor={"#fff"} />
             <FlatList
-                style={styles.messageList}
+                style={{paddingTop: 10}}
                 data={payload.chat?.messages?.results}
                 ref={messageListRef}
                 renderItem={renderMessage}
@@ -111,9 +112,7 @@ const PrivateChatScreen = memo(({route}) => {
                     }
                 }}
             />
-            <View style={styles.chatKeyboardContainer}>
-                <ChatKeyboard messageForChangeState={messageForChangeState} payload={payload} />
-            </View>
+            <ChatKeyboard messageForChangeState={messageForChangeState} payload={payload} />
         </View>
     )
 })
@@ -123,17 +122,5 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#007767"
     },
-    messageList: {
-        paddingTop: 10,
-        backgroundColor: "#fff",
-        borderTopLeftRadius: 30,
-        borderTopRightRadius: 30,
-        // overflow: "hidden"
-    },
-    chatKeyboardContainer: {
-        backgroundColor: "white", 
-        paddingVertical: 20, 
-        alignItems: "center"
-    }
 })
 export default PrivateChatScreen;

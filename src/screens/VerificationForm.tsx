@@ -1,38 +1,33 @@
 import React, { useState, useRef } from "react";
-import { StyleSheet, View, Text, TextInput, Pressable, NativeSyntheticEvent, TextInputKeyPressEventData } from "react-native";
-import { errInputStyle, errLabelStyle } from "../../../helpers/errorStyle";
-import FormButton from "../FormButton";
-import FormContainer from "../FormContainer";
+import { StyleSheet, View, Text, TextInput, Pressable, NativeSyntheticEvent, TextInputKeyPressEventData, StatusBar } from "react-native";
+import { errInputStyle, errLabelStyle } from "@app/helpers/errorStyle";
+import FormButton from "@app/components/AccountForm/FormButton";
+import FormContainer from "@app/components/AccountForm/FormContainer";
 import {useAuth} from "@app/context/AuthContext";
 import { FlatList } from "react-native-gesture-handler";
 
 
-const PageTwo = ({ route, navigation }) => {
+const VerificationForm = ({ route, navigation }) => {
     const {username, phoneNumber} = route.params;
     const {onVerify, onResend} = useAuth();
-    const [otpCode, setOtpCode] = useState(Array<string>(6).fill(""));
     const [errStyle, setErrStyle] = useState(null);
     const [labelText, setLabelText] = useState("");
     const fields = useRef(Array(6));
+    const [otpCode, setOtpCode] = useState([]);
 
     async function handleForm() {
         const otp = otpCode.join("");
         console.log(otp);
-        return
         const response = await onVerify(username, phoneNumber, otp);
         if (response.error) {
             setLabelText(response.msg.detail);
-            setErrStyle(errInputStyle)
+            setErrStyle(errInputStyle);
         }
     }
 
     const handleChangeText = (text: string, index: number) => {
-        const newOtpCode = [...otpCode];
-        newOtpCode[index] = text;
-        setOtpCode(() => {
-            console.log("State changes.")
-            return newOtpCode
-        });
+        otpCode[index] = text;
+        setOtpCode(prevState => [...prevState]);
         if (index < 5 && text !== "") {
             fields.current[index + 1].focus();
         }
@@ -45,18 +40,19 @@ const PageTwo = ({ route, navigation }) => {
     const handleKeyPress = (e: NativeSyntheticEvent<TextInputKeyPressEventData>, index: number) => {
         if (e.nativeEvent.key === "Backspace" && index > 0) {
             if (otpCode[index] === "") {
-                const newOtpCode = [...otpCode];
-                newOtpCode[index - 1] = "";
-                setOtpCode(newOtpCode);
+                otpCode[index - 1] = "";
+                setOtpCode(prevState => [...prevState])
             }
             fields.current[index - 1].focus();
         }
     }
 
     return (
-        <FormContainer>
+        <>
+            <StatusBar backgroundColor={'#007767'} />
+            <FormContainer>
             <View style={styles.topBlock}>
-                <Text style={styles.formTitle}>Вхід</Text>
+                <Text style={styles.formTitle}>Підтвердження</Text>
             </View>
             <View style={styles.mainBlock}>
                 <Text style={styles.labelText}>Введіть код верифікації:</Text>
@@ -93,6 +89,7 @@ const PageTwo = ({ route, navigation }) => {
                 </View>
             </View>
         </FormContainer>
+        </>
     )
 }
 
@@ -165,4 +162,4 @@ const styles = StyleSheet.create({
         columnGap: 5,
     },
 });
-export default PageTwo;
+export default VerificationForm;

@@ -21,7 +21,9 @@ import {AuthProvider, useAuth} from "@app/context/AuthContext";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import {OneSignal, LogLevel} from "react-native-onesignal";
 // @ts-ignore
-import ConnectProvider from "@app/context/ConnectionContext"
+import ConnectProvider from "@app/context/ConnectionContext";
+// @ts-ignore
+import VerificationForm from '@app/screens/VerificationForm';
 
 
 const Stack = createNativeStackNavigator();
@@ -41,7 +43,6 @@ export const Layout = () => {
     const {authState} = useAuth();
     return (
         <GestureHandlerRootView style={styles.container}>
-            <StatusBar backgroundColor={'#007767'} />
             <NavigationContainer>
                 <Stack.Navigator screenOptions={{headerShown: false}}>
                     {authState?.authenticated ? (
@@ -59,6 +60,7 @@ export const Layout = () => {
                         <>
                             <Stack.Screen component={LoginForm} name={ScreenNames.LOGIN} />
                             <Stack.Screen component={RegistrationForm} name={ScreenNames.REGISTRATION} />
+                            <Stack.Screen component={VerificationForm} name={ScreenNames.VERIFICATION_SCREEN} />
                         </>
                     )
                 }

@@ -28,6 +28,7 @@ const ScreenNames = {
     LOGIN: "Login",
     MAIN_SCREEN: "MainScreen",
     CHATS_SCREEN: "ChatsScreen",
-    MESSAGES_SCREEN: "MessagesScreen"
+    MESSAGES_SCREEN: "MessagesScreen",
+    VERIFICATION_SCREEN: "VerificationScreen"
 };
 export default ScreenNames;

@@ -186,7 +186,8 @@ const styles = StyleSheet.create({
         marginBottom: 10
     },
     dateText: {
-        fontSize: 18
+        fontSize: 18,
+        color: "#fff"
     },
     downloadButton: {
         height: 30,

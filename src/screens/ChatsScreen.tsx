@@ -1,5 +1,5 @@
 import React, {memo} from "react";
-import {FlatList, StyleSheet, View, Text, Pressable, Animated} from "react-native";
+import {FlatList, StyleSheet, View, Text, Pressable, Animated, StatusBar} from "react-native";
 import ContactSearcher from "@app/components/chating/ContactSearcher";
 import ChatItem from "@app/components/chating/ChatItem";
 import {useChat} from "@app/context/ChatsContext";
@@ -7,7 +7,6 @@ import { Swipeable } from "react-native-gesture-handler";
 import { destroyChatAndSetState } from "@app/helpers/ChatsStateAPILayer";
 import {Menu, MenuOptions, MenuTrigger, MenuOption, MenuProvider} from "react-native-popup-menu";
 import { useAuth } from "@app/context/AuthContext";
-import ScreenNames from "@app/config";
 
 
 // @ts-ignore
@@ -43,6 +42,7 @@ const ChatsScreen = memo(({navigation}) => {
     
     return (
         <MenuProvider>
+            <StatusBar backgroundColor={'#007767'} />
             <View style={styles.container}>
                 <View style={{flexDirection: "row", justifyContent: "space-around", alignItems: "center"}}>
                         <Menu>

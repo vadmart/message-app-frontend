@@ -1,5 +1,5 @@
 import React, {useRef, useState} from "react"
-import {StyleSheet, TextInput, View, Pressable, Image, Text, GestureResponderEvent, ImageSourcePropType} from "react-native"
+import {StyleSheet, TextInput, View, Pressable, Image, Text, GestureResponderEvent, ImageSourcePropType, StyleProp, PressableProps, ViewStyle} from "react-native"
 import DocumentPicker, {DocumentPickerResponse} from "react-native-document-picker"
 import {Message} from "@app/types/MessageType";
 import { createMessageAndSetState, updateMessageAndSetState } from "@app/helpers/ChatsStateAPILayer";
@@ -7,8 +7,12 @@ import { useChat } from "@app/context/ChatsContext";
 import { useAuth } from "@app/context/AuthContext";
 
 
-const ChatKeyboardButton = ({onPress=null, disabled=false, source=null}: {onPress?: (e: GestureResponderEvent) => void, disabled?: boolean, source?: ImageSourcePropType}) => {
-    return <Pressable style={styles.chatKeyboardButton} onPress={onPress} disabled={disabled}>
+const ChatKeyboardButton = ({onPress=null, disabled=false, source=null, style}: 
+                            {onPress?: (e: GestureResponderEvent) => void, 
+                            disabled?: boolean, 
+                            source?: ImageSourcePropType,
+                            style?: StyleProp<ViewStyle>}) => {
+    return <Pressable style={style} onPress={onPress} disabled={disabled}>
                 <Image style={styles.buttonIcon} source={source} resizeMethod={"resize"} />
             </Pressable>
 }
@@ -42,8 +46,8 @@ const ChatKeyboard = ({messageForChangeState, payload}:
         }
     }
         return (
-            <View style={{width: "90%"}}>
-                {singleFile && <Text style={styles.fileName}>{singleFile.name}</Text>}
+            <View style={{paddingBottom: 10}}>
+                {singleFile && <Text style={styles.fileBlock}>{singleFile.name}</Text>}
                 <View style={styles.keyboardBlock}>
                     <TextInput style={styles.keyboard}
                                ref={inputFieldRef}
@@ -75,9 +79,11 @@ const ChatKeyboard = ({messageForChangeState, payload}:
                                         setSingleFile(null);
                                     }}
                                     disabled={(inputtedData === "" && singleFile === null)}
-                                    source={require("@img/chat-icons/send.png")}>
+                                    source={require("@img/chat-icons/send.png")}
+                                    style={styles.sendButton}>
                         </ChatKeyboardButton>
-                        <ChatKeyboardButton onPress={selectFile} source={require("@img/chat-icons/clip_icon.png")} />
+                        <ChatKeyboardButton onPress={selectFile} source={require("@img/chat-icons/clip_icon.png")} 
+                                            style={styles.selectFileButton} />
                     </View>
                 </View>
             </View>
@@ -85,24 +91,16 @@ const ChatKeyboard = ({messageForChangeState, payload}:
 }
 
 const styles = StyleSheet.create({
-    fileName: {
-        fontSize: 18,
-        padding: 10,
-    },
-    keyboardBlock: {
-        backgroundColor: "#C5C5C5",
-        flexDirection: "row",
-        height: 45,
-        width: "100%",
-        borderTopLeftRadius: 20,
-        borderBottomLeftRadius: 20,
-        borderTopRightRadius: 20,
-        borderBottomRightRadius: 20,
-    },
     keyboard: {
         fontSize: 18,
         flex: 1,
         paddingLeft: 15,
+        backgroundColor: "#fff",
+        borderTopLeftRadius: 20,
+        borderBottomLeftRadius: 20,
+        borderTopRightRadius: 20,
+        borderBottomRightRadius: 20,
+        marginHorizontal: 10
     },
     optionsBlock: {
         justifyContent: "center",
@@ -110,12 +108,30 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         columnGap: 5,
     },
-    chatKeyboardButton: {
+    fileBlock: {
+        fontSize: 18,
+        padding: 10,
+        backgroundColor: "#fff"
+    },
+    keyboardBlock: {
+        flexDirection: "row",
+        height: 45,
+        width: "100%"
+    },
+    selectFileButton: {
         alignItems: "center", 
         justifyContent: "center",
         borderRadius: 50,
-        backgroundColor: "#007767",
-        height: "90%",
+        backgroundColor: "#CC5500",
+        height: "100%",
+        aspectRatio: 1
+    },
+    sendButton: {
+        alignItems: "center", 
+        justifyContent: "center",
+        borderRadius: 50,
+        backgroundColor: "#FFCC00",
+        height: "100%",
         aspectRatio: 1
     },
     buttonIcon: {
