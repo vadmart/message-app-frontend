@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { StyleSheet, View, Text, TextInput, Pressable, NativeSyntheticEvent, TextInputKeyPressEventData, StatusBar } from "react-native";
+import { StyleSheet, View, Text, TextInput, Pressable, NativeSyntheticEvent, TextInputKeyPressEventData } from "react-native";
 import { errInputStyle, errLabelStyle } from "@app/helpers/errorStyle";
 import FormButton from "@app/components/AccountForm/FormButton";
 import FormContainer from "@app/components/AccountForm/FormContainer";
@@ -49,7 +49,6 @@ const VerificationForm = ({ route, navigation }) => {
 
     return (
         <>
-            <StatusBar backgroundColor={'#007767'} />
             <FormContainer>
             <View style={styles.topBlock}>
                 <Text style={styles.formTitle}>Підтвердження</Text>

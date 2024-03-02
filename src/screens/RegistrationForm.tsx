@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import { StyleSheet, View, Image, TextInput, Pressable, Text, StatusBar  } from "react-native";
+import { StyleSheet, View, Image, TextInput, Pressable, Text  } from "react-native";
 import { errInputStyle, errLabelStyle } from "@app/helpers/errorStyle";
 import { useAuth } from "@app/context/AuthContext"
 import FormButton from "@app/components/AccountForm/FormButton"
@@ -48,7 +48,6 @@ const RegistrationForm = ({ navigation }) => {
 
     return (
         <>
-            <StatusBar backgroundColor={'#007767'} />
             <FormContainer>
                 <View style={styles.topBlock}>
                     <Text style={styles.formTitle}>Реєстрація</Text>

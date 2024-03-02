@@ -11,6 +11,7 @@ import {OneSignal} from "react-native-onesignal";
 import { readAllMessagesAndSetState } from "@app/helpers/ChatsStateAPILayer";
 import {useNavigation} from "@react-navigation/native"
 import { User } from "@app/types/UserType";
+// import { StatusBar } from "expo-status-bar";
 
 
 // @ts-ignore
@@ -97,7 +98,7 @@ const PrivateChatScreen = memo(({route}) => {
 
     return (
         <View style={styles.container}>
-            <StatusBar backgroundColor={"#fff"} />
+            <StatusBar backgroundColor={"white"} barStyle={"dark-content"} animated={true}/>
             <FlatList
                 style={{paddingTop: 10}}
                 data={payload.chat?.messages?.results}

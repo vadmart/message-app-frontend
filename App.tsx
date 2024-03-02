@@ -24,6 +24,7 @@ import {OneSignal, LogLevel} from "react-native-onesignal";
 import ConnectProvider from "@app/context/ConnectionContext";
 // @ts-ignore
 import VerificationForm from '@app/screens/VerificationForm';
+// import { StatusBar } from "expo-status-bar";
 
 
 const Stack = createNativeStackNavigator();
@@ -43,6 +44,7 @@ export const Layout = () => {
     const {authState} = useAuth();
     return (
         <GestureHandlerRootView style={styles.container}>
+            <StatusBar backgroundColor={'#007767'} translucent={false} barStyle={"light-content"}/>
             <NavigationContainer>
                 <Stack.Navigator screenOptions={{headerShown: false}}>
                     {authState?.authenticated ? (

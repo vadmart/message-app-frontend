@@ -6,7 +6,6 @@ import FormButton from "@app/components/AccountForm/FormButton"
 import FormNavigationButton from "@app/components/AccountForm/FormNavigationButton";
 import FormContainer from "@app/components/AccountForm/FormContainer";
 import ScreenNames from "@app/config";
-import { StatusBar } from "expo-status-bar";
 
 
 
@@ -44,7 +43,6 @@ const LoginForm = ({ navigation }) => {
 
     return (
         <>
-            <StatusBar backgroundColor={'#007767'} />
             <FormContainer>
                 <View style={styles.topBlock}>
                     <Text style={styles.formTitle}>Вхід</Text>

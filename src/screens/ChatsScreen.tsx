@@ -42,7 +42,7 @@ const ChatsScreen = memo(({navigation}) => {
     
     return (
         <MenuProvider>
-            <StatusBar backgroundColor={'#007767'} />
+            {/* <StatusBar backgroundColor={'#007767'} /> */}
             <View style={styles.container}>
                 <View style={{flexDirection: "row", justifyContent: "space-around", alignItems: "center"}}>
                         <Menu>
