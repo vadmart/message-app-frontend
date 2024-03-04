@@ -42,25 +42,25 @@ const ChatsScreen = memo(({navigation}) => {
     
     return (
         <MenuProvider>
-            {/* <StatusBar backgroundColor={'#007767'} /> */}
             <View style={styles.container}>
-                <View style={{flexDirection: "row", justifyContent: "space-around", alignItems: "center"}}>
-                        <Menu>
-                            <MenuTrigger style={{rowGap: 5}}>
-                                <View style={styles.menuDot}/>
-                                <View style={styles.menuDot}/>
-                                <View style={styles.menuDot}/>
-                            </MenuTrigger>
-                            <MenuOptions>
-                                <MenuOption onSelect={() => {
-                                    onLogout();
-                                }} text={"Вийти"}/> 
-                            </MenuOptions>
-                        </Menu>
+                <View style={{flexDirection: "row", alignItems: "center", justifyContent: "space-around"}}>
+                    <Menu>
+                        <MenuTrigger style={{rowGap: 5}}>
+                            <View style={styles.menuDot}/>
+                            <View style={styles.menuDot}/>
+                            <View style={styles.menuDot}/>
+                        </MenuTrigger>
+                        <MenuOptions>
+                            <MenuOption onSelect={() => {
+                                onLogout();
+                            }} text={"Вийти"}/> 
+                        </MenuOptions>
+                    </Menu>
                     <ContactSearcher navigation={navigation}/>
                 </View>
                     {(chats.length > 0) ? 
-                    <FlatList data={chats}
+                    <FlatList
+                            data={chats}
                             renderItem={({item}) => {
                                 return (
                                     <Swipeable 
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#007767",
         paddingTop: 10,
-        rowGap: 10
+        rowGap: 40
     },
     noChatsBlock: {
         flex: 0.8,
@@ -103,8 +103,8 @@ const styles = StyleSheet.create({
         textAlign: "center"
     },
     menuDot: {
-        width: 5, 
-        aspectRatio: 1, 
+        width: 20, 
+        height: 5,
         backgroundColor: "white", 
         borderRadius: 50
     }

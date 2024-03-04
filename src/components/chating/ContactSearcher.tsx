@@ -61,7 +61,7 @@ const ContactSearcher = ({navigation}) => {
 const styles = StyleSheet.create({
     phoneNumberBlock: {
         // alignSelf: "center",
-        flex: 0.8
+        flex: 0.8 
     },
     phoneNumberInputBlock: {
         backgroundColor: "white",
@@ -85,7 +85,10 @@ const styles = StyleSheet.create({
     },
     phoneNumberError: {
         color: "#FF0000",
-        paddingLeft: 5
+        paddingLeft: 5,
+        position: "absolute",
+        bottom: -20,
+        alignSelf: "center"
     },
 })
 
