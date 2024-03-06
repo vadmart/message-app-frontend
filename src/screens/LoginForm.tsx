@@ -11,30 +11,27 @@ import ScreenNames from "@app/config";
 
 const LoginForm = ({ navigation }) => {
     const [username, onChangeUsername] = useState("");
-    const [usernameInputStyle, setUsernameInputStyle] = useState(null);
-    const [usernameErrText, setUsernameLabelText] = useState("");
+    const [usernameError, setUsernameError] = useState("");
     const [phoneNumber, onChangePhoneNumber] = useState("");
-    const [phoneNumberErrStyle, setPhoneNumberErrStyle] = useState(null);
-    const [phoneNumberLabelText, setPhoneNumberLabelText] = useState("");
-    const [validationErrText, setValidationErrText] = useState("");
+    const [phoneNumberError, setPhoneNumberError] = useState("");
+    const [validationError, setValidationError] = useState("");
     const {onLogin} = useAuth();
 
 
     async function handleLoginSubmit(e) {
+        console.log("Start login handling...");
         if (!username) {
-            setUsernameInputStyle(errInputStyle);
-            setUsernameLabelText("Field cannot be empty.");
+            setUsernameError("Field cannot be empty.");
             return
         }
         if (!phoneNumber) {
-            setPhoneNumberErrStyle(errInputStyle)
-            setPhoneNumberLabelText("Field cannot be empty.");
+            setPhoneNumberError("Field cannot be empty.");
             return
         }
         const response = await onLogin(username, phoneNumber);
         if (response.error) {
             for (let val of Object.values<string>(response.msg)) {
-                setValidationErrText(val);
+                setValidationError(val);
             }
         } else {
             navigation.navigate(ScreenNames.VERIFICATION_SCREEN, {username, phoneNumber: "+380" + phoneNumber})
@@ -42,100 +39,67 @@ const LoginForm = ({ navigation }) => {
     }
 
     return (
-        <>
-            <FormContainer>
-                <View style={styles.topBlock}>
-                    <Text style={styles.formTitle}>Вхід</Text>
+        <View style={styles.container}>
+            <FormContainer title={"Вхід"}
+                            bottomButtonText={"Продовжити"}
+                            bottomButtonOnPress={handleLoginSubmit}>
+                <View style={styles.navigationButtonContainer}>
+                    <FormNavigationButton text={"Реєстрація"} onSubmit={() => navigation.navigate(ScreenNames.REGISTRATION)} />
                 </View>
-                <View style={styles.mainBlock}>
-                    <View style={styles.loginBlock}>
-                        <FormNavigationButton text={"Реєстрація"} onSubmit={() => navigation.navigate(ScreenNames.REGISTRATION)} />
-                    </View>
-                    <View style={styles.inputContainer}>
-                        <View>
-                            <TextInput style={[styles.input, usernameInputStyle]}
-                                onChangeText={onChangeUsername}
-                                onChange={() => {
-                                    if (usernameErrText) {
-                                        setUsernameInputStyle(null);
-                                        setUsernameLabelText("");
-                                    }
-                                    if (validationErrText) {
-                                        setValidationErrText("");
-                                    }
-                                }}
-                                placeholder={"Ім'я користувача"}
-                                placeholderTextColor={usernameInputStyle ? "#FF000025" : "#17171729"}
-                                value={username}
-                            />
-                            <Text style={{color: errInputStyle.color}}>{usernameErrText}</Text>
-                        </View>
-                        <View style={[styles.phoneInputContainer]}>
-                            <View style={[styles.phoneInputBlock, phoneNumberErrStyle]}>
-                                <Text style={styles.phoneCode}>+380</Text>
-                                <TextInput style={[styles.phoneNumberInput, {fontSize: (phoneNumber) ? 18 : 15}]}
-                                    keyboardType={"decimal-pad"}
-                                    onChangeText={onChangePhoneNumber}
-                                    onChange={() => {
-                                        if (phoneNumberLabelText) {
-                                            setPhoneNumberErrStyle(false);
-                                            setPhoneNumberLabelText("");
-                                        }
-                                        if (validationErrText) {
-                                            setValidationErrText(null);
-                                        }
-                                    }}
-                                    placeholder={"Номер телефону"}
-                                    placeholderTextColor={"#17171729"}
-                                    value={phoneNumber}
-                                />
-                            </View>
-                            <Text style={{color: errInputStyle.color}}>{phoneNumberLabelText}</Text>
-                        </View>
-                    </View>
-                    <View style={styles.validationErrBlock}>
-                        <Text style={errLabelStyle}>{validationErrText}</Text>
-                    </View>
-                    <View style={styles.buttonBlock}>
-                        <FormButton text={"Продовжити"}
-                                    onPress={handleLoginSubmit}
+                <View style={styles.inputContainer}>
+                    <TextInput style={[styles.input, usernameError && errInputStyle]}
+                        onChangeText={onChangeUsername}
+                        onChange={() => {
+                            if (usernameError) {
+                                setUsernameError("");
+                            }
+                            if (validationError) {
+                                setValidationError("");
+                            }
+                        }}
+                        placeholder={"Ім'я користувача"}
+                        placeholderTextColor={usernameError ? "#FF000025" : "#17171729"}
+                        value={username}
+                    />
+                    <Text style={{color: errInputStyle.color}}>{usernameError}</Text>
+                </View>
+                <View style={styles.inputContainer}>
+                    <View style={[styles.phoneInputBlock, phoneNumberError && errInputStyle]}>
+                        <Text style={styles.phoneCode}>+380</Text>
+                        <TextInput style={[styles.input, {fontSize: (phoneNumber) ? 18 : 15, paddingLeft: 5, flex: 1}]}
+                            keyboardType={"decimal-pad"}
+                            onChangeText={onChangePhoneNumber}
+                            onChange={() => {
+                                if (phoneNumberError) {
+                                    setPhoneNumberError("");
+                                }
+                                if (validationError) {
+                                    setValidationError("");
+                                }
+                            }}
+                            placeholder={"Номер телефону"}
+                            placeholderTextColor={"#17171729"}
+                            value={phoneNumber}
                         />
                     </View>
+                    <Text style={{color: errInputStyle.color}}>{phoneNumberError}</Text>
+                </View>
+                <View style={styles.validationErrBlock}>
+                    <Text style={errLabelStyle}>{validationError}</Text>
                 </View>
             </FormContainer>
-        </>
+        </View>
     )
 }
 
 const styles = StyleSheet.create({
-    formTitle: {
-        fontSize: 25,
-        color: "white",
+    container: {
+        flex: 1, 
+        backgroundColor: "#007767", 
+        justifyContent: "center"
     },
-    topBlock: {
-        flex: 0.3,
-        justifyContent: "flex-end"
-    },
-    mainBlock: {
-        flex: 0.7,
-        width: "70%",
-        marginTop: 30,
-    },
-    buttonBlock: {
-        flexDirection: "row",
-        columnGap: 5,
-        justifyContent: "center",
-        marginTop: 50,
-    },
-    inputContainer: {
-        marginVertical: 15,
-        rowGap: 5,
-    },
-    loginBlock: {
+    navigationButtonContainer: {
         alignItems: "flex-end",
-    },
-    phoneInputContainer: {
-
     },
     phoneInputBlock: {
         flexDirection: "row",
@@ -148,26 +112,21 @@ const styles = StyleSheet.create({
         textAlignVertical: "center",
         fontFamily: "Poppins",
         fontSize: 18,
-        paddingTop: 5,
+        padding: 5,
         borderRightColor: "black",
         borderRightWidth: 2,
-        flex: 0.2,
     },
-    phoneNumberInput: {
-        height: 50,
-        flex: 0.8,
-        paddingLeft: 8,
-        textAlignVertical: "center"
+    inputContainer: {
+        // marginVertical: 5
     },
     input: {
         backgroundColor: "white",
         borderRadius: 10,
         padding: 8,
-        paddingTop: 10,
         fontSize: 16,
         fontFamily: "Poppins",
         paddingLeft: 25,
-        textAlignVertical: "center"
+        textAlignVertical: "center",
     },
     validationErrBlock: {
         alignItems: "center",

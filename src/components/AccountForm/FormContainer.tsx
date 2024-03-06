@@ -1,20 +1,34 @@
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, KeyboardAvoidingView, Platform, Text } from "react-native";
+import FormButton from "./FormButton";
 
-const FormContainer = ({children}) => {
+const FormContainer = ({title, children, bottomButtonText, bottomButtonOnPress, contentStyle={}}) => {
     return (
-        <View style={styles.container}>
-            {children}
-        </View>
+        <KeyboardAvoidingView style={styles.container} behavior={(Platform.OS === "ios" ? "padding" : "height")}>
+            <Text style={styles.formTitle}>{title}</Text>
+            <View style={[styles.formContent, contentStyle]}>
+                {children}
+            </View>
+            <FormButton text={bottomButtonText} onPress={bottomButtonOnPress} />
+        </KeyboardAvoidingView>
     )
 }
 
 const styles = StyleSheet.create({
     container: {
-        justifyContent: "space-between",
+        justifyContent: "space-around",
         alignItems: "center",
         backgroundColor: "#007767",
-        flex: 1,
+        flex: 0.5,
+    },
+    formTitle: {
+        fontSize: 25,
+        color: "white",
+        alignSelf: "center",
+    },
+    formContent: {
+        width: "60%",
+        rowGap: 10
     }
 });
 export default FormContainer;

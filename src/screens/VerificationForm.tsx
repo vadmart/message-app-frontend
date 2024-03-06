@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { StyleSheet, View, Text, TextInput, Pressable, NativeSyntheticEvent, TextInputKeyPressEventData } from "react-native";
+import { StyleSheet, View, Text, TextInput, Pressable, NativeSyntheticEvent, TextInputKeyPressEventData, KeyboardAvoidingView, Platform } from "react-native";
 import { errInputStyle, errLabelStyle } from "@app/helpers/errorStyle";
 import FormButton from "@app/components/AccountForm/FormButton";
 import FormContainer from "@app/components/AccountForm/FormContainer";
@@ -10,8 +10,7 @@ import { FlatList } from "react-native-gesture-handler";
 const VerificationForm = ({ route, navigation }) => {
     const {username, phoneNumber} = route.params;
     const {onVerify, onResend} = useAuth();
-    const [errStyle, setErrStyle] = useState(null);
-    const [labelText, setLabelText] = useState("");
+    const [error, setError] = useState("");
     const fields = useRef(Array(6));
     const [otpCode, setOtpCode] = useState([]);
 
@@ -20,14 +19,16 @@ const VerificationForm = ({ route, navigation }) => {
         console.log(otp);
         const response = await onVerify(username, phoneNumber, otp);
         if (response.error) {
-            setLabelText(response.msg.detail);
-            setErrStyle(errInputStyle);
+            setError(response.msg.detail);
         }
     }
 
     const handleChangeText = (text: string, index: number) => {
         otpCode[index] = text;
         setOtpCode(prevState => [...prevState]);
+        if (error) {
+            setError("");
+        }
         if (index < 5 && text !== "") {
             fields.current[index + 1].focus();
         }
@@ -48,47 +49,36 @@ const VerificationForm = ({ route, navigation }) => {
     }
 
     return (
-        <>
-            <FormContainer>
-            <View style={styles.topBlock}>
-                <Text style={styles.formTitle}>Підтвердження</Text>
-            </View>
-            <View style={styles.mainBlock}>
-                <Text style={styles.labelText}>Введіть код верифікації:</Text>
-                <View style={styles.inputContainer}>
-                    <FlatList style={styles.inputBlock} 
-                            horizontal={true} 
-                            data={fields.current} 
-                            contentContainerStyle={{columnGap: 5}}
-                            renderItem={({index}) => {
-                                return (
-                                    <TextInput style={[styles.input, errStyle]}
-                                        keyboardType={"decimal-pad"}
-                                        ref={input => fields.current[index] = input}
-                                        maxLength={1}
-                                        onChangeText={text => handleChangeText(text, index)}
-                                        onKeyPress={e => handleKeyPress(e, index)}
-                                        value={otpCode[index]}
-                                    />
-                                    )
-                                }}
-                    />
-                    <Text style={[errLabelStyle, {fontSize: 13}]}>{labelText}</Text>
-                    <Pressable onPress={() => {
-                            onResend(username, phoneNumber)
-                    }}>
-                        <Text>Надіслати новий код</Text>
-                    </Pressable>
-                </View>
-                <View style={styles.buttonBlock}>
-                    <FormButton text={"Повернутися"} onPress={() => {
-                            navigation.goBack();
-                        }} 
-                    />
-                </View>
-            </View>
-        </FormContainer>
-        </>
+        <View style={{flex: 1, backgroundColor: "#007767", justifyContent: "center"}}>
+            <FormContainer title={"Підтвердження"} bottomButtonText={"Повернутися"}
+                                    bottomButtonOnPress={() => {navigation.goBack()}}
+                                    contentStyle={{alignItems: "center"}}>
+                    <Text style={styles.labelText}>Введіть код верифікації:</Text>
+                            <FlatList horizontal={true} 
+                                    data={fields.current} 
+                                    contentContainerStyle={{columnGap: 5}}
+                                    renderItem={({index}) => {
+                                        return (
+                                            <TextInput style={[styles.input, error && errInputStyle]}
+                                                keyboardType={"decimal-pad"}
+                                                ref={input => fields.current[index] = input}
+                                                maxLength={1}
+                                                onChangeText={text => handleChangeText(text, index)}
+                                                onKeyPress={e => handleKeyPress(e, index)}
+                                                value={otpCode[index]}
+                                            />
+                                            )
+                                        }    
+                                    }
+                            />
+                            <Text style={[errLabelStyle, {fontSize: 13}]}>{error}</Text>
+                            <Pressable onPress={() => {
+                                    onResend(username, phoneNumber)
+                            }}>
+                                <Text>Надіслати новий код</Text>
+                            </Pressable>
+            </FormContainer>
+        </View>
     )
 }
 
@@ -96,19 +86,11 @@ const styles = StyleSheet.create({
     formTitle: {
         fontSize: 25,
         color: "white",
+        alignSelf: "center",
     },
     logo: {
         height: 30,
         objectFit: "contain",
-    },
-    topBlock: {
-        flex: 0.3,
-        justifyContent: "flex-end"
-    },
-    mainBlock: {
-        flex: 0.7,
-        width: "60%",
-        marginTop: 30,
     },
     labelText: {
         textAlign: "center",
@@ -117,14 +99,10 @@ const styles = StyleSheet.create({
         marginTop: 30,
     },
     inputContainer: {
-        marginTop: 30,
-        marginBottom: 50,
         justifyContent: "center",
         alignItems: "center",
-    },
-    inputBlock: {
-        columnGap: 10,
-        marginBottom: 12.5,
+        borderWidth: 2,
+        height: 200
     },
     input: {
         textAlign: "center",
@@ -135,13 +113,8 @@ const styles = StyleSheet.create({
         color: "white",
         fontSize: 16,
         width: 35,
-        paddingTop: 2,
+        aspectRatio: 1,
         textAlignVertical: "center",
-    },
-    buttonBlock: {
-        flexDirection: "row",
-        columnGap: 5,
-        justifyContent: "center",
     },
     button: {
         backgroundColor: "#001E41",
@@ -155,10 +128,6 @@ const styles = StyleSheet.create({
         color: "white",
         fontSize: 14,
         fontFamily: "Poppins",
-    },
-    inputHalfBlock: {
-        flexDirection: "row",
-        columnGap: 5,
     },
 });
 export default VerificationForm;

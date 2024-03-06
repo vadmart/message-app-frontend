@@ -11,7 +11,8 @@ const FormLinkButton = ({text, onSubmit}) => {
 
 const styles = StyleSheet.create({
     buttonText: {
-        color: "#55FFFF50"
+        color: "#55FFFF50",
+        // alignSelf: "flex-end"
     }
 })
 export default FormLinkButton
