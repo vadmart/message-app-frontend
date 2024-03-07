@@ -1,18 +1,28 @@
-import React from "react"
-import { Pressable, Text, StyleSheet } from "react-native"
+import React from "react";
+import { Pressable, StyleSheet, Text } from "react-native";
 
-const FormLinkButton = ({text, onSubmit}) => {
+const FormButton = (props) => {
+    const { text, onPress } = props;
     return (
-        <Pressable onPress={onSubmit}>
+        <Pressable style={styles.button} onPress={onPress}>
             <Text style={styles.buttonText}>{text}</Text>
         </Pressable>
     )
 }
 
 const styles = StyleSheet.create({
+    button: {
+        backgroundColor: "#001100",
+        borderRadius: 30,
+        paddingTop: 15,
+        paddingBottom: 15,
+        paddingRight: 30,
+        paddingLeft: 30,
+    },
     buttonText: {
-        color: "#55FFFF50",
-        // alignSelf: "flex-end"
-    }
-})
-export default FormLinkButton
+        color: "white",
+        fontSize: 14,
+        fontFamily: "Poppins",
+    },
+});
+export default FormButton;

@@ -23,12 +23,11 @@ axiosWithConnectionRetry.interceptors.response.use(undefined, async (err) => {
 })
 export const BaseHTTPURL = "http://localhost:8000/api/v1/";
 export const BaseWebsocketURL = "ws://localhost:8000/ws/chat/";
-const ScreenNames = {
+export const ScreenNames = {
     REGISTRATION: "Registration",
     LOGIN: "Login",
     MAIN_SCREEN: "MainScreen",
     CHATS_SCREEN: "ChatsScreen",
     MESSAGES_SCREEN: "MessagesScreen",
-    VERIFICATION_SCREEN: "VerificationScreen"
+    VERIFICATION: "Verification"
 };
-export default ScreenNames;

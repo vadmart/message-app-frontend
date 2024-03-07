@@ -3,7 +3,7 @@ import {Image, Pressable, StyleSheet, Text, TextInput, View} from "react-native"
 import { axiosWithConnectionRetry } from "@app/config";
 import {BaseHTTPURL} from "@app/config";
 import {User} from "@app/types/UserType";
-import ScreenNames from "@app/config";
+import {ScreenNames} from "@app/config";
 import {v4 as uuidv4} from "uuid";
 import { Chat_ } from "@app/types/ChatType";
 import { useAuth } from "@app/context/AuthContext";

@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet, View, KeyboardAvoidingView, Platform, Text } from "react-native";
-import FormButton from "./FormButton";
+import FormButton from "./FormNavigationButton";
 
 const FormContainer = ({title, children, bottomButtonText, bottomButtonOnPress, contentStyle={}}) => {
     return (

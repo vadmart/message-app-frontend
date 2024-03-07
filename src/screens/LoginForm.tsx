@@ -2,10 +2,10 @@ import React, {useState} from "react";
 import { StyleSheet, View, Image, TextInput, Pressable, Text  } from "react-native";
 import { errInputStyle, errLabelStyle } from "@app/helpers/errorStyle";
 import { useAuth } from "@app/context/AuthContext"
-import FormButton from "@app/components/AccountForm/FormButton"
-import FormNavigationButton from "@app/components/AccountForm/FormNavigationButton";
+import FormButton from "@app/components/AccountForm/FormNavigationButton"
+import FormNavigationButton from "@app/components/AccountForm/FormRedirectButton";
 import FormContainer from "@app/components/AccountForm/FormContainer";
-import ScreenNames from "@app/config";
+import {ScreenNames} from "@app/config";
 
 
 
@@ -21,11 +21,11 @@ const LoginForm = ({ navigation }) => {
     async function handleLoginSubmit(e) {
         console.log("Start login handling...");
         if (!username) {
-            setUsernameError("Field cannot be empty.");
+            setUsernameError("Поле не може бути порожнім.");
             return
         }
         if (!phoneNumber) {
-            setPhoneNumberError("Field cannot be empty.");
+            setPhoneNumberError("Поле не може бути порожнім.");
             return
         }
         const response = await onLogin(username, phoneNumber);
@@ -34,7 +34,7 @@ const LoginForm = ({ navigation }) => {
                 setValidationError(val);
             }
         } else {
-            navigation.navigate(ScreenNames.VERIFICATION_SCREEN, {username, phoneNumber: "+380" + phoneNumber})
+            navigation.navigate(ScreenNames.VERIFICATION, {username, phoneNumber: "+380" + phoneNumber})
         }
     }
 

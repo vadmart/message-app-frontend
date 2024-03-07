@@ -6,7 +6,7 @@ import Avatar from "@app/components/chating/Avatar";
 import {Chat_} from "@app/types/ChatType";
 import { Message } from "@app/types/MessageType";
 import {showMessageContent} from "@app/helpers/chats";
-import ScreenNames from "@app/config";
+import {ScreenNames} from "@app/config";
 import { User } from "@app/types/UserType";
 
 

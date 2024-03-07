@@ -1,19 +1,16 @@
-import React, {useEffect, useState, useRef, useReducer} from "react";
+import React, {useEffect, useState, useRef} from "react";
 import ChatsScreen from "./ChatsScreen";
-import PrivateChatScreen from "./PrivateChatScreen"
+import PrivateChatScreen from "./PrivateChatScreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { NavigationContainer } from "@react-navigation/native";
 import {Chat_} from "@app/types/ChatType";
 import {ChatProvider} from "@app/context/ChatsContext";
 import {useAuth} from "@app/context/AuthContext";
 import {sortChats} from "@app/helpers/sort";
-import ScreenNames, {BaseWebsocketURL, BaseHTTPURL} from "@app/config";
+import {BaseWebsocketURL, BaseHTTPURL, ScreenNames} from "@app/config";
 import { useConnect } from "@app/context/ConnectionContext";
 import { axiosWithConnectionRetry as axios } from "@app/config";
 import { Message } from "@app/types/MessageType";
-import { Pressable, View, StyleSheet } from "react-native";
-import ContactSearcher from "@app/components/chating/ContactSearcher";
-import { useNavigation } from "@react-navigation/native";
-// import { storage } from "@app/Storage";
 
 const Stack = createNativeStackNavigator();
 
@@ -24,12 +21,11 @@ type WebSocketResponse = {
 }
 
 
-const MainScreen = () => {
+const MainStackScreen = () => {
     console.log("Rendering MainScreen");
     const {connected} = useConnect();
     const [chats, setChats] = useState<Chat_[]>([]);
     const {authState} = useAuth();
-    const navigation = useNavigation();
     const wsRef = useRef<WebSocket>(null);
 
     useEffect(() => {
@@ -153,30 +149,23 @@ const MainScreen = () => {
 
     return (
         <ChatProvider value={{chats, setChats}}>
-            <Stack.Navigator initialRouteName={ScreenNames.CHATS_SCREEN}>
-                <Stack.Screen name={ScreenNames.CHATS_SCREEN}
-                            component={ChatsScreen}
-                            options={{headerShown: false}}
-                />
-                <Stack.Screen name={ScreenNames.MESSAGES_SCREEN}
-                            component={PrivateChatScreen}
-                            options={{
-                                headerTitleAlign: "center",
-                                headerShadowVisible: false,
-                            }}
-                />
-            </Stack.Navigator>
+            <NavigationContainer>
+                    <Stack.Navigator initialRouteName={ScreenNames.CHATS_SCREEN}>
+                        <Stack.Screen name={ScreenNames.CHATS_SCREEN}
+                                    component={ChatsScreen}
+                                    options={{headerShown: false}}
+                        />
+                        <Stack.Screen name={ScreenNames.MESSAGES_SCREEN}
+                                    component={PrivateChatScreen}
+                                    options={{
+                                        headerTitleAlign: "center",
+                                        headerShadowVisible: false,
+                                    }}
+                        />
+                    </Stack.Navigator>
+            </NavigationContainer>
         </ChatProvider>
     )
 }
 
-const styles = StyleSheet.create({
-    menuDot: {
-        width: 8, 
-        aspectRatio: 1, 
-        backgroundColor: "white", 
-        borderRadius: 50
-    }
-})
-
-export default MainScreen;
+export default MainStackScreen;
