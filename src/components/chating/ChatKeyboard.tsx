@@ -1,10 +1,12 @@
-import React, {useRef, useState} from "react"
-import {StyleSheet, TextInput, View, Pressable, Image, Text, GestureResponderEvent, ImageSourcePropType, StyleProp, PressableProps, ViewStyle} from "react-native"
-import DocumentPicker, {DocumentPickerResponse} from "react-native-document-picker"
+import React, {useRef, useState} from "react";
+import {v4 as uuidv4} from "uuid";
+import {StyleSheet, TextInput, View, Pressable, Image, Text, GestureResponderEvent, ImageSourcePropType, StyleProp, ViewStyle} from "react-native";
+import DocumentPicker, {DocumentPickerResponse} from "react-native-document-picker";
 import {Message} from "@app/types/MessageType";
 import { createMessageAndSetState, updateMessageAndSetState } from "@app/helpers/ChatsStateAPILayer";
 import { useChat } from "@app/context/ChatsContext";
 import { useAuth } from "@app/context/AuthContext";
+import { useWSChannelName } from "@app/context/WebSocketChannelName";
 
 
 const ChatKeyboardButton = ({onPress=null, disabled=false, source=null, style}: 
@@ -26,6 +28,7 @@ const ChatKeyboard = ({messageForChangeState, payload}:
     const [singleFile, setSingleFile] = useState<DocumentPickerResponse>(null);
     const [inputtedData, setInputtedData] = useState("");
     const {authState} = useAuth();
+    const wsChannelName = useWSChannelName();
     const inputFieldRef = useRef(null);
 
     const selectFile = async () => {
@@ -45,6 +48,38 @@ const ChatKeyboard = ({messageForChangeState, payload}:
             }
         }
     }
+
+    const handleSubmit = async () => {
+        console.log("Start submit handling...");
+        if (!!messageForChangeState.message) {
+            messageForChangeState.message.content = inputtedData;
+            messageForChangeState.message.file = singleFile;
+            updateMessageAndSetState({chats, 
+                                     setChats}, 
+                                     messageForChangeState)
+            messageForChangeState.setMessageForChange(null);
+        } else {
+            createMessageAndSetState({chats, 
+                                     setChats}, 
+                                    {
+                                        created_at: new Date().toISOString(),
+                                        chat: payload.chat.public_id,
+                                        sender: authState.user,
+                                        is_read: false,
+                                        is_edited: false,
+                                        content: inputtedData,
+                                        public_id: uuidv4(),
+                                        file: singleFile,
+                                        hasSendingError: null,
+                                    },
+                                    payload,
+                                    wsChannelName)
+        }
+        inputFieldRef.current.clear();
+        setInputtedData("");
+        setSingleFile(null);
+        console.log("End submit handling...");
+    }
         return (
             <View style={{paddingBottom: 10}}>
                 {singleFile && <Text style={styles.fileBlock}>{singleFile.name}</Text>}
@@ -57,27 +92,7 @@ const ChatKeyboard = ({messageForChangeState, payload}:
                     />
                     <View style={styles.optionsBlock}>
                         <ChatKeyboardButton
-                                    onPress={async () => {
-                                        if (messageForChangeState.message) {
-                                            updateMessageAndSetState({chats, 
-                                                                     setChats}, 
-                                                                     messageForChangeState.message, 
-                                                                     inputtedData, 
-                                                                     singleFile)
-                                            messageForChangeState.setMessageForChange(null);
-                                        } else {
-                                            createMessageAndSetState({chats, 
-                                                                     setChats}, 
-                                                                     payload,
-                                                                     authState.user,
-                                                                     inputtedData,
-                                                                     singleFile
-                                                                     );
-                                        }
-                                        inputFieldRef.current.clear();
-                                        setInputtedData("");
-                                        setSingleFile(null);
-                                    }}
+                                    onPress={handleSubmit}
                                     disabled={(inputtedData === "" && singleFile === null)}
                                     source={require("@img/chat-icons/send.png")}
                                     style={styles.sendButton}>

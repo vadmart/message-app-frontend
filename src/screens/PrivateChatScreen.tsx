@@ -20,10 +20,10 @@ const PrivateChatScreen = memo(({route}) => {
     const messageListRef = useRef(null);
     const {chats, setChats} = useChat();
     const navigation = useNavigation();
-    const {payload}: {payload: {companion: User,
+    const {payload: navigationPayload}: {payload: {companion: User,
                                 chat: Chat_,
                                 isChatNew: boolean}} = route.params;
-    console.log(payload);
+    console.log(navigationPayload);
     const messageForChangeState: {message: Message,
                                   setMessageForChange: React.Dispatch<React.SetStateAction<Message>>} = {message: null,
                                                                                              setMessageForChange: null};
@@ -31,12 +31,12 @@ const PrivateChatScreen = memo(({route}) => {
 
 
     const renderMessage = ({index, item}) => {
-        if (!payload.chat.messages) return;
+        if (!navigationPayload.chat.messages) return;
         return (
                 <View onResponderMove={e => e.nativeEvent.locationY}
                 >
                     <MessageItem index={index}
-                        messages={payload.chat.messages.results}
+                        messages={navigationPayload.chat.messages.results}
                         item={item}
                         messageForChangeState={messageForChangeState}
                     />
@@ -45,13 +45,13 @@ const PrivateChatScreen = memo(({route}) => {
     }
 
     const onFlatListRefresh = () => {
-        if (!payload.chat.messages.next) return;
-        axios.get(payload.chat.messages.next).then((response) => {
+        if (!navigationPayload.chat.messages.next) return;
+        axios.get(navigationPayload.chat.messages.next).then((response) => {
             Object.keys(response.data).forEach((key) => {
                 if (key === "results") {
-                    payload.chat.messages.results.unshift(...response.data.results);
+                    navigationPayload.chat.messages.results.unshift(...response.data.results);
                 } else {
-                    payload.chat.messages[key] = response.data[key];
+                    navigationPayload.chat.messages[key] = response.data[key];
                 }
             })    
             setChats([...chats].sort(sortChats));
@@ -63,15 +63,16 @@ const PrivateChatScreen = memo(({route}) => {
     useEffect(() => {
         async function _setupPrivateChat() {
             navigation.setOptions({
-                                   title: payload.companion.username,
+                                   title: navigationPayload.companion.username,
                                 });
-            if (!payload.chat.areMessagesFetched) return;
+            if (navigationPayload.chat.areMessagesFetched) return;
             try {
-                const response = await axios.get(BaseHTTPURL + `chat/${payload.chat.public_id}/message/`);
-                Object.keys(response.data).forEach((key) => {
-                    payload.chat.messages[key] = response.data[key];
-                })
-                console.log(payload.chat.messages.next);
+                const response = await axios.get(BaseHTTPURL + `chat/${navigationPayload.chat.public_id}/message/`);
+                for (let key in response.data) {
+                    navigationPayload.chat.messages[key] = response.data[key];
+                }
+                console.log(navigationPayload.chat.messages.next);
+                navigationPayload.chat.areMessagesFetched = true;
                 setChats([...chats].sort(sortChats));
                 messageListRef.current?.scrollToEnd({animating: true});
             }
@@ -85,7 +86,7 @@ const PrivateChatScreen = memo(({route}) => {
                 console.log("Notification must include 'chat_id'");
                 return
             }
-            if (e.notification.additionalData.chat_id == payload.chat.public_id) {
+            if (e.notification.additionalData.chat_id == navigationPayload.chat.public_id) {
                 e.preventDefault();
             }
         };
@@ -101,19 +102,19 @@ const PrivateChatScreen = memo(({route}) => {
             <StatusBar backgroundColor={"white"} barStyle={"dark-content"} animated={true}/>
             <FlatList
                 style={{paddingTop: 10}}
-                data={payload.chat?.messages?.results}
+                data={navigationPayload.chat?.messages?.results}
                 ref={messageListRef}
                 renderItem={renderMessage}
                 keyExtractor={item => item.public_id}
                 refreshing={false}
                 onRefresh={onFlatListRefresh}
                 onEndReached={() => {
-                    if (payload.chat.messages.has_unread_messages) {
-                        readAllMessagesAndSetState({chats, setChats}, payload);
+                    if (navigationPayload.chat.messages.has_unread_messages) {
+                        readAllMessagesAndSetState({chats, setChats}, navigationPayload);
                     }
                 }}
             />
-            <ChatKeyboard messageForChangeState={messageForChangeState} payload={payload} />
+            <ChatKeyboard messageForChangeState={messageForChangeState} payload={navigationPayload} />
         </View>
     )
 })

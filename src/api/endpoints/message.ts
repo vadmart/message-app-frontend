@@ -12,29 +12,22 @@ export const deleteMessage = async (message: Message) => {
     })
 }
 
-export const createMessage = async (message: Message, method="POST") => {
+export const createMessage = async (message: Message, method="POST", exclude_ws_channel="") => {
     const formData = new FormData();
-    if (message.public_id) {
-        formData.append("public_id", message.public_id);
+    for (let key in message) {
+        if (!!message[key] && key !== "sender") {
+            formData.append(key, message[key]);
+        }
     }
-    if (message.content) {
-        formData.append("content", message.content);
-    }
-    if (message.file) {
-        formData.append("file", message.file);
-    }
-    if (message.chat) {
-        formData.append("chat", message.chat)
-    } else {
-        formData.append("second_user", message.sender.public_id)
-    }
+    formData.append("exclude_ws_channel", exclude_ws_channel);
+    console.log(formData);
     const url = (method == "POST") ? BaseHTTPURL + `chat/${message.chat}/message/` : BaseHTTPURL + `chat/${message.chat}/message/${message.public_id}/`;
     return axios(url,
         {
             method,
             data: formData,
             headers: {
-                "Content-Type": "multipart/form-data",
+                "Content-Type": "multipart/form-data"
             }
         })
 }

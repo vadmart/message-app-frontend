@@ -1,4 +1,5 @@
 import {User} from "@app/types/UserType";
+import { DocumentPickerResponse } from "react-native-document-picker";
 
 export interface MessageInfo {
     public_id?: string,
@@ -10,7 +11,9 @@ export interface MessageInfo {
     hasSendingError?: boolean
 }
 export type Message = MessageInfo & (
-    {content: string, file: null} | {file: string, content: null}
+    {content: string, file: null} | 
+    {content: null, file: string | DocumentPickerResponse} | 
+    {content: string, file: string| DocumentPickerResponse}
 )
 
 export const isAMessage = (obj: any): obj is Message => {

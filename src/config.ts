@@ -4,14 +4,14 @@ export const axiosWithConnectionRetry = axios.create();
 axiosWithConnectionRetry.interceptors.response.use(undefined, async (err) => {
     const {config, message} = err;
     if (config.retry === undefined)
-        config.retry = 50;
+        config.retry = 10;
     else if (config.retry === 0) {
         console.log("Message hasn't been sent!");
-        return Promise.reject()
+        return Promise.reject(message)
     }
     config.retry -= 1;
     if (!(message.includes("Network Error") || message.includes("timeout"))) {
-        return Promise.reject(err);
+        return Promise.reject(message);
     }
     const delayedRequest = new Promise((resolve) => {
         setTimeout(() => {

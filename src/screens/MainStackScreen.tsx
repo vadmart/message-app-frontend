@@ -2,7 +2,6 @@ import React, {useEffect, useState, useRef} from "react";
 import ChatsScreen from "./ChatsScreen";
 import PrivateChatScreen from "./PrivateChatScreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { NavigationContainer } from "@react-navigation/native";
 import {Chat_} from "@app/types/ChatType";
 import {ChatProvider} from "@app/context/ChatsContext";
 import {useAuth} from "@app/context/AuthContext";
@@ -11,10 +10,13 @@ import {BaseWebsocketURL, BaseHTTPURL, ScreenNames} from "@app/config";
 import { useConnect } from "@app/context/ConnectionContext";
 import { axiosWithConnectionRetry as axios } from "@app/config";
 import { Message } from "@app/types/MessageType";
+import { useWSChannelName, WSChannelNameProvider } from "@app/context/WebSocketChannelName";
 
 const Stack = createNativeStackNavigator();
 
+
 type WebSocketResponse = {
+    channel_name?: string,
     chat?: Chat_,
     message?: Message,
     action: "create" | "update" | "destroy"
@@ -27,6 +29,7 @@ const MainStackScreen = () => {
     const [chats, setChats] = useState<Chat_[]>([]);
     const {authState} = useAuth();
     const wsRef = useRef<WebSocket>(null);
+    const wsChannelNameRef = useRef<string>(null);
 
     useEffect(() => {
         // const chatsFromStorage = storage.getString("chats");
@@ -45,6 +48,7 @@ const MainStackScreen = () => {
         wsRef.current = new WebSocket(BaseWebsocketURL + `?token=${authState.access}`);
         wsRef.current.onopen = () => {
             console.log("WebSocket connection is opened!");
+
         }
         wsRef.current.onclose = () => {
             console.log("WebSocket connection is closed!");
@@ -53,6 +57,7 @@ const MainStackScreen = () => {
             console.log("Reset WebSocket Ref");
             wsRef.current.close();
             wsRef.current = null;
+            wsChannelNameRef.current = null;
         }
 
     }, [connected])
@@ -139,6 +144,8 @@ const MainStackScreen = () => {
                 handleWSDataWithMessage(receivedData);
             } else if (receivedData.chat) {
                 handleWSDataWithChat(receivedData);
+            } else if (receivedData.channel_name) {
+                wsChannelNameRef.current = receivedData.channel_name;
             }
         }
 
@@ -149,21 +156,21 @@ const MainStackScreen = () => {
 
     return (
         <ChatProvider value={{chats, setChats}}>
-            <NavigationContainer>
-                    <Stack.Navigator initialRouteName={ScreenNames.CHATS_SCREEN}>
-                        <Stack.Screen name={ScreenNames.CHATS_SCREEN}
-                                    component={ChatsScreen}
-                                    options={{headerShown: false}}
-                        />
-                        <Stack.Screen name={ScreenNames.MESSAGES_SCREEN}
-                                    component={PrivateChatScreen}
-                                    options={{
-                                        headerTitleAlign: "center",
-                                        headerShadowVisible: false,
-                                    }}
-                        />
+            <WSChannelNameProvider value={wsChannelNameRef.current}>
+                <Stack.Navigator initialRouteName={ScreenNames.CHATS_SCREEN}>
+                    <Stack.Screen name={ScreenNames.CHATS_SCREEN}
+                                component={ChatsScreen}
+                                options={{headerShown: false}}
+                    />
+                    <Stack.Screen name={ScreenNames.MESSAGES_SCREEN}
+                                component={PrivateChatScreen}
+                                options={{
+                                    headerTitleAlign: "center",
+                                    headerShadowVisible: false,
+                                }}
+                    />
                     </Stack.Navigator>
-            </NavigationContainer>
+            </WSChannelNameProvider>
         </ChatProvider>
     )
 }

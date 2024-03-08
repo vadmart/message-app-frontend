@@ -7,6 +7,8 @@ import {
 // @ts-ignore
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 // @ts-ignore
+import { NavigationContainer } from "@react-navigation/native";
+// @ts-ignore
 import MainStackScreen from '@app/screens/MainStackScreen';
 // @ts-ignore
 import {AuthProvider, useAuth} from "@app/context/AuthContext";
@@ -17,7 +19,13 @@ import {OneSignal, LogLevel} from "react-native-onesignal";
 import ConnectProvider from "@app/context/ConnectionContext";
 // import { StatusBar } from "expo-status-bar";
 //@ts-ignore
-import FormStackScreen from "@app/screens/FormStackScreen"
+import LoginForm from "@app/screens/LoginForm";
+//@ts-ignore
+import RegistrationForm from "@app/screens/RegistrationForm";
+//@ts-ignore
+import VerificationForm from "@app/screens/VerificationForm";
+//@ts-ignore
+import {ScreenNames} from "@app/config";
 
 
 const Stack = createNativeStackNavigator();
@@ -27,9 +35,9 @@ OneSignal.initialize("ONESIGNAL_APP_ID");
 
 function App() {
     return (
-            <AuthProvider>
-                <Layout />
-            </AuthProvider>
+        <AuthProvider>
+            <Layout />
+        </AuthProvider>
     )
 }
 
@@ -38,17 +46,25 @@ export const Layout = () => {
     return (
         <GestureHandlerRootView style={styles.container}>
             <StatusBar backgroundColor={'#007767'} translucent={false} barStyle={"light-content"}/>
-            {authState?.authenticated ? ( 
-                <StrictMode>
-                    <ConnectProvider>
-                        <MainStackScreen />
-                    </ConnectProvider>
-                </StrictMode>
-            )
-            : (
-                <FormStackScreen />
-            )
-            }
+            <StrictMode>
+                <ConnectProvider>
+                    <NavigationContainer>
+                        <Stack.Navigator screenOptions={{headerShown: false}}>
+                            {authState?.authenticated ? ( 
+                                <Stack.Screen name={"Main"} component={MainStackScreen} />
+                            )
+                            : (
+                                <>
+                                    <Stack.Screen component={LoginForm} name={ScreenNames.LOGIN} />
+                                    <Stack.Screen component={RegistrationForm} name={ScreenNames.REGISTRATION} />
+                                    <Stack.Screen component={VerificationForm} name={ScreenNames.VERIFICATION} />
+                                </>
+                            )
+                            }
+                        </Stack.Navigator>
+                    </NavigationContainer>
+                </ConnectProvider>
+            </StrictMode>
         </GestureHandlerRootView>
     )
 }
