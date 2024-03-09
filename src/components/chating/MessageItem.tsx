@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React from "react";
 import ReactNativeBlobUtil, {ReactNativeBlobUtilConfig} from "react-native-blob-util"
 import {Alert, Image, PermissionsAndroid, Platform, Pressable, StyleSheet, Text, View} from "react-native"
 import {Message} from "@app/types/MessageType";
@@ -10,6 +10,7 @@ import {useChat} from "@app/context/ChatsContext";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import {ChangeMessageButton, DeleteMessageButton} from "@app/components/chating/Button";
 import { deleteMessage } from "@app/api/endpoints/message";
+import { useWSChannelName } from "@app/context/WebSocketChannelName";
 
 const MessageItem = ({index, messages, item, messageForChangeState}:
                      { index: number,
@@ -18,6 +19,7 @@ const MessageItem = ({index, messages, item, messageForChangeState}:
                         messageForChangeState: {message: Message, setMessageForChange: React.Dispatch<React.SetStateAction<Message>>} }): React.JSX.Element => {
     const {authState} = useAuth();
     const {chats, setChats} = useChat();
+    const wsChannelName = useWSChannelName();
 
     const downloadFile = () => {
         const date = new Date();
@@ -72,7 +74,7 @@ const MessageItem = ({index, messages, item, messageForChangeState}:
                 <View style={{flexDirection: "row", columnGap: 5}}>
                     <DeleteMessageButton onPress={() => {
                         messages.splice(index, 1);
-                        deleteMessage(item);
+                        deleteMessage({...item, exclude_ws_channel: wsChannelName});
                         setChats([...chats]);
                     }}/>
                     <ChangeMessageButton onPress={() => {
