@@ -4,16 +4,12 @@ import { Message } from "@app/types/MessageType";
 import { createMessage, markAllChatMessagesAsRead } from "@app/api/endpoints/message";
 import { createChat, destroyChat } from "@app/api/endpoints/chat";
 import { Chat_, ChatsStateType } from "@app/types/ChatType";
+import { RequestPayload } from "@app/types/RequestPayloadType";
 
 export const updateMessageAndSetState = async (chatsState: ChatsStateType,
-                              messageState: any) => {
-    messageState.message.is_edited = true;
-    chatsState.setChats([...chatsState.chats]);
-    try {
-        await createMessage(messageState.message, "PUT");
-    } catch {
-        messageState.message.hasSendingError = true;
-    }
+                              message: RequestPayload) => {
+    chatsState.setChats(prevState => [...prevState]);
+    return await createMessage(message, "PUT");
 }
 
 export const readAllMessagesAndSetState = (chatsState: ChatsStateType,
@@ -34,18 +30,17 @@ export const readAllMessagesAndSetState = (chatsState: ChatsStateType,
 
 
 export const createMessageAndSetState = async (chatsState: ChatsStateType,
-                                                message: Message,
-                                                navigationPayload: any,
-                                                exclude_ws_channel="") => {
+                                                message: RequestPayload,
+                                                navigationPayload: any) => {
     navigationPayload.chat.messages.results.push(message);
     if (navigationPayload.isChatNew) {
         navigationPayload.isChatNew = false;
         chatsState.setChats(prevState => [...prevState, navigationPayload.chat]);
         try {
             const response = await createChat(navigationPayload.chat);
-            Object.keys(response.data).forEach(key => {
+            for (let key in response.data) {
                 navigationPayload.chat[key] = response.data[key];
-            })
+            }
             chatsState.setChats(prevState => [...prevState]);
         }
         catch(e) {
@@ -58,7 +53,7 @@ export const createMessageAndSetState = async (chatsState: ChatsStateType,
     } else {
         try {
             chatsState.setChats(prevState => [...prevState]);
-            const response = await createMessage(message, "POST", exclude_ws_channel);
+            const response = await createMessage(message, "POST");
             for (let key in response.data) {
                 message[key] = response.data[key]
             }

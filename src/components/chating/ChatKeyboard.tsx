@@ -3,7 +3,7 @@ import {v4 as uuidv4} from "uuid";
 import {StyleSheet, TextInput, View, Pressable, Image, Text, GestureResponderEvent, ImageSourcePropType, StyleProp, ViewStyle} from "react-native";
 import DocumentPicker, {DocumentPickerResponse} from "react-native-document-picker";
 import {Message} from "@app/types/MessageType";
-import { createMessageAndSetState, updateMessageAndSetState } from "@app/helpers/ChatsStateAPILayer";
+import { createMessageAndSetState, updateMessageAndSetState } from "@app/utils/ChatsStateAPILayer";
 import { useChat } from "@app/context/ChatsContext";
 import { useAuth } from "@app/context/AuthContext";
 import { useWSChannelName } from "@app/context/WebSocketChannelName";
@@ -54,10 +54,16 @@ const ChatKeyboard = ({messageForChangeState, payload}:
         if (!!messageForChangeState.message) {
             messageForChangeState.message.content = inputtedData;
             messageForChangeState.message.file = singleFile;
-            updateMessageAndSetState({chats, 
-                                     setChats}, 
-                                     messageForChangeState)
-            messageForChangeState.setMessageForChange(null);
+            messageForChangeState.message.is_edited = true;
+            try {
+                await updateMessageAndSetState({chats, 
+                    setChats}, 
+                    {...messageForChangeState.message, exclude_ws_channel: wsChannelName})
+            } catch (e) {
+                messageForChangeState.message.hasSendingError = true;
+            } finally {
+                messageForChangeState.setMessageForChange(null);
+            }
         } else {
             createMessageAndSetState({chats, 
                                      setChats}, 
@@ -71,9 +77,9 @@ const ChatKeyboard = ({messageForChangeState, payload}:
                                         public_id: uuidv4(),
                                         file: singleFile,
                                         hasSendingError: null,
+                                        exclude_ws_channel: wsChannelName
                                     },
-                                    payload,
-                                    wsChannelName)
+                                    payload)
         }
         inputFieldRef.current.clear();
         setInputtedData("");
@@ -133,19 +139,19 @@ const styles = StyleSheet.create({
         height: 45,
         width: "100%"
     },
-    selectFileButton: {
-        alignItems: "center", 
-        justifyContent: "center",
-        borderRadius: 50,
-        backgroundColor: "#CC5500",
-        height: "100%",
-        aspectRatio: 1
-    },
     sendButton: {
         alignItems: "center", 
         justifyContent: "center",
         borderRadius: 50,
-        backgroundColor: "#FFCC00",
+        backgroundColor: "rgba(70, 0, 255, 0.5)",
+        height: "100%",
+        aspectRatio: 1
+    },
+    selectFileButton: {
+        alignItems: "center", 
+        justifyContent: "center",
+        borderRadius: 50,
+        backgroundColor: "rgba(200, 150, 0, 0.5)",
         height: "100%",
         aspectRatio: 1
     },

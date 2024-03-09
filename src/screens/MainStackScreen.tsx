@@ -5,7 +5,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import {Chat_} from "@app/types/ChatType";
 import {ChatProvider} from "@app/context/ChatsContext";
 import {useAuth} from "@app/context/AuthContext";
-import {sortChats} from "@app/helpers/sort";
+import {sortChats} from "@app/utils/sort";
 import {BaseWebsocketURL, BaseHTTPURL, ScreenNames} from "@app/config";
 import { useConnect } from "@app/context/ConnectionContext";
 import { axiosWithConnectionRetry as axios } from "@app/config";

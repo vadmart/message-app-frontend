@@ -2,9 +2,9 @@ import React, {useState} from "react";
 import ReactNativeBlobUtil, {ReactNativeBlobUtilConfig} from "react-native-blob-util"
 import {Alert, Image, PermissionsAndroid, Platform, Pressable, StyleSheet, Text, View} from "react-native"
 import {Message} from "@app/types/MessageType";
-import {toReadableDate, toReadableTime} from "@app/helpers/chats";
+import {toReadableDate, toReadableTime} from "@app/utils/chats";
 import Avatar from "@app/components/chating/Avatar";
-import {getFileExtension, getFileName} from "@app/helpers/file";
+import {getFileExtension, getFileName} from "@app/utils/file";
 import {useAuth} from "@app/context/AuthContext";
 import {useChat} from "@app/context/ChatsContext";
 import Swipeable from "react-native-gesture-handler/Swipeable";

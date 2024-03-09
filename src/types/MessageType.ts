@@ -1,7 +1,7 @@
 import {User} from "@app/types/UserType";
 import { DocumentPickerResponse } from "react-native-document-picker";
 
-export interface MessageInfo {
+export type MessageInfo = {
     public_id?: string,
     chat: string,
     sender: User,

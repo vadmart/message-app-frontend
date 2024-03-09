@@ -5,10 +5,10 @@ import {Message} from "@app/types/MessageType";
 import ChatKeyboard from "@app/components/chating/ChatKeyboard";
 import MessageItem from "../components/chating/MessageItem";
 import {useChat} from "@app/context/ChatsContext";
-import {sortChats, } from "@app/helpers/sort";
+import {sortChats, } from "@app/utils/sort";
 import {Chat_} from "@app/types/ChatType";
 import {OneSignal} from "react-native-onesignal";
-import { readAllMessagesAndSetState } from "@app/helpers/ChatsStateAPILayer";
+import { readAllMessagesAndSetState } from "@app/utils/ChatsStateAPILayer";
 import {useNavigation} from "@react-navigation/native"
 import { User } from "@app/types/UserType";
 // import { StatusBar } from "expo-status-bar";

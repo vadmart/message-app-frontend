@@ -4,7 +4,7 @@ import ContactSearcher from "@app/components/chating/ContactSearcher";
 import ChatItem from "@app/components/chating/ChatItem";
 import {useChat} from "@app/context/ChatsContext";
 import { Swipeable } from "react-native-gesture-handler";
-import { destroyChatAndSetState } from "@app/helpers/ChatsStateAPILayer";
+import { destroyChatAndSetState } from "@app/utils/ChatsStateAPILayer";
 import {Menu, MenuOptions, MenuTrigger, MenuOption, MenuProvider} from "react-native-popup-menu";
 import { useAuth } from "@app/context/AuthContext";
 

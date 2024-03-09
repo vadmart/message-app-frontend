@@ -1,10 +1,10 @@
 import { AxiosResponse } from "axios";
-import { axiosWithConnectionRetry as axios } from "../../config";
-import { BaseHTTPURL } from "../../config";
-import { Message } from "../../types/MessageType";
-import { Chat_ } from "../../types/ChatType";
+import { axiosWithConnectionRetry as axios } from "@app/config";
+import { BaseHTTPURL } from "@app//config";
+import { Chat_ } from "@app/types/ChatType";
+import { RequestPayload } from "@app/types/RequestPayloadType";
 
-export const deleteMessage = async (message: Message) => {
+export const deleteMessage = async (message: RequestPayload) => {
     return axios.delete(`${BaseHTTPURL}chat/${message.chat}/message/${message.public_id}/`, {
         headers: {
             "Content-Type": "multipart/form-data"
@@ -12,14 +12,13 @@ export const deleteMessage = async (message: Message) => {
     })
 }
 
-export const createMessage = async (message: Message, method="POST", exclude_ws_channel="") => {
+export const createMessage = async (message: RequestPayload, method="POST"): Promise<AxiosResponse> => {
     const formData = new FormData();
     for (let key in message) {
-        if (!!message[key] && key !== "sender") {
+        if (!!message[key] && typeof message[key] !== "object") {
             formData.append(key, message[key]);
         }
     }
-    formData.append("exclude_ws_channel", exclude_ws_channel);
     console.log(formData);
     const url = (method == "POST") ? BaseHTTPURL + `chat/${message.chat}/message/` : BaseHTTPURL + `chat/${message.chat}/message/${message.public_id}/`;
     return axios(url,
@@ -49,7 +48,7 @@ export const resendMessagesFromChats = async (chats: Chat_[]) => {
     }
 }
 
-export const markMessageAsRead = async (message_id: string) => {
+export const markMessageAsRead = async (message_id: string): Promise<AxiosResponse> => {
     try {
         return axios.post(BaseHTTPURL + `message/${message_id}/read/`);
     } catch (e) {

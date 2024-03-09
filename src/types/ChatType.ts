@@ -1,7 +1,7 @@
 import {Message} from "@app/types/MessageType";
 import {User} from "@app/types/UserType";
 
-export interface Chat_ {
+export type Chat_ = {
     first_user: User,
     second_user: User,
     messages: {
@@ -15,7 +15,7 @@ export interface Chat_ {
     areMessagesFetched?: boolean
 }
 
-export interface ChatsStateType {
+export type ChatsStateType = {
     chats: Chat_[],
     setChats: React.Dispatch<React.SetStateAction<Chat_[]>>
 }

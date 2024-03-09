@@ -1,11 +1,11 @@
 import {Pressable, StyleSheet, Text, View} from "react-native";
-import {toReadableDateTime} from "@app/helpers/chats";
+import {toReadableDateTime} from "@app/utils/chats";
 import {useAuth} from "@app/context/AuthContext";
 import React from "react";
 import Avatar from "@app/components/chating/Avatar";
 import {Chat_} from "@app/types/ChatType";
 import { Message } from "@app/types/MessageType";
-import {showMessageContent} from "@app/helpers/chats";
+import {showMessageContent} from "@app/utils/chats";
 import {ScreenNames} from "@app/config";
 import { User } from "@app/types/UserType";
 
