@@ -13,8 +13,9 @@ export const updateMessageAndSetState = async (chatsState: ChatsStateType,
 }
 
 export const readAllMessagesAndSetState = (chatsState: ChatsStateType,
-                                payload): void => {
-    markAllChatMessagesAsRead(payload.chat.public_id);
+                                payload,
+                                exclude_ws_channel=""): void => {
+    markAllChatMessagesAsRead(payload.chat.public_id, exclude_ws_channel);
     const messages = payload.chat.messages.results;
     let hasAnyUnread = false
     for (let message of messages) {

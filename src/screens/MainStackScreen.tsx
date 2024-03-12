@@ -18,8 +18,9 @@ const Stack = createNativeStackNavigator();
 type WebSocketResponse = {
     channel_name?: string,
     chat?: Chat_,
+    chat_id?: string,
     message?: Message,
-    action: "create" | "update" | "destroy"
+    action: "create" | "update" | "destroy" | "mark_messages_as_read"
 }
 
 
@@ -100,6 +101,7 @@ const MainStackScreen = () => {
                             return;
                         }
                     }
+                    break;
                 case "destroy":
                     for (let i = currMessages.length - 1; i >= 0; --i) {
                         if (currMessages[i].public_id == data.message.public_id) {
@@ -116,6 +118,7 @@ const MainStackScreen = () => {
                             return;
                         }
                     }
+                    break;
             }
         }
 
@@ -123,6 +126,7 @@ const MainStackScreen = () => {
             switch (data.action) {
                 case "create":
                     setChats(prevState => [...prevState, data.chat]);
+                    return
                     // storage.set("chat", JSON.stringify(chats));
                 case "destroy":
                     for (let i = chats.length - 1; i >= 0; i--) {
@@ -130,9 +134,20 @@ const MainStackScreen = () => {
                             chats.splice(i, 1);
                             setChats([...chats].sort(sortChats));
                             // storage.set("chat", JSON.stringify(chats));
-                            break;
+                            return
                         }
                     }
+                    break
+                case "mark_messages_as_read":
+                    for (let i = chats.length - 1; i >= 0; i--) {
+                        if (chats[i].public_id == data.chat_id) {
+                            chats[i].messages.unread_messages_count = 0;
+                            chats[i].messages.has_unread_messages = false;
+                            setChats(prevState => [...prevState]);
+                            return
+                        }
+                    }
+                    break
             }
         }
 
@@ -142,7 +157,7 @@ const MainStackScreen = () => {
             console.log(receivedData);
             if (receivedData.message) {
                 handleWSDataWithMessage(receivedData);
-            } else if (receivedData.chat) {
+            } else if (receivedData.chat || receivedData.chat_id) {
                 handleWSDataWithChat(receivedData);
             } else if (receivedData.channel_name) {
                 wsChannelNameRef.current = receivedData.channel_name;

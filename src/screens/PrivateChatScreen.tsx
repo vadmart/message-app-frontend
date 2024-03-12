@@ -11,6 +11,7 @@ import {OneSignal} from "react-native-onesignal";
 import { readAllMessagesAndSetState } from "@app/utils/ChatsStateAPILayer";
 import {useNavigation} from "@react-navigation/native"
 import { User } from "@app/types/UserType";
+import { useWSChannelName } from "@app/context/WebSocketChannelName";
 // import { StatusBar } from "expo-status-bar";
 
 
@@ -20,10 +21,10 @@ const PrivateChatScreen = memo(({route}) => {
     const messageListRef = useRef(null);
     const {chats, setChats} = useChat();
     const navigation = useNavigation();
+    const wsChannelName = useWSChannelName();
     const {payload: navigationPayload}: {payload: {companion: User,
                                 chat: Chat_,
                                 isChatNew: boolean}} = route.params;
-    console.log(navigationPayload);
     const messageForChangeState: {message: Message,
                                   setMessageForChange: React.Dispatch<React.SetStateAction<Message>>} = {message: null,
                                                                                              setMessageForChange: null};
@@ -110,7 +111,7 @@ const PrivateChatScreen = memo(({route}) => {
                 onRefresh={onFlatListRefresh}
                 onEndReached={() => {
                     if (navigationPayload.chat.messages.has_unread_messages) {
-                        readAllMessagesAndSetState({chats, setChats}, navigationPayload);
+                        readAllMessagesAndSetState({chats, setChats}, navigationPayload, wsChannelName);
                     }
                 }}
             />

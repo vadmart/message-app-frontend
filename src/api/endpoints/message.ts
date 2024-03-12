@@ -56,6 +56,6 @@ export const markMessageAsRead = async (message_id: string): Promise<AxiosRespon
     }
 }
 
-export const markAllChatMessagesAsRead = (chat_id: string): Promise<AxiosResponse> => {
-    return axios.post(BaseHTTPURL + `chat/${chat_id}/message/read-all-messages/`);
+export const markAllChatMessagesAsRead = async (chat_id: string, exclude_ws_channel=""): Promise<AxiosResponse> => {
+    return axios.post(BaseHTTPURL + `chat/${chat_id}/message/read-all-messages/`, {exclude_ws_channel});
 }
