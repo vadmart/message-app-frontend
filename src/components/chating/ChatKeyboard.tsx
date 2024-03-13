@@ -58,7 +58,8 @@ const ChatKeyboard = ({messageForChangeState, payload}:
             try {
                 await updateMessageAndSetState({chats, 
                     setChats}, 
-                    {...messageForChangeState.message, exclude_ws_channel: wsChannelName})
+                    messageForChangeState.message, 
+                    wsChannelName)
             } catch (e) {
                 messageForChangeState.message.hasSendingError = true;
             } finally {
@@ -77,9 +78,9 @@ const ChatKeyboard = ({messageForChangeState, payload}:
                                         public_id: uuidv4(),
                                         file: singleFile,
                                         hasSendingError: null,
-                                        exclude_ws_channel: wsChannelName
                                     },
-                                    payload)
+                                    payload,
+                                    wsChannelName)
         }
         inputFieldRef.current.clear();
         setInputtedData("");

@@ -2,9 +2,9 @@ import { AxiosResponse } from "axios";
 import { axiosWithConnectionRetry as axios } from "@app/config";
 import { BaseHTTPURL } from "@app//config";
 import { Chat_ } from "@app/types/ChatType";
-import { RequestPayload } from "@app/types/RequestPayloadType";
+import { MessageRequestPayload } from "@app/types/RequestPayloadType";
 
-export const deleteMessage = async (message: RequestPayload) => {
+export const deleteMessage = async (message: MessageRequestPayload) => {
     return axios.delete(`${BaseHTTPURL}chat/${message.chat}/message/${message.public_id}/`, {
         headers: {
             "Content-Type": "multipart/form-data"
@@ -12,7 +12,7 @@ export const deleteMessage = async (message: RequestPayload) => {
     })
 }
 
-export const createMessage = async (message: RequestPayload, method="POST"): Promise<AxiosResponse> => {
+export const createMessage = async (message: MessageRequestPayload, method="POST"): Promise<AxiosResponse> => {
     const formData = new FormData();
     for (let key in message) {
         if (!!message[key] && typeof message[key] !== "object") {
