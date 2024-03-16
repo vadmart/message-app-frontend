@@ -15,11 +15,11 @@ export const deleteMessage = async (message: MessageRequestPayload) => {
 export const createMessage = async (message: MessageRequestPayload, method="POST"): Promise<AxiosResponse> => {
     const formData = new FormData();
     for (let key in message) {
-        if (!!message[key] && typeof message[key] !== "object") {
+        console.log(`Key: ${key}, value: ${message[key]}`)
+        if (key !== "sender") {
             formData.append(key, message[key]);
         }
     }
-    console.log(formData);
     const url = (method == "POST") ? BaseHTTPURL + `chat/${message.chat}/message/` : BaseHTTPURL + `chat/${message.chat}/message/${message.public_id}/`;
     return axios(url,
         {

@@ -45,7 +45,7 @@ export const createMessageAndSetState = async (chatsState: ChatsStateType,
             chatsState.setChats(prevState => [...prevState]);
         }
         catch(e) {
-            if (e.response) {
+            if (!!e.response) {
                 console.error(e.response.data);
             } else {
                 console.error(e);
