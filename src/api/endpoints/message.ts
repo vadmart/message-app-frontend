@@ -16,7 +16,7 @@ export const createMessage = async (message: MessageRequestPayload, method="POST
     const formData = new FormData();
     for (let key in message) {
         console.log(`Key: ${key}, value: ${message[key]}`)
-        if (key !== "sender") {
+        if (message[key] !== null && key !== "sender") {
             formData.append(key, message[key]);
         }
     }

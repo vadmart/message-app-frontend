@@ -34,38 +34,28 @@ export const createMessageAndSetState = async (chatsState: ChatsStateType,
                                                 navigationPayload: any,
                                                 exclude_ws_channel: string = null) => {
     navigationPayload.chat.messages.results.push(message);
-    if (navigationPayload.isChatNew) {
-        navigationPayload.isChatNew = false;
-        chatsState.setChats(prevState => [...prevState, navigationPayload.chat]);
-        try {
+    try {
+        if (navigationPayload.isChatNew) {
+            navigationPayload.isChatNew = false;
+            chatsState.setChats(prevState => [...prevState, navigationPayload.chat]);
             const response = await createChat({...navigationPayload.chat, exclude_ws_channel});
             for (let key in response.data) {
                 navigationPayload.chat[key] = response.data[key];
             }
-            chatsState.setChats(prevState => [...prevState]);
+        } 
+        chatsState.setChats(prevState => [...prevState]);
+        const response = await createMessage({...message, exclude_ws_channel}, "POST");
+        for (let key in response.data) {
+            message[key] = response.data[key]
         }
-        catch(e) {
-            if (!!e.response) {
-                console.error(e.response.data);
-            } else {
-                console.error(e);
-            }
+        chatsState.setChats(prevState => [...prevState]);
+    }
+    catch(e) {
+        if (!!e.response) {
+            console.warn(e.response.data)
+        } else {
+            console.warn(e)
         }
-    } else {
-        try {
-            chatsState.setChats(prevState => [...prevState]);
-            const response = await createMessage({...message, exclude_ws_channel}, "POST");
-            for (let key in response.data) {
-                message[key] = response.data[key]
-            }
-            chatsState.setChats(prevState => [...prevState]);
-        } catch (e) {
-            if (!!e.response) {
-                console.error(e.response.data);
-            } else {
-                console.error(e);
-            }
-        }   
     }
 }
 
