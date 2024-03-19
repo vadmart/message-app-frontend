@@ -40,6 +40,7 @@ export const createMessageAndSetState = async (chatsState: ChatsStateType,
             chatsState.setChats(prevState => [...prevState, navigationPayload.chat]);
             const response = await createChat({...navigationPayload.chat, exclude_ws_channel});
             for (let key in response.data) {
+                if (key !== "messages")
                 navigationPayload.chat[key] = response.data[key];
             }
         } 
