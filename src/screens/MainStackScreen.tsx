@@ -131,6 +131,7 @@ const MainStackScreen = () => {
                 case "destroy":
                     for (let i = chats.length - 1; i >= 0; i--) {
                         if (chats[i].public_id == data.chat.public_id) {
+                            chats[i].isChatDeleted = true;
                             chats.splice(i, 1);
                             setChats([...chats].sort(sortChats));
                             // storage.set("chat", JSON.stringify(chats));

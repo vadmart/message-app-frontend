@@ -12,7 +12,8 @@ export type Chat_ = {
         has_unread_messages?: boolean;
     },
     public_id: string,
-    areMessagesFetched?: boolean
+    areMessagesFetched?: boolean,
+    isChatDeleted?: boolean
 }
 
 export type ChatsStateType = {
