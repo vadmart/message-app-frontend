@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState, memo} from "react";
-import {FlatList, StyleSheet, View, StatusBar} from "react-native";
+import {FlatList, StyleSheet, View, StatusBar, Text} from "react-native";
 import {BaseHTTPURL, axiosWithConnectionRetry as axios} from "@app/config";
 import {Message} from "@app/types/MessageType";
 import ChatKeyboard from "@app/components/chating/ChatKeyboard";
@@ -13,6 +13,7 @@ import {useNavigation} from "@react-navigation/native"
 import { User } from "@app/types/UserType";
 import { useWSChannelName } from "@app/context/WebSocketChannelName";
 // import { StatusBar } from "expo-status-bar";
+
 
 
 // @ts-ignore
@@ -30,6 +31,14 @@ const PrivateChatScreen = memo(({route}) => {
                                                                                              setMessageForChange: null};
     [messageForChangeState.message, messageForChangeState.setMessageForChange] = useState(null);
 
+    function doesChatExist(chat_id: string): boolean {
+        for (let i = chats.length - 1; i === 0; --i) {
+            if (chats[i].public_id === chat_id) {
+                return true
+            }
+        }
+        return false
+    }
 
     const renderMessage = ({index, item}) => {
         if (!navigationPayload.chat.messages) return;
@@ -115,7 +124,12 @@ const PrivateChatScreen = memo(({route}) => {
                     }
                 }}
             />
-            <ChatKeyboard messageForChangeState={messageForChangeState} payload={navigationPayload} />
+            {(!navigationPayload.chat.isChatDeleted) ? 
+                <ChatKeyboard messageForChangeState={messageForChangeState} payload={navigationPayload} />
+            : <View>
+                <Text style={{textAlign: "center", fontStyle: "italic"}}>Ви не можете відправляти повідомлення у цей чат</Text>  
+              </View>}
+            
         </View>
     )
 })
