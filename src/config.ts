@@ -22,8 +22,10 @@ axiosWithConnectionRetry.interceptors.response.use(undefined, async (err) => {
     })
     return delayedRequest.then(() => axiosWithConnectionRetry(config))
 })
-export const BaseHTTPURL = "http://localhost:8000/api/v1/";
-export const BaseWebsocketURL = "ws://localhost:8000/ws/chat/";
+const httpOrigin = process.env.EXPO_PUBLIC_HTTP_ORIGIN;
+const webSocketOrigin = process.env.EXPO_PUBLIC_WEBSOCKET_ORIGIN;
+export const BaseHTTPURL = `${httpOrigin}api/v1/`;
+export const BaseWebsocketURL = `${webSocketOrigin}ws/chat/`;
 export const ScreenNames = {
     REGISTRATION: "Registration",
     LOGIN: "Login",

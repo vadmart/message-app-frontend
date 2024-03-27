@@ -3,14 +3,22 @@
     "version": ">= 5.0.2"
   },
   "build": {
+    "base": {
+      "node": "20.11.1",
+      "android": {
+        "buildType": "apk"
+      }
+    },
     "development": {
       "developmentClient": true,
       "distribution": "internal"
     },
     "preview": {
+      "extends": "base",
       "distribution": "internal"
     },
-    "production": {}
+    "production": {
+    }
   },
   "submit": {
     "production": {}

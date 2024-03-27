@@ -121,7 +121,6 @@ const MainStackScreen = () => {
                     break;
             }
         }
-
         const handleWSDataWithChat = (data: WebSocketResponse) => {
             switch (data.action) {
                 case "create":
@@ -131,6 +130,7 @@ const MainStackScreen = () => {
                 case "destroy":
                     for (let i = chats.length - 1; i >= 0; i--) {
                         if (chats[i].public_id == data.chat.public_id) {
+                            // mark chat as deleted, because navigationPayload stores link on this object even after deleting the latter from 'chats' array
                             chats[i].isChatDeleted = true;
                             chats.splice(i, 1);
                             setChats([...chats].sort(sortChats));
