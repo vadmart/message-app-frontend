@@ -1,7 +1,6 @@
 import React, { useState, useRef } from "react";
-import { StyleSheet, View, Text, TextInput, Pressable, NativeSyntheticEvent, TextInputKeyPressEventData, KeyboardAvoidingView, Platform } from "react-native";
+import { StyleSheet, View, Text, TextInput, Pressable, NativeSyntheticEvent, TextInputKeyPressEventData } from "react-native";
 import { errInputStyle, errLabelStyle } from "@app/utils/errorStyle";
-import FormButton from "@app/components/AccountForm/FormNavigationButton";
 import FormContainer from "@app/components/AccountForm/FormContainer";
 import {useAuth} from "@app/context/AuthContext";
 import { FlatList } from "react-native-gesture-handler";

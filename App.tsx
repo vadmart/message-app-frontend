@@ -33,7 +33,7 @@ OneSignal.Debug.setLogLevel(LogLevel.Verbose); // for OneSignal Debugging
 OneSignal.initialize("ONESIGNAL_APP_ID");
 
 
-function App() {
+const App = () => {
     return (
         <AuthProvider>
             <Layout />
