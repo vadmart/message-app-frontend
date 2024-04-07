@@ -2,8 +2,9 @@ import React from "react";
 import { StyleSheet, View, KeyboardAvoidingView, Platform, Text } from "react-native";
 import FormButton from "./FormNavigationButton";
 
-const FormContainer = ({title, children, bottomButtonText, bottomButtonOnPress, contentStyle={}}) => {
-    return (
+const FormContainer = (props) => {
+    const {title, children, bottomButtonText, bottomButtonOnPress, contentStyle={}} = props;
+     return (
         <KeyboardAvoidingView style={styles.container} behavior={(Platform.OS === "ios" ? "padding" : "height")}>
             <Text style={styles.formTitle}>{title}</Text>
             <View style={[styles.formContent, contentStyle]}>
@@ -27,7 +28,7 @@ const styles = StyleSheet.create({
         alignSelf: "center",
     },
     formContent: {
-        width: "60%",
+        width: "70%",
         rowGap: 10
     }
 });

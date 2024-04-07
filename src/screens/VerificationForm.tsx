@@ -53,29 +53,30 @@ const VerificationForm = ({ route, navigation }) => {
                                     bottomButtonOnPress={() => {navigation.goBack()}}
                                     contentStyle={{alignItems: "center"}}>
                     <Text style={styles.labelText}>Введіть код верифікації:</Text>
-                            <FlatList horizontal={true} 
-                                    data={fields.current} 
-                                    contentContainerStyle={{columnGap: 5}}
-                                    renderItem={({index}) => {
-                                        return (
-                                            <TextInput style={[styles.input, error && errInputStyle]}
-                                                keyboardType={"decimal-pad"}
-                                                ref={input => fields.current[index] = input}
-                                                maxLength={1}
-                                                onChangeText={text => handleChangeText(text, index)}
-                                                onKeyPress={e => handleKeyPress(e, index)}
-                                                value={otpCode[index]}
-                                            />
-                                            )
-                                        }    
-                                    }
-                            />
-                            <Text style={[errLabelStyle, {fontSize: 13}]}>{error}</Text>
-                            <Pressable onPress={() => {
-                                    onResend(username, phoneNumber)
-                            }}>
-                                <Text>Надіслати новий код</Text>
-                            </Pressable>
+                    <FlatList horizontal={true}
+                            data={fields.current} 
+                            contentContainerStyle={{columnGap: 5}}
+                            renderItem={({index}) => {
+                                return (
+                                    <TextInput style={[styles.input, error && errInputStyle]}
+                                        keyboardType={"decimal-pad"}
+                                        ref={input => fields.current[index] = input}
+                                        maxLength={1}
+                                        onChangeText={text => handleChangeText(text, index)}
+                                        onKeyPress={e => handleKeyPress(e, index)}
+                                        value={otpCode[index]}
+                                    />
+                                    )
+                                }    
+                            }
+                            scrollEnabled={false}
+                    />
+                    <Text style={[errLabelStyle, {fontSize: 13}]}>{error}</Text>
+                    <Pressable onPress={() => {
+                            onResend(username, phoneNumber)
+                    }}>
+                        <Text>Надіслати новий код</Text>
+                    </Pressable>
             </FormContainer>
         </View>
     )

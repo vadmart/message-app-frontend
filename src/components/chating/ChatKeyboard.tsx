@@ -102,8 +102,7 @@ const ChatKeyboard = ({messageForChangeState, payload}:
                                     onPress={handleSubmit}
                                     disabled={(inputtedData === "" && singleFile === null)}
                                     source={require("@img/chat-icons/send.png")}
-                                    style={styles.sendButton}>
-                        </ChatKeyboardButton>
+                                    style={styles.sendButton} />
                         <ChatKeyboardButton onPress={selectFile} source={require("@img/chat-icons/clip_icon.png")} 
                                             style={styles.selectFileButton} />
                     </View>
@@ -144,7 +143,7 @@ const styles = StyleSheet.create({
         alignItems: "center", 
         justifyContent: "center",
         borderRadius: 50,
-        backgroundColor: "rgba(70, 0, 255, 0.5)",
+        backgroundColor: "#888888",
         height: "100%",
         aspectRatio: 1
     },
@@ -152,7 +151,7 @@ const styles = StyleSheet.create({
         alignItems: "center", 
         justifyContent: "center",
         borderRadius: 50,
-        backgroundColor: "rgba(200, 150, 0, 0.5)",
+        backgroundColor: "#FFF",
         height: "100%",
         aspectRatio: 1
     },

@@ -37,3 +37,4 @@ yarn-error.*
 # other
 %ProgramData%
 Dummy.ts
+__exclude__
