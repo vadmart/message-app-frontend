@@ -61,6 +61,7 @@ const ChatsScreen = memo(({navigation}) => {
                     {(chats.length > 0) ? 
                     <FlatList
                             data={chats}
+                            contentContainerStyle={{rowGap: 5}}
                             renderItem={({item}) => {
                                 return (
                                     <Swipeable 
