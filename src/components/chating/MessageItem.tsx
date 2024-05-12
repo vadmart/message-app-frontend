@@ -99,7 +99,7 @@ const MessageItem = ({index, messages, item, messageForChangeState}:
                 </View>}
             <View
                 style={[styles.messageItemBlock, (authState.user.public_id == item.sender.public_id && {flexDirection: "row-reverse"})]}>
-                <View style={styles.leftBlock}>
+                <View style={styles.avatarBlock}>
                     {((currentDateTime.getDate() !== nextDateTime.getDate() ||
                             currentDateTime.getMonth() !== nextDateTime.getMonth())
                         || item.sender.public_id !== nextSender.public_id) ?
@@ -148,9 +148,10 @@ const MessageItem = ({index, messages, item, messageForChangeState}:
 const styles = StyleSheet.create({
     messageItemBlock: {
         marginBottom: 20,
-        flexDirection: "row"
+        flexDirection: "row",
+        columnGap: 5
     },
-    leftBlock: {
+    avatarBlock: {
         flex: 0.15,
         justifyContent: "flex-end",
         alignItems: "center"

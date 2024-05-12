@@ -31,15 +31,6 @@ const PrivateChatScreen = memo(({route}) => {
                                                                                              setMessageForChange: null};
     [messageForChangeState.message, messageForChangeState.setMessageForChange] = useState(null);
 
-    function doesChatExist(chat_id: string): boolean {
-        for (let i = chats.length - 1; i === 0; --i) {
-            if (chats[i].public_id === chat_id) {
-                return true
-            }
-        }
-        return false
-    }
-
     const renderMessage = ({index, item}) => {
         if (!navigationPayload.chat.messages) return;
         return (

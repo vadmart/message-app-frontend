@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import {Image, Pressable, StyleSheet, Text, TextInput, View} from "react-native";
 import { axiosWithConnectionRetry } from "@app/config";
 import {BaseHTTPURL} from "@app/config";
-import {User} from "@app/types/UserType";
+import {User, isUser} from "@app/types/UserType";
 import {ScreenNames} from "@app/config";
 import {v4 as uuidv4} from "uuid";
 import { Chat_ } from "@app/types/ChatType";
@@ -18,9 +18,14 @@ const ContactSearcher = ({navigation}) => {
             setError("This field might not be empty!");
             return
         }
-        axiosWithConnectionRetry.get(BaseHTTPURL + `user/${encodeURIComponent(phoneNumber)}`)
+        axiosWithConnectionRetry.get(BaseHTTPURL + `user/${encodeURIComponent(phoneNumber)}/`)
             .then((response) => {
-                const companion: User = response.data;
+                const companion = response?.data;
+                if (!isUser(companion)) {
+                    console.log("Response data is not a 'User' type");
+                    setError("Incorrect response. Try again or change a number!");
+                    return
+                }
                 axiosWithConnectionRetry.get(BaseHTTPURL + `chat/get_chat_by_user/?user__public_id=${companion.public_id}`)
                     .then((resp) => {
                         console.log("Chat was found.");
