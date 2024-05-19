@@ -91,21 +91,19 @@ const ChatKeyboard = ({messageForChangeState, payload}:
             <View style={{paddingBottom: 10}}>
                 {singleFile && <Text style={styles.fileBlock}>{singleFile.name}</Text>}
                 <View style={styles.keyboardBlock}>
+                <ChatKeyboardButton onPress={selectFile} source={require("@img/chat-icons/clip_icon.png")} 
+                                            style={styles.selectFileButton} />
                     <TextInput style={styles.keyboard}
                                ref={inputFieldRef}
                                onChangeText={(text) => {setInputtedData(text)}}
                                placeholder={"Type some text..."}
                                defaultValue={messageForChangeState.message?.content}
                     />
-                    <View style={styles.optionsBlock}>
                         <ChatKeyboardButton
                                     onPress={handleSubmit}
                                     disabled={(inputtedData === "" && singleFile === null)}
                                     source={require("@img/chat-icons/send.png")}
                                     style={styles.sendButton} />
-                        <ChatKeyboardButton onPress={selectFile} source={require("@img/chat-icons/clip_icon.png")} 
-                                            style={styles.selectFileButton} />
-                    </View>
                 </View>
             </View>
     )
@@ -121,7 +119,7 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 20,
         borderTopRightRadius: 20,
         borderBottomRightRadius: 20,
-        marginHorizontal: 10
+        marginHorizontal: 5
     },
     optionsBlock: {
         justifyContent: "center",
@@ -137,13 +135,15 @@ const styles = StyleSheet.create({
     keyboardBlock: {
         flexDirection: "row",
         height: 45,
-        width: "100%"
+        justifyContent: "center",
+        width: "100%",
+        paddingHorizontal: 5
     },
     sendButton: {
         alignItems: "center", 
         justifyContent: "center",
         borderRadius: 50,
-        backgroundColor: "#888888",
+        backgroundColor: "#FFF",
         height: "100%",
         aspectRatio: 1
     },

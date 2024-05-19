@@ -33,16 +33,11 @@ const MainStackScreen = () => {
     const wsChannelNameRef = useRef<string>(null);
 
     useEffect(() => {
-        // const chatsFromStorage = storage.getString("chats");
-        // if (chatsFromStorage) {
-        //     setChats(JSON.parse(chatsFromStorage));
-        // } 
         if (!connected) return;
         
         axios.get(BaseHTTPURL + "chat/")
             .then(response => {
                 setChats(response.data);
-                // storage.set("chat", JSON.stringify(chats));
             })
             .catch((e) => {console.log(e)});
 
