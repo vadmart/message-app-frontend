@@ -68,6 +68,7 @@ const PrivateChatScreen = memo(({route}) => {
                                 });
             if (navigationPayload.chat.areMessagesFetched) return;
             try {
+                // TODO: move API request below to a separate module
                 const response = await axios.get(BaseHTTPURL + `chat/${navigationPayload.chat.public_id}/message/`);
                 for (let key in response.data) {
                     navigationPayload.chat.messages[key] = response.data[key];
@@ -102,7 +103,7 @@ const PrivateChatScreen = memo(({route}) => {
         <View style={styles.container}>
             <StatusBar backgroundColor={"white"} barStyle={"dark-content"} animated={true}/>
             <FlatList
-                style={{paddingTop: 10}}
+                contentContainerStyle={{paddingTop: 10, paddingBottom: 30}}
                 data={navigationPayload.chat?.messages?.results}
                 ref={messageListRef}
                 renderItem={renderMessage}

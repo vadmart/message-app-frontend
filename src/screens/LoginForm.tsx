@@ -27,7 +27,7 @@ const LoginForm = ({ navigation }) => {
             setPhoneNumberError("Поле не може бути порожнім.");
             return
         }
-        const response = await onLogin(username, phoneNumber);
+        const response = await onLogin(username, "+380" + phoneNumber);
         if (response.error) {
             for (let val of Object.values<string>(response.msg)) {
                 setValidationError(val);

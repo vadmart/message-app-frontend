@@ -79,7 +79,7 @@ export const AuthProvider = ({children}) => {
     const login = async (username: string, phone_number: string) => {
         try {
             return await axios.post(BaseHTTPURL + "auth/login/",
-                {username, phone_number: "+380" + phone_number});
+                {username, phone_number});
         } catch (e) {
             return {error: true, msg: (e).response.data}
         }
@@ -108,6 +108,7 @@ export const AuthProvider = ({children}) => {
     }
 
     const tokenVerify = async (accessToken: string) => {
+        // TODO: add refresh token if access one is expired
         return await axios.post(BaseHTTPURL + "auth/token/verify/", 
         {
             token: accessToken
@@ -125,8 +126,16 @@ export const AuthProvider = ({children}) => {
     }
 
     const resend = async (username: string, phone_number: string) => {
-        return await axios.post(BaseHTTPURL + "auth/verify/resend/",
+        try {
+            return await axios.post(BaseHTTPURL + "auth/verify/resend/",
             {username, phone_number})
+        } catch (e) {
+            if (e.response) {
+                console.error(e.response.data);
+            } else {
+                console.error(e);
+            }
+        }
     }
 
     const authValue = {
