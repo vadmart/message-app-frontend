@@ -1,4 +1,5 @@
 import React, {useRef, useState} from "react";
+import { FlatList } from "react-native";
 import {v4 as uuidv4} from "uuid";
 import {StyleSheet, TextInput, View, Pressable, Image, Text, GestureResponderEvent, ImageSourcePropType, StyleProp, ViewStyle} from "react-native";
 import DocumentPicker, {DocumentPickerResponse} from "react-native-document-picker";
@@ -20,10 +21,11 @@ const ChatKeyboardButton = ({onPress=null, disabled=false, source=null, style}:
 }
 
 
-const ChatKeyboard = ({messageForChangeState, payload}:
+const ChatKeyboard = ({messageForChangeState, payload, flatListRef}:
                           {messageForChangeState: {message: Message,
                                                    setMessageForChange: React.Dispatch<React.SetStateAction<Message>>},
-                           payload: any}) => {
+                           payload: any,
+                        flatListRef?: React.MutableRefObject<FlatList>}) => {
     const {chats, setChats} = useChat();
     const [singleFile, setSingleFile] = useState<DocumentPickerResponse>(null);
     const [inputtedData, setInputtedData] = useState("");
@@ -85,6 +87,7 @@ const ChatKeyboard = ({messageForChangeState, payload}:
         inputFieldRef.current.clear();
         setInputtedData("");
         setSingleFile(null);
+        flatListRef.current?.scrollToEnd();
         console.log("End submit handling...");
     }
         return (

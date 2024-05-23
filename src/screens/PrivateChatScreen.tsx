@@ -18,7 +18,6 @@ import { useWSChannelName } from "@app/context/WebSocketChannelName";
 // @ts-ignore
 const PrivateChatScreen = memo(({route}) => {
     console.log("Rendering MessagesScreen");
-    const messageListRef = useRef(null);
     const {chats, setChats} = useChat();
     const navigation = useNavigation();
     const wsChannelName = useWSChannelName();
@@ -76,7 +75,6 @@ const PrivateChatScreen = memo(({route}) => {
                 console.log(navigationPayload.chat.messages.next);
                 navigationPayload.chat.areMessagesFetched = true;
                 setChats([...chats].sort(sortChats));
-                messageListRef.current?.scrollToEnd({animating: true});
             }
             catch (e) {
                 console.log(e)
@@ -104,7 +102,7 @@ const PrivateChatScreen = memo(({route}) => {
             <StatusBar backgroundColor={"white"} barStyle={"dark-content"} animated={true}/>
             <FlatList
                 ref={flatListRef}
-                onLayout={() => console.log(flatListRef.current.scrollToEnd())}
+                onLayout={() => flatListRef.current.scrollToEnd()}
                 contentContainerStyle={{paddingTop: 10, paddingBottom: 30}}
                 data={navigationPayload.chat?.messages?.results}
                 renderItem={renderMessage}
@@ -118,7 +116,9 @@ const PrivateChatScreen = memo(({route}) => {
                 }}
             />
             {(!navigationPayload.chat.isChatDeleted) ? 
-                <ChatKeyboard messageForChangeState={messageForChangeState} payload={navigationPayload} />
+                <ChatKeyboard messageForChangeState={messageForChangeState} 
+                              payload={navigationPayload} 
+                              flatListRef={flatListRef} />
             : <View>
                 <Text style={{textAlign: "center", fontStyle: "italic"}}>Ви не можете відправляти повідомлення у цей чат</Text>  
               </View>}
