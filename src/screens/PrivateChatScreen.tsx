@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState, memo} from "react";
-import {FlatList, StyleSheet, View, StatusBar, Text} from "react-native";
+import {FlatList, StyleSheet, View, StatusBar, Text, KeyboardAvoidingView} from "react-native";
 import {BaseHTTPURL, axiosWithConnectionRetry as axios} from "@app/config";
 import {Message} from "@app/types/MessageType";
 import ChatKeyboard from "@app/components/chating/ChatKeyboard";
@@ -12,7 +12,6 @@ import { readAllMessagesAndSetState } from "@app/utils/ChatsStateAPILayer";
 import {useNavigation} from "@react-navigation/native"
 import { User } from "@app/types/UserType";
 import { useWSChannelName } from "@app/context/WebSocketChannelName";
-// import { StatusBar } from "expo-status-bar";
 
 
 
@@ -23,6 +22,7 @@ const PrivateChatScreen = memo(({route}) => {
     const {chats, setChats} = useChat();
     const navigation = useNavigation();
     const wsChannelName = useWSChannelName();
+    const flatListRef = useRef<FlatList>(null);
     const {payload: navigationPayload}: {payload: {companion: User,
                                 chat: Chat_,
                                 isChatNew: boolean}} = route.params;
@@ -103,9 +103,10 @@ const PrivateChatScreen = memo(({route}) => {
         <View style={styles.container}>
             <StatusBar backgroundColor={"white"} barStyle={"dark-content"} animated={true}/>
             <FlatList
+                ref={flatListRef}
+                onLayout={() => console.log(flatListRef.current.scrollToEnd())}
                 contentContainerStyle={{paddingTop: 10, paddingBottom: 30}}
                 data={navigationPayload.chat?.messages?.results}
-                ref={messageListRef}
                 renderItem={renderMessage}
                 keyExtractor={item => item.public_id}
                 refreshing={false}
