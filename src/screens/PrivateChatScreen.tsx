@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState, memo} from "react";
-import {FlatList, StyleSheet, View, StatusBar, Text, KeyboardAvoidingView} from "react-native";
+import {FlatList, StyleSheet, View, StatusBar, Text, KeyboardAvoidingView, Platform} from "react-native";
 import {BaseHTTPURL, axiosWithConnectionRetry as axios} from "@app/config";
 import {Message} from "@app/types/MessageType";
 import ChatKeyboard from "@app/components/chating/ChatKeyboard";
@@ -21,7 +21,7 @@ const PrivateChatScreen = memo(({route}) => {
     const {chats, setChats} = useChat();
     const navigation = useNavigation();
     const wsChannelName = useWSChannelName();
-    const flatListRef = useRef<FlatList>(null);
+    const flatListProps: {current: FlatList, offset: number} = {current: null, offset: null};
     const {payload: navigationPayload}: {payload: {companion: User,
                                 chat: Chat_,
                                 isChatNew: boolean}} = route.params;
@@ -96,13 +96,12 @@ const PrivateChatScreen = memo(({route}) => {
             OneSignal.Notifications.removeEventListener("foregroundWillDisplay", foregroundNotificationListener);
         }
     }, [])
-
     return (
-        <View style={styles.container}>
+        <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : "height"}>
             <StatusBar backgroundColor={"white"} barStyle={"dark-content"} animated={true}/>
             <FlatList
-                ref={flatListRef}
-                onLayout={() => flatListRef.current.scrollToEnd()}
+                ref={ref => flatListProps.current = ref}
+                onLayout={() => flatListProps.current.scrollToEnd()}
                 contentContainerStyle={{paddingTop: 10, paddingBottom: 30}}
                 data={navigationPayload.chat?.messages?.results}
                 renderItem={renderMessage}
@@ -118,12 +117,11 @@ const PrivateChatScreen = memo(({route}) => {
             {(!navigationPayload.chat.isChatDeleted) ? 
                 <ChatKeyboard messageForChangeState={messageForChangeState} 
                               payload={navigationPayload} 
-                              flatListRef={flatListRef} />
+                              flatList={flatListProps.current} />
             : <View>
                 <Text style={{textAlign: "center", fontStyle: "italic"}}>Ви не можете відправляти повідомлення у цей чат</Text>  
               </View>}
-            
-        </View>
+        </KeyboardAvoidingView>
     )
 })
 

@@ -21,11 +21,11 @@ const ChatKeyboardButton = ({onPress=null, disabled=false, source=null, style}:
 }
 
 
-const ChatKeyboard = ({messageForChangeState, payload, flatListRef}:
+const ChatKeyboard = ({messageForChangeState, payload, flatList}:
                           {messageForChangeState: {message: Message,
                                                    setMessageForChange: React.Dispatch<React.SetStateAction<Message>>},
                            payload: any,
-                        flatListRef?: React.MutableRefObject<FlatList>}) => {
+                        flatList?: FlatList}) => {
     const {chats, setChats} = useChat();
     const [singleFile, setSingleFile] = useState<DocumentPickerResponse>(null);
     const [inputtedData, setInputtedData] = useState("");
@@ -87,7 +87,7 @@ const ChatKeyboard = ({messageForChangeState, payload, flatListRef}:
         inputFieldRef.current.clear();
         setInputtedData("");
         setSingleFile(null);
-        flatListRef.current?.scrollToEnd();
+        flatList?.scrollToEnd();
         console.log("End submit handling...");
     }
         return (
