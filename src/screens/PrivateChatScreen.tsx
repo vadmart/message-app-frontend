@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState, memo} from "react";
-import {FlatList, StyleSheet, View, StatusBar, Text, KeyboardAvoidingView, Platform} from "react-native";
+import {FlatList, StyleSheet, View, StatusBar, Text } from "react-native";
 import {BaseHTTPURL, axiosWithConnectionRetry as axios} from "@app/config";
 import {Message} from "@app/types/MessageType";
 import ChatKeyboard from "@app/components/chating/ChatKeyboard";
@@ -21,7 +21,7 @@ const PrivateChatScreen = memo(({route}) => {
     const {chats, setChats} = useChat();
     const navigation = useNavigation();
     const wsChannelName = useWSChannelName();
-    const flatListProps: {current: FlatList, offset: number} = {current: null, offset: null};
+    const flatListRef = useRef<FlatList>();
     const {payload: navigationPayload}: {payload: {companion: User,
                                 chat: Chat_,
                                 isChatNew: boolean}} = route.params;
@@ -100,8 +100,8 @@ const PrivateChatScreen = memo(({route}) => {
         <View style={styles.container}>
             <StatusBar backgroundColor={"white"} barStyle={"dark-content"} animated={true}/>
             <FlatList
-                ref={ref => flatListProps.current = ref}
-                onLayout={() => flatListProps.current.scrollToEnd()}
+                ref={flatListRef}
+                onLayout={() => flatListRef.current.scrollToEnd()}
                 contentContainerStyle={{paddingTop: 10, paddingBottom: 30}}
                 data={navigationPayload.chat?.messages?.results}
                 renderItem={renderMessage}
@@ -117,7 +117,7 @@ const PrivateChatScreen = memo(({route}) => {
             {(!navigationPayload.chat.isChatDeleted) ? 
                 <ChatKeyboard messageForChangeState={messageForChangeState} 
                               payload={navigationPayload} 
-                              flatList={flatListProps.current} />
+                              chatsListRef={flatListRef} />
             : <View>
                 <Text style={{textAlign: "center", fontStyle: "italic"}}>Ви не можете відправляти повідомлення у цей чат</Text>  
               </View>}

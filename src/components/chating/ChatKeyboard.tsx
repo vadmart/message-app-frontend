@@ -21,11 +21,11 @@ const ChatKeyboardButton = ({onPress=null, disabled=false, source=null, style}:
 }
 
 
-const ChatKeyboard = ({messageForChangeState, payload, flatList}:
+const ChatKeyboard = ({messageForChangeState, payload, chatsListRef}:
                           {messageForChangeState: {message: Message,
                                                    setMessageForChange: React.Dispatch<React.SetStateAction<Message>>},
                            payload: any,
-                        flatList?: FlatList}) => {
+                        chatsListRef?: React.MutableRefObject<FlatList>}) => {
     const {chats, setChats} = useChat();
     const [singleFile, setSingleFile] = useState<DocumentPickerResponse>(null);
     const [inputtedData, setInputtedData] = useState("");
@@ -68,26 +68,27 @@ const ChatKeyboard = ({messageForChangeState, payload, flatList}:
                 messageForChangeState.setMessageForChange(null);
             }
         } else {
+            const newMessage = {
+                created_at: new Date().toISOString(),
+                chat: payload.chat.public_id,
+                sender: authState.user,
+                is_read: false,
+                is_edited: false,
+                content: inputtedData,
+                public_id: uuidv4(),
+                file: singleFile,
+                hasSendingError: null,
+            }
             await createMessageAndSetState({chats, 
-                                     setChats}, 
-                                    {
-                                        created_at: new Date().toISOString(),
-                                        chat: payload.chat.public_id,
-                                        sender: authState.user,
-                                        is_read: false,
-                                        is_edited: false,
-                                        content: inputtedData,
-                                        public_id: uuidv4(),
-                                        file: singleFile,
-                                        hasSendingError: null,
-                                    },
+                                    setChats}, 
+                                    newMessage,
                                     payload,
                                     wsChannelName)
         }
         inputFieldRef.current.clear();
-        // setInputtedData("");
-        // setSingleFile(null);
-        flatList?.scrollToEnd();
+        setInputtedData("");
+        setSingleFile(null);
+        chatsListRef?.current?.scrollToEnd();
         console.log("End submit handling...");
     }
         return (
