@@ -97,7 +97,7 @@ const PrivateChatScreen = memo(({route}) => {
         }
     }, [])
     return (
-        <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+        <View style={styles.container}>
             <StatusBar backgroundColor={"white"} barStyle={"dark-content"} animated={true}/>
             <FlatList
                 ref={ref => flatListProps.current = ref}
@@ -121,7 +121,7 @@ const PrivateChatScreen = memo(({route}) => {
             : <View>
                 <Text style={{textAlign: "center", fontStyle: "italic"}}>Ви не можете відправляти повідомлення у цей чат</Text>  
               </View>}
-        </KeyboardAvoidingView>
+        </View>
     )
 })
 
