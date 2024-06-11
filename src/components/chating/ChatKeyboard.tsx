@@ -68,7 +68,7 @@ const ChatKeyboard = ({messageForChangeState, payload, flatList}:
                 messageForChangeState.setMessageForChange(null);
             }
         } else {
-            createMessageAndSetState({chats, 
+            await createMessageAndSetState({chats, 
                                      setChats}, 
                                     {
                                         created_at: new Date().toISOString(),
@@ -85,8 +85,8 @@ const ChatKeyboard = ({messageForChangeState, payload, flatList}:
                                     wsChannelName)
         }
         inputFieldRef.current.clear();
-        setInputtedData("");
-        setSingleFile(null);
+        // setInputtedData("");
+        // setSingleFile(null);
         flatList?.scrollToEnd();
         console.log("End submit handling...");
     }
@@ -94,19 +94,21 @@ const ChatKeyboard = ({messageForChangeState, payload, flatList}:
             <View style={{paddingBottom: 10}}>
                 {singleFile && <Text style={styles.fileBlock}>{singleFile.name}</Text>}
                 <View style={styles.keyboardBlock}>
-                <ChatKeyboardButton onPress={selectFile} source={require("@img/chat-icons/clip_icon.png")} 
-                                            style={styles.selectFileButton} />
+                    <ChatKeyboardButton onPress={selectFile} source={require("@img/chat-icons/clip_icon.png")} 
+                                                style={styles.selectFileButton} 
+                    />
                     <TextInput style={styles.keyboard}
                                ref={inputFieldRef}
                                onChangeText={(text) => {setInputtedData(text)}}
                                placeholder={"Type some text..."}
                                defaultValue={messageForChangeState.message?.content}
                     />
-                        <ChatKeyboardButton
-                                    onPress={handleSubmit}
-                                    disabled={(inputtedData === "" && singleFile === null)}
-                                    source={require("@img/chat-icons/send.png")}
-                                    style={styles.sendButton} />
+                    <ChatKeyboardButton
+                                onPress={handleSubmit}
+                                disabled={(inputtedData === "" && singleFile === null)}
+                                source={require("@img/chat-icons/send.png")}
+                                style={styles.sendButton} 
+                    />
                 </View>
             </View>
     )

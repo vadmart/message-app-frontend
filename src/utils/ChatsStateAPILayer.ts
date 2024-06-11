@@ -1,5 +1,5 @@
-import { createMessage, markAllChatMessagesAsRead } from "@app/api/endpoints/message";
-import { createChat, destroyChat } from "@app/api/endpoints/chat";
+import * as chat_api from "@app/api/endpoints/chat";
+import * as message_api from "@app/api/endpoints/message";
 import { Chat_, ChatsStateType } from "@app/types/ChatType";
 import { MessageRequestPayload, ChatRequestPayload } from "@app/types/RequestPayloadType";
 import { Message } from "@app/types/MessageType";
@@ -8,13 +8,14 @@ export const updateMessageAndSetState = async (chatsState: ChatsStateType,
                               message: MessageRequestPayload,
                               exclude_ws_channel: string = null) => {
     chatsState.setChats(prevState => [...prevState]);
-    return await createMessage(message, "PUT");
+    return await message_api.createMessage(message, "PUT");
 }
+
 
 export const readAllMessagesAndSetState = (chatsState: ChatsStateType,
                                 payload,
                                 exclude_ws_channel=""): void => {
-    markAllChatMessagesAsRead(payload.chat.public_id, exclude_ws_channel);
+    message_api.markAllChatMessagesAsRead(payload.chat.public_id, exclude_ws_channel);
     const messages = payload.chat.messages.results;
     let hasAnyUnread = false
     for (let message of messages) {
@@ -38,7 +39,7 @@ export const createMessageAndSetState = async (chatsState: ChatsStateType,
         if (navigationPayload.isChatNew) {
             navigationPayload.isChatNew = false;
             chatsState.setChats(prevState => [...prevState, navigationPayload.chat]);
-            const response = await createChat({...navigationPayload.chat, exclude_ws_channel});
+            const response = await chat_api.createChat({...navigationPayload.chat, exclude_ws_channel});
             for (let key in response.data) {
                 if (key !== "messages") {
                     navigationPayload.chat[key] = response.data[key];
@@ -46,7 +47,7 @@ export const createMessageAndSetState = async (chatsState: ChatsStateType,
             }
         } 
         chatsState.setChats(prevState => [...prevState]);
-        const response = await createMessage({...message, exclude_ws_channel}, "POST");
+        const response = await message_api.createMessage({...message, exclude_ws_channel}, "POST");
         for (let key in response.data) {
             message[key] = response.data[key]
         }
@@ -72,5 +73,5 @@ export const destroyChatAndSetState = async (chatsState: ChatsStateType,
                     break
                 }
             }
-            await destroyChat({...currChat, exclude_ws_channel});
+            await chat_api.destroyChat({...currChat, exclude_ws_channel});
         }
