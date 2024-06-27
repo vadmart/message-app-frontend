@@ -1,9 +1,10 @@
 import React, {createContext, useContext, useEffect, useState} from "react"
 import {storage} from "@app/Storage"
 import {BaseHTTPURL} from "@app/config";
-import { axiosWithConnectionRetry as axios } from "@app/config";
+import { modAxios } from "@app/config";
 import {OneSignal} from "react-native-onesignal";
 import {User} from "@app/types/UserType";
+import axios, { AxiosResponse } from "axios";
 
 export interface AuthState {
     access: string | null,
@@ -18,6 +19,7 @@ interface AuthProps {
     onLogin?: (username: string, phone_number: string) => Promise<any>;
     onVerify?: (username: string, phone_number: string, otpCode: string) => Promise<any>;
     onResend?: (username: string, phone_number: string) => Promise<any>;
+    onRefresh?: (refresh: string) => Promise<AxiosResponse>
     onLogout?: () => void
 }
 
@@ -42,23 +44,19 @@ export const AuthProvider = ({children}) => {
 
     useEffect(() => {
         const loadAuthData = async () => {
-            const authDataString = storage.getString("auth");
-            console.log(authDataString);
-            // TODO: change storing token-user data in MMKV
-            if (!authDataString) return
-            const authData = JSON.parse(authDataString);
             try {
-                console.log(authData.access);
-                await tokenVerify(authData.access);
-                axios.defaults.headers.common['Authorization'] = `Bearer ${authData.access}`;
+                const auth = JSON.parse(storage.getString("auth"));
+                console.log(auth);
+                await tokenVerify(auth.access);
                 setAuthState({
-                    access: authData.access,
-                    refresh: authData.refresh,
-                    user: authData.user,
+                    access: auth.access,
+                    refresh: auth.refresh,
+                    user: auth.user,
                     authenticated: true
                 });
             }
-            catch {
+            catch (e) {
+                console.log(e);
                 setAuthState({
                     ...authState,
                     authenticated: false
@@ -98,9 +96,10 @@ export const AuthProvider = ({children}) => {
                 user: response.data.user,
                 authenticated: true
             });
-            axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.access}`;
+            modAxios.defaults.headers.common["Authorization"] = `Bearer ${response.data.access}`;
             storage.set("auth", JSON.stringify(response.data));
-            OneSignal.login(response.data.user.public_id);
+            console.log(OneSignal.User.pushSubscription.getPushSubscriptionId());
+            // OneSignal.login(response.data.user.public_id);
             return response
         } catch (e) {
             return {error: true, msg: (e as any).response.data}
@@ -108,10 +107,9 @@ export const AuthProvider = ({children}) => {
     }
 
     const tokenVerify = async (accessToken: string) => {
-        // TODO: add refresh token if access one is expired
-        return await axios.post(BaseHTTPURL + "auth/token/verify/", 
-        {
-            token: accessToken
+        return await modAxios.post(BaseHTTPURL + "auth/token/verify/", 
+            {
+                token: accessToken
         })
     }
 
@@ -138,12 +136,17 @@ export const AuthProvider = ({children}) => {
         }
     }
 
+    const refresh = async (refresh: string) => {
+        return await axios.post(BaseHTTPURL + "auth/token/refresh/", {refresh})
+    }
+
     const authValue = {
         onRegister: register,
         onLogin: login,
         onVerify: verify,
         onLogout: logout,
         onResend: resend,
+        onRefresh: refresh,
         authState
     };
     return <AuthContext.Provider value={authValue}>{children}</AuthContext.Provider>

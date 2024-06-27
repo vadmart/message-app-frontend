@@ -1,5 +1,5 @@
 import { AxiosResponse } from "axios";
-import { axiosWithConnectionRetry as axios } from "@app/config";
+import { modAxios as axios } from "@app/config";
 import { BaseHTTPURL } from "@app//config";
 import { Chat_ } from "@app/types/ChatType";
 import { MessageRequestPayload } from "@app/types/RequestPayloadType";

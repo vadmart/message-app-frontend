@@ -35,9 +35,9 @@ OneSignal.initialize("ONESIGNAL_APP_ID");
 
 const App = () => {
     return (
-        <AuthProvider>
-            <Layout />
-        </AuthProvider>
+            <AuthProvider>
+                <Layout />
+            </AuthProvider>
     )
 }
 

@@ -1,5 +1,5 @@
 import { BaseHTTPURL } from "@app/config"
-import { axiosWithConnectionRetry } from "@app/config"
+import { modAxios } from "@app/config"
 import { ChatRequestPayload } from "@app/types/RequestPayloadType"
 
 function createFormData(object: Object, form?: FormData, namespace?: string): FormData {
@@ -24,7 +24,7 @@ export const createChat = async (chat: ChatRequestPayload) => {
         second_user: chat.second_user.public_id,
         exclude_ws_channel: chat.exclude_ws_channel
     };
-    return axiosWithConnectionRetry.post(BaseHTTPURL + "chat/", createFormData(requestData), {
+    return modAxios.post(BaseHTTPURL + "chat/", createFormData(requestData), {
         headers: {
             "Content-Type": "multipart/form-data"
         }
@@ -32,5 +32,5 @@ export const createChat = async (chat: ChatRequestPayload) => {
 }
 
 export const destroyChat = async (chat: ChatRequestPayload) => {
-    return axiosWithConnectionRetry.delete(BaseHTTPURL + `chat/${chat.public_id}/`)
+    return modAxios.delete(BaseHTTPURL + `chat/${chat.public_id}/`)
 }

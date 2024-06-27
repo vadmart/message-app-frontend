@@ -8,7 +8,8 @@ module.exports = function(api) {
         "@app": "./src",
         "@img": "./assets"
       }
-    }]
+    }],
+    "react-native-reanimated/plugin",
   ]
   };
 };

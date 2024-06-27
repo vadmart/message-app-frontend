@@ -29,9 +29,7 @@ const LoginForm = ({ navigation }) => {
         }
         const response = await onLogin(username, "+380" + phoneNumber);
         if (response.error) {
-            for (let val of Object.values<string>(response.msg)) {
-                setValidationError(val);
-            }
+            setValidationError(response.msg.detail)
         } else {
             navigation.navigate(ScreenNames.VERIFICATION, {username, phoneNumber: "+380" + phoneNumber})
         }

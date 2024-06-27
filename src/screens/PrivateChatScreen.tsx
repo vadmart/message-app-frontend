@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState, memo} from "react";
-import {FlatList, StyleSheet, View, StatusBar, Text } from "react-native";
-import {BaseHTTPURL, axiosWithConnectionRetry as axios} from "@app/config";
+import {StyleSheet, View, StatusBar, Text, FlatList } from "react-native";
+import {BaseHTTPURL, modAxios as axios} from "@app/config";
 import {Message} from "@app/types/MessageType";
 import ChatKeyboard from "@app/components/chating/ChatKeyboard";
 import MessageItem from "../components/chating/MessageItem";
@@ -8,10 +8,10 @@ import {useChat} from "@app/context/ChatsContext";
 import {sortChats, } from "@app/utils/sort";
 import {Chat_} from "@app/types/ChatType";
 import {OneSignal} from "react-native-onesignal";
-import { readAllMessagesAndSetState } from "@app/utils/ChatsStateAPILayer";
 import {useNavigation} from "@react-navigation/native"
 import { User } from "@app/types/UserType";
 import { useWSChannelName } from "@app/context/WebSocketChannelName";
+import { readAllMessagesAndSetState } from "@app/utils/ChatsStateAPILayer";
 
 
 
@@ -21,7 +21,8 @@ const PrivateChatScreen = memo(({route}) => {
     const {chats, setChats} = useChat();
     const navigation = useNavigation();
     const wsChannelName = useWSChannelName();
-    const flatListRef = useRef<FlatList>();
+    const flatListRef = useRef<any>();
+    const messagesOffsetRef = useRef<number>();
     const {payload: navigationPayload}: {payload: {companion: User,
                                 chat: Chat_,
                                 isChatNew: boolean}} = route.params;
@@ -30,7 +31,7 @@ const PrivateChatScreen = memo(({route}) => {
                                                                                              setMessageForChange: null};
     [messageForChangeState.message, messageForChangeState.setMessageForChange] = useState(null);
 
-    const renderMessage = ({index, item}) => {
+    const MessageBlock = ({index, item}) => {
         if (!navigationPayload.chat.messages) return;
         return (
                 <View onResponderMove={e => e.nativeEvent.locationY}
@@ -101,10 +102,8 @@ const PrivateChatScreen = memo(({route}) => {
             <StatusBar backgroundColor={"white"} barStyle={"dark-content"} animated={true}/>
             <FlatList
                 ref={flatListRef}
-                onLayout={() => flatListRef.current.scrollToEnd()}
-                contentContainerStyle={{paddingTop: 10, paddingBottom: 30}}
                 data={navigationPayload.chat?.messages?.results}
-                renderItem={renderMessage}
+                renderItem={MessageBlock}
                 keyExtractor={item => item.public_id}
                 refreshing={false}
                 onRefresh={onFlatListRefresh}
@@ -114,6 +113,12 @@ const PrivateChatScreen = memo(({route}) => {
                     }
                 }}
             />
+            {/* <KeyboardAwareScrollView refreshControl={() => {}}>
+                {navigationPayload.chat?.messages?.results.map((value, index) => {
+
+                    return <MessageBlock item={value} index={index}/>
+                })}
+            </KeyboardAwareScrollView> */}
             {(!navigationPayload.chat.isChatDeleted) ? 
                 <ChatKeyboard messageForChangeState={messageForChangeState} 
                               payload={navigationPayload} 

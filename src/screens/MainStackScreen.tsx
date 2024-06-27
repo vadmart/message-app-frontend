@@ -8,7 +8,7 @@ import {useAuth} from "@app/context/AuthContext";
 import {sortChats} from "@app/utils/sort";
 import {BaseWebsocketURL, BaseHTTPURL, ScreenNames} from "@app/config";
 import { useConnect } from "@app/context/ConnectionContext";
-import { axiosWithConnectionRetry as axios } from "@app/config";
+import { modAxios as axios } from "@app/config";
 import { Message } from "@app/types/MessageType";
 import { useWSChannelName, WSChannelNameProvider } from "@app/context/WebSocketChannelName";
 
