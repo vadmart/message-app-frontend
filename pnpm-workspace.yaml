@@ -1,0 +1,6 @@
+packages:
+  # include packages in subfolders (change as required)
+  - 'app/**'
+  - 'src/**'
+  # if required, exclude directories
+  - '!**/jest/**'

@@ -4,6 +4,7 @@ import {
     StyleSheet,
     StatusBar
 } from "react-native";
+import {KeyboardProvider} from "react-native-keyboard-controller";
 // @ts-ignore
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 // @ts-ignore
@@ -35,9 +36,11 @@ OneSignal.initialize("ONESIGNAL_APP_ID");
 
 const App = () => {
     return (
+        <KeyboardProvider enabled={false}>
             <AuthProvider>
                 <Layout />
             </AuthProvider>
+        </KeyboardProvider>
     )
 }
 

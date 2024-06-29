@@ -1,5 +1,6 @@
 import React, {useEffect, useRef, useState, memo} from "react";
-import {StyleSheet, View, StatusBar, Text, FlatList } from "react-native";
+import {StyleSheet, View, StatusBar, Text, Keyboard, KeyboardEvent, FlatList, KeyboardAvoidingView, LayoutChangeEvent, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
+import {KeyboardAwareScrollView, KeyboardGestureArea, useReanimatedKeyboardAnimation } from "react-native-keyboard-controller";
 import {BaseHTTPURL, modAxios as axios} from "@app/config";
 import {Message} from "@app/types/MessageType";
 import ChatKeyboard from "@app/components/chating/ChatKeyboard";
@@ -12,17 +13,20 @@ import {useNavigation} from "@react-navigation/native"
 import { User } from "@app/types/UserType";
 import { useWSChannelName } from "@app/context/WebSocketChannelName";
 import { readAllMessagesAndSetState } from "@app/utils/ChatsStateAPILayer";
+import { useKeyboardContext } from "react-native-keyboard-controller";
 
 
 
 // @ts-ignore
 const PrivateChatScreen = memo(({route}) => {
     console.log("Rendering MessagesScreen");
+    const [isAtBottom, setIsAtBottom] = useState<boolean>(true);
     const {chats, setChats} = useChat();
     const navigation = useNavigation();
     const wsChannelName = useWSChannelName();
-    const flatListRef = useRef<any>();
+    const flatListRef = useRef<FlatList>();
     const messagesOffsetRef = useRef<number>();
+    // const {setEnabled} = useKeyboardContext();
     const {payload: navigationPayload}: {payload: {companion: User,
                                 chat: Chat_,
                                 isChatNew: boolean}} = route.params;
@@ -81,6 +85,7 @@ const PrivateChatScreen = memo(({route}) => {
                 console.log(e)
             }  
         }
+
         _setupPrivateChat();
         const foregroundNotificationListener = (e) => {
             if (!("chat_id" in e.notification.additionalData)) {
@@ -91,15 +96,48 @@ const PrivateChatScreen = memo(({route}) => {
                 e.preventDefault();
             }
         };
+
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', onKeyboardDidShow);
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', onKeyboardDidHide);
+
         OneSignal.Notifications.addEventListener("foregroundWillDisplay", foregroundNotificationListener);
 
         return () => {
+            keyboardDidShowListener.remove();
+            keyboardDidHideListener.remove();
             OneSignal.Notifications.removeEventListener("foregroundWillDisplay", foregroundNotificationListener);
         }
     }, [])
+
+    const onKeyboardDidShow = (event: KeyboardEvent) => {
+        if (!isAtBottom) {
+            flatListRef.current.scrollToOffset({ offset: event.endCoordinates.height, animated: true });
+        }
+    };
+
+    const onKeyboardDidHide = () => {
+        if (!isAtBottom) {
+            flatListRef.current.scrollToOffset({ offset: 0, animated: true });
+        }
+    };
+
+    const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+        const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+        const bottomCheck = layoutMeasurement.height + contentOffset.y >= contentSize.height / 1.5; // Adjust as needed
+        console.log(`Is at bottom: ${bottomCheck}`);
+        setIsAtBottom(bottomCheck);
+    };
+
     return (
-        <View style={styles.container}>
+        <KeyboardAvoidingView style={styles.container}>
             <StatusBar backgroundColor={"white"} barStyle={"dark-content"} animated={true}/>
+            {/* <KeyboardAwareScrollView>
+                {navigationPayload.chat?.messages?.results.map((value, index) => (
+                    <MessageBlock item={value} index={index}/>
+                    )
+                )}
+            </KeyboardAwareScrollView> */}
+            
             <FlatList
                 ref={flatListRef}
                 data={navigationPayload.chat?.messages?.results}
@@ -112,28 +150,25 @@ const PrivateChatScreen = memo(({route}) => {
                         readAllMessagesAndSetState({chats, setChats}, navigationPayload, wsChannelName);
                     }
                 }}
+                onScroll={handleScroll}
             />
-            {/* <KeyboardAwareScrollView refreshControl={() => {}}>
-                {navigationPayload.chat?.messages?.results.map((value, index) => {
-
-                    return <MessageBlock item={value} index={index}/>
-                })}
-            </KeyboardAwareScrollView> */}
             {(!navigationPayload.chat.isChatDeleted) ? 
                 <ChatKeyboard messageForChangeState={messageForChangeState} 
-                              payload={navigationPayload} 
-                              chatsListRef={flatListRef} />
-            : <View>
-                <Text style={{textAlign: "center", fontStyle: "italic"}}>Ви не можете відправляти повідомлення у цей чат</Text>  
-              </View>}
-        </View>
+                            payload={navigationPayload} 
+                            chatsListRef={flatListRef}
+                />
+                : <View>
+                    <Text style={{textAlign: "center", fontStyle: "italic"}}>Ви не можете відправляти повідомлення у цей чат</Text>  
+                </View>}
+        </KeyboardAvoidingView>
     )
 })
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#007767"
-    },
+        backgroundColor: "#007767",
+
+    }
 })
 export default PrivateChatScreen;
