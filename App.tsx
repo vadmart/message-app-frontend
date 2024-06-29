@@ -4,6 +4,9 @@ import {
     StyleSheet,
     StatusBar
 } from "react-native";
+import {
+    SafeAreaProvider
+  } from 'react-native-safe-area-context';
 import {KeyboardProvider} from "react-native-keyboard-controller";
 // @ts-ignore
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -36,11 +39,13 @@ OneSignal.initialize("ONESIGNAL_APP_ID");
 
 const App = () => {
     return (
-        <KeyboardProvider enabled={false}>
-            <AuthProvider>
-                <Layout />
-            </AuthProvider>
-        </KeyboardProvider>
+        <SafeAreaProvider>
+            <KeyboardProvider enabled={false}>
+                <AuthProvider>
+                    <Layout />
+                </AuthProvider>
+            </KeyboardProvider>
+        </SafeAreaProvider>
     )
 }
 

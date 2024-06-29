@@ -1,4 +1,5 @@
 import React, {memo} from "react";
+import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {FlatList, StyleSheet, View, Text, Pressable, Animated, StatusBar} from "react-native";
 import ContactSearcher from "@app/components/chating/ContactSearcher";
 import ChatItem from "@app/components/chating/ChatItem";
@@ -14,6 +15,7 @@ const ChatsScreen = memo(({navigation}) => {
     console.log("Rendering ChatsScreen");
     const {chats, setChats} = useChat();
     const {onLogout} = useAuth();
+    const insets = useSafeAreaInsets();
 
     const onRenderRightActions = (
         _progress: Animated.AnimatedInterpolation<number>,
@@ -42,7 +44,9 @@ const ChatsScreen = memo(({navigation}) => {
     
     return (
         <MenuProvider>
-            <View style={styles.container}>
+            <View style={[styles.container, {
+                paddingTop: insets.top
+            }]}>
                 <View style={{flexDirection: "row", alignItems: "center", justifyContent: "space-around"}}>
                     <Menu>
                         <MenuTrigger style={{rowGap: 5}}>

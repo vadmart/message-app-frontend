@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState, memo} from "react";
-import {StyleSheet, View, StatusBar, Text, Keyboard, KeyboardEvent, FlatList, KeyboardAvoidingView, LayoutChangeEvent, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
+import {StyleSheet, View, StatusBar, Text, Keyboard, KeyboardEvent, FlatList, KeyboardAvoidingView, NativeSyntheticEvent, NativeScrollEvent, Platform } from "react-native";
 import {KeyboardAwareScrollView, KeyboardGestureArea, useReanimatedKeyboardAnimation } from "react-native-keyboard-controller";
 import {BaseHTTPURL, modAxios as axios} from "@app/config";
 import {Message} from "@app/types/MessageType";
@@ -129,7 +129,7 @@ const PrivateChatScreen = memo(({route}) => {
     };
 
     return (
-        <KeyboardAvoidingView style={styles.container}>
+        <KeyboardAvoidingView style={styles.container} keyboardVerticalOffset={100} behavior={Platform.OS === "ios" ? "padding" : "height"}>
             <StatusBar backgroundColor={"white"} barStyle={"dark-content"} animated={true}/>
             {/* <KeyboardAwareScrollView>
                 {navigationPayload.chat?.messages?.results.map((value, index) => (
