@@ -146,6 +146,7 @@ const PrivateChatScreen = memo(({route}) => {
                 renderItem={({index, item}) => <RenderMessage index={index} messages={Array.from(navigationPayload.chat.messages.results).reverse()} item={item}/>}
                 keyExtractor={item => item.public_id}
                 refreshing={refreshing}
+
                 onEndReached={async () => {
                     await onRefresh();
                     // if (navigationPayload.chat.messages.has_unread_messages) {
