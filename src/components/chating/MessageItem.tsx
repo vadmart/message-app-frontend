@@ -69,7 +69,7 @@ const MessageItem = ({index, messages, item, messageForChangeState}:
         }
     }
 
-    const onRenderRightActions = (progress, dragX) => {
+    const onRenderRightActions = () => {
             return (
                 <View style={{flexDirection: "row", columnGap: 5}}>
                     <DeleteMessageButton onPress={() => {
