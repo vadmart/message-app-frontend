@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState, memo} from "react";
-import {StyleSheet, View, StatusBar, Text, Keyboard, KeyboardEvent, FlatList, KeyboardAvoidingView, NativeSyntheticEvent, NativeScrollEvent, Platform } from "react-native";
-import {KeyboardAwareScrollView, KeyboardGestureArea, useReanimatedKeyboardAnimation } from "react-native-keyboard-controller";
+import {StyleSheet, View, StatusBar, Text, FlatList, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
+import { KeyboardGestureArea, useKeyboardHandler, KeyboardAvoidingView, KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import Animated, {useAnimatedStyle, useSharedValue} from "react-native-reanimated";
 import {BaseHTTPURL, modAxios as axios} from "@app/config";
 import {Message} from "@app/types/MessageType";
 import ChatKeyboard from "@app/components/chating/ChatKeyboard";
@@ -13,20 +14,46 @@ import {useNavigation} from "@react-navigation/native"
 import { User } from "@app/types/UserType";
 import { useWSChannelName } from "@app/context/WebSocketChannelName";
 import { readAllMessagesAndSetState } from "@app/utils/ChatsStateAPILayer";
-import { useKeyboardContext } from "react-native-keyboard-controller";
+import { RefreshControl } from "react-native-gesture-handler";
 
+
+const useGradualAnimation = () => {
+    const height = useSharedValue(0);
+    useKeyboardHandler(
+        {
+            onMove(e) {
+                "worklet"
+
+                height.value = e.height;
+            },
+            onEnd(e) {
+                "worklet"
+
+                height.value = e.height;
+            },
+        },
+        []
+    );
+
+    return {height}
+}
 
 
 // @ts-ignore
 const PrivateChatScreen = memo(({route}) => {
     console.log("Rendering MessagesScreen");
-    const [isAtBottom, setIsAtBottom] = useState<boolean>(true);
     const {chats, setChats} = useChat();
     const navigation = useNavigation();
     const wsChannelName = useWSChannelName();
     const flatListRef = useRef<FlatList>();
-    const messagesOffsetRef = useRef<number>();
-    // const {setEnabled} = useKeyboardContext();
+    const {height} = useGradualAnimation()
+    const fakeView = useAnimatedStyle(
+        () => ({
+            height: Math.abs(height.value)
+        }), 
+        [],
+    );
+    const [refreshing, setRefreshing] = useState(false);
     const {payload: navigationPayload}: {payload: {companion: User,
                                 chat: Chat_,
                                 isChatNew: boolean}} = route.params;
@@ -35,13 +62,13 @@ const PrivateChatScreen = memo(({route}) => {
                                                                                              setMessageForChange: null};
     [messageForChangeState.message, messageForChangeState.setMessageForChange] = useState(null);
 
-    const MessageBlock = ({index, item}) => {
+    const RenderMessage = ({index, item, messages}: {index: number, item: Message, messages: Message[]}) => {
         if (!navigationPayload.chat.messages) return;
         return (
                 <View onResponderMove={e => e.nativeEvent.locationY}
                 >
                     <MessageItem index={index}
-                        messages={navigationPayload.chat.messages.results}
+                        messages={messages}
                         item={item}
                         messageForChangeState={messageForChangeState}
                     />
@@ -49,9 +76,11 @@ const PrivateChatScreen = memo(({route}) => {
             )
     }
 
-    const onFlatListRefresh = () => {
+    const onRefresh = async () => {
         if (!navigationPayload.chat.messages.next) return;
-        axios.get(navigationPayload.chat.messages.next).then((response) => {
+        setRefreshing(true)
+        try {
+            const response = await axios.get(navigationPayload.chat.messages.next);
             Object.keys(response.data).forEach((key) => {
                 if (key === "results") {
                     navigationPayload.chat.messages.results.unshift(...response.data.results);
@@ -61,9 +90,12 @@ const PrivateChatScreen = memo(({route}) => {
             })    
             setChats([...chats].sort(sortChats));
             }
-        ).catch(e => console.log(e))
+         catch (e) {
+            console.error("Refresh error!");
+        } finally {
+            setRefreshing(false);
+        }
     }
-
 
     useEffect(() => {
         async function _setupPrivateChat() {
@@ -97,70 +129,40 @@ const PrivateChatScreen = memo(({route}) => {
             }
         };
 
-        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', onKeyboardDidShow);
-        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', onKeyboardDidHide);
-
         OneSignal.Notifications.addEventListener("foregroundWillDisplay", foregroundNotificationListener);
 
         return () => {
-            keyboardDidShowListener.remove();
-            keyboardDidHideListener.remove();
             OneSignal.Notifications.removeEventListener("foregroundWillDisplay", foregroundNotificationListener);
         }
     }, [])
 
-    const onKeyboardDidShow = (event: KeyboardEvent) => {
-        if (!isAtBottom) {
-            flatListRef.current.scrollToOffset({ offset: event.endCoordinates.height, animated: true });
-        }
-    };
-
-    const onKeyboardDidHide = () => {
-        if (!isAtBottom) {
-            flatListRef.current.scrollToOffset({ offset: 0, animated: true });
-        }
-    };
-
-    const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-        const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
-        const bottomCheck = layoutMeasurement.height + contentOffset.y >= contentSize.height / 1.5; // Adjust as needed
-        console.log(`Is at bottom: ${bottomCheck}`);
-        setIsAtBottom(bottomCheck);
-    };
-
     return (
-        <KeyboardAvoidingView style={styles.container} keyboardVerticalOffset={100} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+        <View style={styles.container}>
             <StatusBar backgroundColor={"white"} barStyle={"dark-content"} animated={true}/>
-            {/* <KeyboardAwareScrollView>
-                {navigationPayload.chat?.messages?.results.map((value, index) => (
-                    <MessageBlock item={value} index={index}/>
-                    )
-                )}
-            </KeyboardAwareScrollView> */}
-            
             <FlatList
+                inverted
                 ref={flatListRef}
-                data={navigationPayload.chat?.messages?.results}
-                renderItem={MessageBlock}
+                data={Array.from(navigationPayload.chat?.messages?.results).reverse()}
+                renderItem={({index, item}) => <RenderMessage index={index} messages={Array.from(navigationPayload.chat.messages.results).reverse()} item={item}/>}
                 keyExtractor={item => item.public_id}
-                refreshing={false}
-                onRefresh={onFlatListRefresh}
-                onEndReached={() => {
-                    if (navigationPayload.chat.messages.has_unread_messages) {
-                        readAllMessagesAndSetState({chats, setChats}, navigationPayload, wsChannelName);
-                    }
+                refreshing={refreshing}
+                onEndReached={async () => {
+                    await onRefresh();
+                    // if (navigationPayload.chat.messages.has_unread_messages) {
+                    //     readAllMessagesAndSetState({chats, setChats}, navigationPayload, wsChannelName);
+                    // }
                 }}
-                onScroll={handleScroll}
+                contentContainerStyle={styles.messagesList}
             />
             {(!navigationPayload.chat.isChatDeleted) ? 
                 <ChatKeyboard messageForChangeState={messageForChangeState} 
-                            payload={navigationPayload} 
-                            chatsListRef={flatListRef}
+                            payload={navigationPayload}
                 />
                 : <View>
                     <Text style={{textAlign: "center", fontStyle: "italic"}}>Ви не можете відправляти повідомлення у цей чат</Text>  
                 </View>}
-        </KeyboardAvoidingView>
+            <Animated.View style={fakeView} />
+        </View>
     )
 })
 
@@ -168,7 +170,9 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#007767",
-
+    },
+    messagesList: {
+        paddingBottom: 10
     }
 })
 export default PrivateChatScreen;
