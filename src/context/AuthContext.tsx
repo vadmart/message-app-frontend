@@ -98,9 +98,7 @@ export const AuthProvider = ({children}) => {
             });
             modAxios.defaults.headers.common["Authorization"] = `Bearer ${response.data.access}`;
             storage.set("auth", JSON.stringify(response.data));
-            if (!(await OneSignal.User.pushSubscription.getIdAsync())) {
-                OneSignal.login(response.data.user.public_id);
-            }
+            OneSignal.login(response.data.user.public_id);
             return response
         } catch (e) {
             return {error: true, msg: (e as any).response.data}

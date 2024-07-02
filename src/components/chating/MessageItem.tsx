@@ -86,23 +86,14 @@ const MessageItem = ({index, messages, item, messageForChangeState}:
 
     const currentDateTime = new Date(item.created_at);
     const previousDateTime = (index > 0) ? new Date(messages[index - 1].created_at) : new Date(-100);
-    const nextDateTime = (index < messages.length - 1) ? new Date(messages[index + 1].created_at) : new Date(-100);
-    const nextSender = (index < messages.length - 1) && messages[index + 1].sender;
+    const previousSender = (index > 0) && messages[index - 1].sender;
     return (
         <View>
-            {(currentDateTime.getDate() !== previousDateTime.getDate() ||
-                    currentDateTime.getMonth() !== previousDateTime.getMonth()) &&
-                <View style={styles.dateBlock}>
-                    <View style={styles.date}>
-                        <Text style={styles.dateText}>{toReadableDate(currentDateTime)}</Text>
-                    </View>
-                </View>}
             <View
                 style={[styles.messageItemBlock, (authState.user.public_id == item.sender.public_id && {flexDirection: "row-reverse"})]}>
                 <View style={styles.avatarBlock}>
-                    {((currentDateTime.getDate() !== nextDateTime.getDate() ||
-                            currentDateTime.getMonth() !== nextDateTime.getMonth())
-                        || item.sender.public_id !== nextSender.public_id) ?
+                    {(currentDateTime.getDate() !== previousDateTime.getDate() ||
+                        item.sender.public_id !== previousSender?.public_id) ?
                         <Avatar user={item.sender}/> : null}
                 </View>
                 {(authState.user.public_id == item.sender.public_id) ? 
@@ -141,6 +132,13 @@ const MessageItem = ({index, messages, item, messageForChangeState}:
                 </View>
                 }
             </View>
+            {/* {(currentDateTime.getDate() !== previousDateTime.getDate() ||
+                    currentDateTime.getMonth() !== previousDateTime.getMonth()) &&
+                <View style={styles.dateBlock}>
+                    <View style={styles.date}>
+                        <Text style={styles.dateText}>{toReadableDate(currentDateTime)}</Text>
+                    </View>
+                </View>} */}
         </View>
     )
 }
