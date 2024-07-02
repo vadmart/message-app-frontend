@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState, memo} from "react";
-import {StyleSheet, View, StatusBar, Text, FlatList, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
-import { KeyboardGestureArea, useKeyboardHandler, KeyboardAvoidingView, KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import {StyleSheet, View, StatusBar, Text, FlatList, SectionList } from "react-native";
+import { useKeyboardHandler,  } from "react-native-keyboard-controller";
 import Animated, {useAnimatedStyle, useSharedValue} from "react-native-reanimated";
 import {BaseHTTPURL, modAxios as axios} from "@app/config";
 import {Message} from "@app/types/MessageType";
@@ -13,8 +13,6 @@ import {OneSignal} from "react-native-onesignal";
 import {useNavigation} from "@react-navigation/native"
 import { User } from "@app/types/UserType";
 import { useWSChannelName } from "@app/context/WebSocketChannelName";
-import { readAllMessagesAndSetState } from "@app/utils/ChatsStateAPILayer";
-import { RefreshControl } from "react-native-gesture-handler";
 
 
 const useGradualAnimation = () => {
@@ -61,6 +59,21 @@ const PrivateChatScreen = memo(({route}) => {
                                   setMessageForChange: React.Dispatch<React.SetStateAction<Message>>} = {message: null,
                                                                                              setMessageForChange: null};
     [messageForChangeState.message, messageForChangeState.setMessageForChange] = useState(null);
+
+    const testData = [
+        {
+            title: "20 травня",
+            data: [{"chat": "ab17643c-0372-4cf4-b6b8-32f060f48d5f", "content": "Zdarova, chips😁", "created_at": "2024-05-20T16:48:44.013895Z", "deleted_for_users": [], "file": null, "is_edited": true, "is_read": true, "public_id": "917d0873-a320-4230-bdbb-e06fb99e090c", "sender": {"avatar": null, "created_at": "2024-04-16T16:48:13.568333Z", "edited_at": null, "email": null, "first_name": null, "last_name": null, "phone_number": "+380661886484", "public_id": "18ec5cf1-645e-42f5-be9b-a3c870354262", "username": "oleg"}}, {"chat": "ab17643c-0372-4cf4-b6b8-32f060f48d5f", "content": "💲", "created_at": "2024-05-20T16:49:07.273974Z", "deleted_for_users": [], "file": null, "is_edited": true, "is_read": true, "public_id": "c56f9ffd-4a70-499d-a220-37038aefc9d2", "sender": {"avatar": null, "created_at": "2024-04-16T16:47:24.421042Z", "edited_at": null, "email": null, "first_name": null, "last_name": null, "phone_number": "+380661786484", "public_id": "401b99b0-0b77-45f8-a76d-7d19dfb216fd", "username": "alec"}}]
+        },
+        {
+            title: "21 травня",
+            data: [{"chat": "ab17643c-0372-4cf4-b6b8-32f060f48d5f", "content": "💲", "created_at": "2024-05-21T16:49:07.273974Z", "deleted_for_users": [], "file": null, "is_edited": true, "is_read": true, "public_id": "c56f9ffd-4a70-499d-a220-37038aefc9d2", "sender": {"avatar": null, "created_at": "2024-05-21T16:47:24.421042Z", "edited_at": null, "email": null, "first_name": null, "last_name": null, "phone_number": "+380661786484", "public_id": "401b99b0-0b77-45f8-a76d-7d19dfb216fd", "username": "alec"}}]
+        },
+        {
+            title: "22 травня",
+            data: [{"chat": "ab17643c-0372-4cf4-b6b8-32f060f48d5f", "content": "Здарова, парень😁", "created_at": "2024-05-22T16:48:44.013895Z", "deleted_for_users": [], "file": null, "is_edited": true, "is_read": true, "public_id": "917d0873-a320-4230-bdbb-e06fb99e090c", "sender": {"avatar": null, "created_at": "2024-05-22T16:48:13.568333Z", "edited_at": null, "email": null, "first_name": null, "last_name": null, "phone_number": "+380661886484", "public_id": "18ec5cf1-645e-42f5-be9b-a3c870354262", "username": "oleg"}}, {"chat": "ab17643c-0372-4cf4-b6b8-32f060f48d5f", "content": "💲", "created_at": "2024-04-16T16:49:07.273974Z", "deleted_for_users": [], "file": null, "is_edited": true, "is_read": true, "public_id": "c56f9ffd-4a70-499d-a220-37038aefc9d2", "sender": {"avatar": null, "created_at": "2024-04-16T16:47:24.421042Z", "edited_at": null, "email": null, "first_name": null, "last_name": null, "phone_number": "+380661786484", "public_id": "401b99b0-0b77-45f8-a76d-7d19dfb216fd", "username": "alec"}}]
+        }
+    ]
 
     const RenderMessage = ({index, item, messages}: {index: number, item: Message, messages: Message[]}) => {
         if (!navigationPayload.chat.messages) return;
@@ -139,10 +152,25 @@ const PrivateChatScreen = memo(({route}) => {
     return (
         <View style={styles.container}>
             <StatusBar backgroundColor={"white"} barStyle={"dark-content"} animated={true}/>
-            <FlatList
+            {/* <FlatList
                 inverted
                 ref={flatListRef}
                 data={Array.from(navigationPayload.chat?.messages?.results).reverse()}
+                renderItem={({index, item}) => <RenderMessage index={index} messages={Array.from(navigationPayload.chat.messages.results).reverse()} item={item}/>}
+                keyExtractor={item => item.public_id}
+                refreshing={refreshing}
+
+                onEndReached={async () => {
+                    await onRefresh();
+                    // if (navigationPayload.chat.messages.has_unread_messages) {
+                    //     readAllMessagesAndSetState({chats, setChats}, navigationPayload, wsChannelName);
+                    // }
+                }}
+                contentContainerStyle={styles.messagesList}
+            /> */}
+            <SectionList
+                inverted
+                sections={testData}
                 renderItem={({index, item}) => <RenderMessage index={index} messages={Array.from(navigationPayload.chat.messages.results).reverse()} item={item}/>}
                 keyExtractor={item => item.public_id}
                 refreshing={refreshing}
@@ -173,7 +201,9 @@ const styles = StyleSheet.create({
         backgroundColor: "#007767",
     },
     messagesList: {
-        paddingBottom: 10
+        paddingBottom: 10,
+        flex: 1,
+        justifyContent: "flex-end"
     }
 })
 export default PrivateChatScreen;
